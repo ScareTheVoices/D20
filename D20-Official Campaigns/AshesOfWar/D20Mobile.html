@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>D20 Pocket Companion</title>
+	<link rel="icon" href="https://raw.githubusercontent.com/Kiderobin/D20/main/pics/d20.png" type="image/png">
+	<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
+	<style>
+		body {
+			font-family: 'Permanent Marker', cursive;
+			background: linear-gradient(to bottom, #3a3a3a, #1e1e1e);
+			color: #f0f0f0;
+			margin: 0;
+			min-height: 100vh;
+			display: flex;
+			flex-direction: column;
+		}
+		.main-container {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: flex-start;
+			width: 100%;
+			max-width: 480px;
+			margin: 0 auto;
+			padding-bottom: 70px;
+			box-sizing: border-box;
+			overflow-x: hidden;
+		}
+		.vertical-section {
+			width: 100%;
+			max-width: 480px;
+			margin: 0 auto;
+			padding: 16px 8px 0 8px;
+			box-sizing: border-box;
+			overflow-x: hidden;
+			overflow-y: auto;
+		}
+		.menu-bar {
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			width: 100vw;
+			min-width: 0;
+			background: #2c2c2c;
+			border-top: 2px solid #676767;
+			display: flex;
+			justify-content: space-around;
+			align-items: center;
+			height: 60px;
+			z-index: 1000;
+			box-sizing: border-box;
+		}
+		.menu-btn {
+			background: none;
+			border: none;
+			color: #f0f0f0;
+			font-size: 1.1em;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			cursor: pointer;
+			flex: 1;
+			height: 100%;
+			justify-content: center;
+		}
+		.menu-btn img {
+			width: 32px;
+			height: 32px;
+			margin-bottom: 2px;
+		}
+		.active {
+			color: #ffcc33;
+		}
+		.hidden { display: none !important; }
+		.portrait-img {
+			width: 249.6px;
+			height: 479.6px;
+			border-radius: 10px;
+			border: 5px solid #000;
+			object-fit: cover;
+			margin: 0 auto 16px auto;
+			display: block;
+		}
+		.dice-result {
+			text-align: center;
+			font-size: 2.5em;
+			color: #533663;
+			font-weight: bold;
+			margin-bottom: 12px;
+		}
+		.dice-img {
+			width: 70vw;
+			max-width: 300px;
+			height: auto;
+			display: block;
+			margin: 0 auto 16px auto;
+		}
+		.input-row, .select-row {
+			display: flex;
+			gap: 8px;
+			margin-bottom: 12px;
+			align-items: center;
+			flex-wrap: wrap;
+			width: 100%;
+			box-sizing: border-box;
+		}
+		.input-row input {
+			flex: 1 1 120px;
+			font-size: 1.1em;
+			padding: 8px;
+			border-radius: 5px;
+			border: 1px solid #676767;
+			background: #2c2c2c;
+			color: #f0f0f0;
+			box-sizing: border-box;
+			min-width: 0;
+		}
+		.select-row select {
+			flex: 1 1 120px;
+			font-size: 1.1em;
+			padding: 8px;
+			border-radius: 5px;
+			border: 1px solid #676767;
+			background: #2c2c2c;
+			color: #f0f0f0;
+			box-sizing: border-box;
+			max-width: 140px;
+			min-width: 0;
+			overflow-x: auto;
+			white-space: nowrap;
+		}
+		.section-title {
+			font-size: 1.3em;
+			color: #ffcc33;
+			margin-bottom: 12px;
+			text-align: center;
+		}
+		.health-bar-container {
+			width: 100%;
+			max-width: 320px;
+			height: 24px;
+			background: #2c2c2c;
+			border: 2px solid #676767;
+			border-radius: 10px;
+			margin: 12px auto 18px auto;
+			position: relative;
+			overflow: hidden;
+		}
+		.health-bar {
+			position: absolute;
+			left: 0; top: 0; bottom: 0;
+			height: 100%;
+			background: linear-gradient(to right, #33ff66, #66ff99);
+			transition: width 0.3s, background 0.4s;
+			z-index: 1;
+		}
+		.health-text {
+			position: absolute;
+			width: 100%;
+			text-align: center;
+			color: #f0f0f0;
+			font-size: 1em;
+			line-height: 24px;
+			z-index: 2;
+			cursor: pointer;
+		}
+		.action-slots {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 8px;
+			justify-content: center;
+			margin-bottom: 12px;
+		}
+		.action-slot {
+			width: 56px;
+			height: 56px;
+			border: 2px solid #676767;
+			border-radius: 50%;
+			background: #1e1e1e no-repeat center/cover;
+			color: #f0f0f0;
+			font-size: 1.1em;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			position: relative;
+			overflow: hidden;
+		}
+		.passive-skill-list {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			margin-bottom: 16px;
+		}
+		.passive-skill-item {
+			background: #2c2c2c;
+			border: 2px solid #676767;
+			border-radius: 8px;
+			padding: 10px;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+		.passive-skill-item img {
+			width: 40px;
+			height: 40px;
+			border-radius: 5px;
+			object-fit: cover;
+		}
+		.passive-skill-info {
+			flex: 1;
+		}
+		.passive-skill-title {
+			font-weight: bold;
+			color: #ffcc33;
+			margin-bottom: 2px;
+		}
+		.passive-skill-desc {
+			font-size: 0.98em;
+			color: #f0f0f0;
+		}
+		/* Action Menu */
+		#actionMenu {
+			position: fixed;
+			inset: 0;
+			background: rgba(0,0,0,0.8);
+			z-index: 2000;
+			display: none;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 20px;
+		}
+		#menuContent {
+			background: #2c2c2c;
+			border: 2px solid #676767;
+			border-radius: 10px;
+			padding: 20px;
+			max-width: 90%;
+			max-height: 70vh;
+			overflow-y: auto;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 12px;
+			justify-content: center;
+		}
+		.menu-icon {
+			width: 64px;
+			height: 64px;
+			border-radius: 8px;
+			cursor: pointer;
+			object-fit: cover;
+			border: 2px solid #676767;
+		}
+		.menu-icon:hover {
+			border-color: #ffcc33;
+		}
+		#uploadCustomIconBtn, #clearSlotBtn {
+			width: 100%;
+			max-width: 300px;
+			margin: 12px 0 0;
+			padding: 10px;
+			font-size: 1.1em;
+			border: none;
+			border-radius: 6px;
+			cursor: pointer;
+		}
+		#uploadCustomIconBtn {
+			background: #533663;
+			color: white;
+		}
+		#clearSlotBtn {
+			background: #662222;
+			color: white;
+		}
+	</style>
+	<script src="data.js"></script>
+</head>
+<body>
+	<div class="main-container">
+		<!-- Dice Section -->
+		<div id="diceSection" class="vertical-section hidden" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:calc(100vh - 70px);min-height:350px;">
+			<div class="section-title">Roll a D20</div>
+			<div style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;max-width:300px;height:300px;">
+				<button id="rollDieBtn" style="background:none;border:none;cursor:pointer;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1;">
+					<img src="https://raw.githubusercontent.com/Kiderobin/D20/main/pics/20SidedDie.png" class="dice-img" alt="Roll D20" style="display:block;margin:0 auto;">
+				</button>
+				<div id="diceResult" class="dice-result" style="position:absolute;top: 49%;left: 52%;transform:translate(-50%,-50%);z-index:2;pointer-events:none;font-size:48px;color:#533663;font-weight:bold;font-family:Arial,sans-serif;">-</div>
+			</div>
+			<audio id="diceSound" src="https://raw.githubusercontent.com/Kiderobin/D20/main/sounds/diceroll.mp3"></audio>
+		</div>
+
+		<!-- Character Section -->
+		<div id="characterSection" class="vertical-section hidden">
+			<div class="section-title">Character Portrait</div>
+			<img id="portraitImage" src="placeholder.jpg" class="portrait-img" alt="Character Portrait" onclick="openPortraitPicker()">
+			<input type="file" id="portraitInput" accept="image/*" style="display:none;">
+		</div>
+
+		<!-- Info Section -->
+		<div id="infoSection" class="vertical-section hidden">
+			<div class="section-title">Character Info</div>
+			<div class="input-row"><input id="characterName" type="text" placeholder="Name"></div>
+			<div class="input-row"><input id="level" type="number" min="1" placeholder="Level"></div>
+			<div class="input-row"><input id="currency" type="number" min="0" placeholder="Currency"></div>
+			<div class="select-row">
+				<select id="raceInfoSelect"><option value="">Race</option></select>
+				<select id="classInfoSelect"><option value="">Class</option></select>
+				<select id="subclassInfoSelect" style="flex:2;"><option value="">Subclass</option></select>
+			</div>
+			<div class="health-bar-container" onclick="editHealth()">
+				<div class="health-bar" id="healthBar"></div>
+				<div class="health-text" id="healthText">100/100</div>
+			</div>
+			<div class="section-title" style="font-size:1.1em;margin:8px 0 4px 0;">Action Slots</div>
+			<div class="action-slots" id="actionSlots"></div>
+			<div style="display: flex; gap: 8px; margin-top: 12px; justify-content: center;">
+				<button id="exportCodeBtn" style="background: #533663; color: #fff; border: none; border-radius: 5px; padding: 10px 18px; font-size: 1em; cursor: pointer;">Export Code</button>
+				<button id="pasteCodeBtn" style="background: #533663; color: #fff; border: none; border-radius: 5px; padding: 10px 18px; font-size: 1em; cursor: pointer;">Paste Code</button>
+			</div>
+		</div>
+
+		<!-- Passive/Skills Section -->
+		<div id="passiveSection" class="vertical-section hidden">
+			<div class="section-title">Passives & Skills</div>
+			<div class="passive-skill-list" id="passiveSkillList"></div>
+		</div>
+	</div>
+
+	<div class="menu-bar">
+		<button class="menu-btn active" id="menuDice" onclick="showSection('dice')"><img src="https://raw.githubusercontent.com/Kiderobin/D20/main/pics/20SidedDie.png" alt="Dice">Dice</button>
+		<button class="menu-btn" id="menuCharacter" onclick="showSection('character')"><img src="https://raw.githubusercontent.com/Kiderobin/D20/main/pics/portraiticon.png" alt="Character">Character</button>
+		<button class="menu-btn" id="menuInfo" onclick="showSection('info')"><img src="https://raw.githubusercontent.com/Kiderobin/D20/main/pics/infoicon.png" alt="Info">Info</button>
+		<button class="menu-btn" id="menuPassive" onclick="showSection('passive')"><img src="https://raw.githubusercontent.com/Kiderobin/D20/main/pics/skillicon.png" alt="Skills">Skills</button>
+	</div>
+
+	<!-- Action Menu -->
+	<div id="actionMenu">
+		<div id="menuContent"></div>
+		<button id="uploadCustomIconBtn">Upload Icon</button>
+		<button id="clearSlotBtn">Clear Slot</button>
+	</div>
+
+	<input type="file" id="customIconInput" accept="image/*" style="display:none;">
+
+	<script>
+	// Global variables
+	let selectedSlot = null;
+	let D20_DATA = window.D20_CAMPAIGN_DATA || {};
+
+	// Populate dropdowns
+	function populateDropdowns() {
+		const races = D20_DATA.races || [];
+		const classes = D20_DATA.classes || [];
+		const raceInfoSel = document.getElementById('raceInfoSelect');
+		const classInfoSel = document.getElementById('classInfoSelect');
+		const subSel = document.getElementById('subclassInfoSelect');
+
+		raceInfoSel.innerHTML = '<option value="">Race</option>';
+		classInfoSel.innerHTML = '<option value="">Class</option>';
+
+		races.forEach(r => raceInfoSel.innerHTML += `<option value="${r.name}">${r.name}</option>`);
+		classes.forEach(c => classInfoSel.innerHTML += `<option value="${c.name}">${c.name}</option>`);
+
+		classInfoSel.onchange = function() {
+			const className = classInfoSel.value;
+			const cls = classes.find(c => c.name === className);
+			subSel.innerHTML = '<option value="">Subclass</option>';
+			if (cls && Array.isArray(cls.subclasses)) {
+				cls.subclasses.forEach(sub => {
+					subSel.innerHTML += `<option value="${sub.name}">${sub.name}</option>`;
+				});
+			}
+			updateActionSlots();
+			updatePassives();
+		};
+
+		raceInfoSel.onchange = updatePassives;
+		subSel.onchange = function() {
+			updateActionSlots();
+			updatePassives();
+		};
+	}
+
+	// Show section
+	function showSection(section) {
+		document.querySelectorAll('.vertical-section').forEach(s => s.classList.add('hidden'));
+		document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+		document.getElementById(section + 'Section').classList.remove('hidden');
+		document.getElementById('menu' + section.charAt(0).toUpperCase() + section.slice(1)).classList.add('active');
+	}
+
+	// Dice
+	document.getElementById('rollDieBtn').onclick = function() {
+		const result = Math.floor(Math.random()*20)+1;
+		document.getElementById('diceResult').textContent = result;
+		document.getElementById('diceSound').play();
+	};
+
+	// Portrait
+	function openPortraitPicker() { document.getElementById('portraitInput').click(); }
+	document.getElementById('portraitInput').addEventListener('change', e => {
+		const file = e.target.files[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = ev => document.getElementById('portraitImage').src = ev.target.result;
+			reader.readAsDataURL(file);
+		}
+	});
+
+	// Health
+	let currentHP = 100, maxHP = 100;
+	function updateHealthBar() {
+		const level = Math.max(1, parseInt(document.getElementById('level').value)||1);
+		maxHP = level*20;
+		currentHP = Math.max(0, Math.min(currentHP, maxHP));
+		const percent = (currentHP / maxHP) * 100;
+		document.getElementById('healthBar').style.width = percent + '%';
+		if(percent >= 70) document.getElementById('healthBar').style.background = 'linear-gradient(to right, #33ff66, #66ff99)';
+		else if(percent >= 30) document.getElementById('healthBar').style.background = 'linear-gradient(to right, #ffcc33, #ff9933)';
+		else document.getElementById('healthBar').style.background = 'linear-gradient(to right, #ff3333, #ff6666)';
+		document.getElementById('healthText').textContent = `${currentHP}/${maxHP}`;
+	}
+	document.getElementById('healthText').onclick = function() { this.contentEditable = true; this.focus(); };
+	document.getElementById('healthText').onblur = function() {
+		this.contentEditable = false;
+		let val = parseInt(this.textContent.split('/')[0]) || currentHP;
+		currentHP = Math.max(0, Math.min(val, maxHP));
+		updateHealthBar();
+	};
+	document.getElementById('level').oninput = updateHealthBar;
+	window.addEventListener('load', updateHealthBar);
+
+	// Action slots
+	function updateActionSlots() {
+		const container = document.getElementById('actionSlots');
+		const prevSlots = Array.from(container.querySelectorAll('.action-slot')).map(slot => ({
+			bg: slot.style.backgroundImage || '',
+			text: slot.textContent || ''
+		}));
+		container.innerHTML = '';
+
+		for (let i = 1; i <= 3; i++) {
+			const slot = document.createElement('div');
+			slot.className = 'action-slot';
+			if (prevSlots[i-1]) {
+				slot.style.backgroundImage = prevSlots[i-1].bg;
+				slot.textContent = prevSlots[i-1].text || i;
+			} else {
+				slot.textContent = i.toString();
+			}
+			container.appendChild(slot);
+		}
+
+		const className = document.getElementById('classInfoSelect').value;
+		const subclassName = document.getElementById('subclassInfoSelect').value;
+		const cls = D20_DATA.classes?.find(c => c.name === className);
+		let asLabel = null;
+		if (cls && subclassName) {
+			const sub = cls.subclasses?.find(s => s.name === subclassName);
+			if (sub?.passive?.AS) asLabel = sub.passive.AS;
+		}
+		if (!asLabel && cls?.passive?.AS) asLabel = cls.passive.AS;
+
+		if (asLabel) {
+			const slot = document.createElement('div');
+			slot.className = 'action-slot';
+			if (prevSlots[3]) {
+				slot.style.backgroundImage = prevSlots[3].bg;
+				slot.textContent = prevSlots[3].text || asLabel;
+			} else {
+				slot.textContent = asLabel;
+			}
+			container.appendChild(slot);
+		}
+
+		attachSlotListeners();
+	}
+
+	function attachSlotListeners() {
+		document.querySelectorAll('.action-slot').forEach(slot => {
+			slot.addEventListener('click', e => {
+				selectedSlot = e.currentTarget;
+				document.getElementById('actionMenu').style.display = 'flex';
+			});
+		});
+	}
+
+	// Action menu icons from GitHub
+	fetch('https://api.github.com/repos/Kiderobin/D20/contents/pics/itemicons/equip')
+		.then(r => r.json())
+		.then(data => {
+			const menuContent = document.getElementById('menuContent');
+			data.forEach(file => {
+				if (file.name.endsWith('.png')) {
+					const img = document.createElement('img');
+					img.src = `https://raw.githubusercontent.com/Kiderobin/D20/main/pics/itemicons/equip/${file.name}`;
+					img.alt = file.name;
+					img.className = 'menu-icon';
+					img.onclick = () => selectIcon(file.name);
+					menuContent.appendChild(img);
+				}
+			});
+		})
+		.catch(err => console.error('Icon fetch failed:', err));
+
+	function selectIcon(iconName) {
+		if (selectedSlot) {
+			selectedSlot.style.backgroundImage = `url('https://raw.githubusercontent.com/Kiderobin/D20/main/pics/itemicons/equip/${iconName}')`;
+			selectedSlot.style.backgroundSize = 'cover';
+			selectedSlot.style.backgroundPosition = 'center';
+			selectedSlot.textContent = '';
+		}
+		document.getElementById('actionMenu').style.display = 'none';
+	}
+
+	function uploadCustomIcon(file) {
+		if (!selectedSlot || !file) return;
+		const reader = new FileReader();
+		reader.onload = e => {
+			selectedSlot.style.backgroundImage = `url('${e.target.result}')`;
+			selectedSlot.style.backgroundSize = 'cover';
+			selectedSlot.style.backgroundPosition = 'center';
+			selectedSlot.textContent = '';
+		};
+		reader.readAsDataURL(file);
+	}
+
+	document.getElementById('customIconInput').onchange = function() {
+		if (this.files[0]) uploadCustomIcon(this.files[0]);
+		this.value = '';
+		document.getElementById('actionMenu').style.display = 'none';
+	};
+
+	document.getElementById('uploadCustomIconBtn').onclick = () => document.getElementById('customIconInput').click();
+
+	document.addEventListener('paste', e => {
+		if (!selectedSlot) return;
+		const items = e.clipboardData?.items;
+		if (!items) return;
+		for (const item of items) {
+			if (item.type.startsWith('image/')) {
+				uploadCustomIcon(item.getAsFile());
+				document.getElementById('actionMenu').style.display = 'none';
+				break;
+			}
+		}
+	});
+
+	document.addEventListener('click', e => {
+		const menu = document.getElementById('actionMenu');
+		if (menu.style.display === 'flex' && !menu.contains(e.target) && !e.target.classList.contains('action-slot')) {
+			menu.style.display = 'none';
+		}
+	});
+
+	document.getElementById('clearSlotBtn').onclick = function() {
+		if (!selectedSlot) return;
+		selectedSlot.style.backgroundImage = '';
+		const slots = Array.from(document.querySelectorAll('.action-slot'));
+		const index = slots.indexOf(selectedSlot);
+		if (index === 3) {
+			const className = document.getElementById('classInfoSelect').value;
+			const cls = D20_DATA.classes?.find(c => c.name === className);
+			const subclassName = document.getElementById('subclassInfoSelect').value;
+			let asLabel = null;
+			if (cls) {
+				if (subclassName) {
+					const sub = cls.subclasses?.find(s => s.name === subclassName);
+					if (sub?.passive?.AS) asLabel = sub.passive.AS;
+				}
+				if (!asLabel && cls.passive?.AS) asLabel = cls.passive.AS;
+			}
+			selectedSlot.textContent = asLabel || 'H';
+		} else {
+			selectedSlot.textContent = (index + 1).toString();
+		}
+		document.getElementById('actionMenu').style.display = 'none';
+	};
+
+	// ────────────────────────────────────────────────
+	// Passives & Skills – FIXED to include both
+	// ────────────────────────────────────────────────
+	function makePassiveSkillItem(obj) {
+		const item = document.createElement('div');
+		item.className = 'passive-skill-item';
+
+		if (obj.icon) {
+			const img = document.createElement('img');
+			img.src = `icons/${obj.icon}`;
+			img.alt = obj.name || '';
+			img.onerror = () => { img.src = 'https://via.placeholder.com/40?text=?'; };
+			item.appendChild(img);
+		} else {
+			const ph = document.createElement('div');
+			ph.style.width = '40px';
+			ph.style.height = '40px';
+			ph.style.background = '#444';
+			ph.style.borderRadius = '5px';
+			item.appendChild(ph);
+		}
+
+		const info = document.createElement('div');
+		info.className = 'passive-skill-info';
+
+		if (obj.name) {
+			const title = document.createElement('div');
+			title.className = 'passive-skill-title';
+			title.textContent = obj.name;
+			info.appendChild(title);
+		}
+
+		if (obj.description) {
+			const desc = document.createElement('div');
+			desc.className = 'passive-skill-desc';
+			desc.textContent = obj.description;
+			info.appendChild(desc);
+		}
+
+		item.appendChild(info);
+		return item;
+	}
+
+	function updatePassives() {
+		const list = document.getElementById('passiveSkillList');
+		if (!list) return;
+
+		list.innerHTML = '';
+
+		const raceName   = document.getElementById('raceInfoSelect')?.value?.trim() || '';
+		const className  = document.getElementById('classInfoSelect')?.value?.trim() || '';
+		const subName    = document.getElementById('subclassInfoSelect')?.value?.trim() || '';
+
+		const race = D20_DATA.races?.find(r => r.name?.trim() === raceName) || {};
+		const cls  = D20_DATA.classes?.find(c => c.name?.trim() === className) || {};
+		const sub  = cls.subclasses?.find(s => s.name?.trim() === subName) || {};
+
+		function append(items) {
+			if (!items) return;
+			const arr = Array.isArray(items) ? items : [items];
+			arr.forEach(obj => {
+				if (obj && (obj.name || obj.description || obj.icon)) {
+					list.appendChild(makePassiveSkillItem(obj));
+				}
+			});
+		}
+
+		// Race – passives + skills
+		append(race.passives || race.passive);
+		append(race.skills || race.skill);
+
+		// Class – passives + skills
+		append(cls.passives || cls.passive);
+		append(cls.skills || cls.skill);
+
+		// Subclass – passives + skills
+		append(sub.passives || sub.passive);
+		append(sub.skills || sub.skill);
+
+		if (list.children.length === 0) {
+			const msg = document.createElement('div');
+			msg.style.textAlign = 'center';
+			msg.style.padding = '20px';
+			msg.style.color = '#888';
+			msg.textContent = '(Select race, class and/or subclass to see passives & skills)';
+			list.appendChild(msg);
+		}
+	}
+
+	// Export / Paste
+	document.getElementById('exportCodeBtn').onclick = function() {
+		const characterName = document.getElementById('characterName').value || '';
+		const level = document.getElementById('level').value || '';
+		const race = document.getElementById('raceInfoSelect').value || '';
+		const className = document.getElementById('classInfoSelect').value || '';
+		const subclass = document.getElementById('subclassInfoSelect').value || '';
+		const currency = document.getElementById('currency')?.value || '';
+		const health = currentHP;
+		let portraitData = document.getElementById('portraitImage')?.src || '';
+		if (!portraitData.startsWith('data:image')) portraitData = '';
+
+		const slots = Array.from(document.querySelectorAll('.action-slot')).map(slot => ({
+			bg: slot.style.backgroundImage || '',
+			text: slot.textContent || ''
+		}));
+
+		const exportData = [
+			`Character Name: ${characterName}`,
+			`Level: ${level}`,
+			`Health: ${health}`,
+			`Race: ${race}`,
+			`Class: ${className}`,
+			`Subclass: ${subclass}`,
+			`Currency: ${currency}`,
+			portraitData ? `Portrait Image: ${portraitData}` : '',
+			`Action Slots: ${JSON.stringify(slots)}`
+		].filter(Boolean).join('\n');
+
+		navigator.clipboard.writeText(exportData).then(() => {
+			alert('Character data copied to clipboard!');
+		}).catch(err => {
+			console.error('Clipboard write failed:', err);
+			alert('Failed to copy — please copy manually.');
+		});
+	};
+
+	document.getElementById('pasteCodeBtn').onclick = function() {
+		navigator.clipboard.readText().then(text => {
+			const lines = text.split('\n').map(l => l.trim());
+			const data = {};
+			lines.forEach(line => {
+				const [key, ...valParts] = line.split(':');
+				if (key && valParts.length) {
+					data[key.trim()] = valParts.join(':').trim();
+				}
+			});
+
+			if (data['Character Name']) document.getElementById('characterName').value = data['Character Name'];
+			if (data['Level']) document.getElementById('level').value = data['Level'];
+			if (data['Race']) document.getElementById('raceInfoSelect').value = data['Race'];
+			if (data['Class']) document.getElementById('classInfoSelect').value = data['Class'];
+			if (data['Subclass']) document.getElementById('subclassInfoSelect').value = data['Subclass'];
+			if (data['Currency']) document.getElementById('currency').value = data['Currency'];
+			if (data['Health']) {
+				currentHP = parseInt(data['Health'], 10) || currentHP;
+				updateHealthBar();
+			}
+			if (data['Portrait Image'] && data['Portrait Image'].startsWith('data:image')) {
+				document.getElementById('portraitImage').src = data['Portrait Image'];
+			}
+
+			if (data['Action Slots']) {
+				try {
+					const slots = JSON.parse(data['Action Slots']);
+					const container = document.getElementById('actionSlots');
+					container.innerHTML = '';
+					slots.forEach(slotData => {
+						const slot = document.createElement('div');
+						slot.className = 'action-slot';
+						if (slotData.bg) slot.style.backgroundImage = slotData.bg;
+						if (slotData.text) slot.textContent = slotData.text;
+						else slot.textContent = '';
+						container.appendChild(slot);
+					});
+					attachSlotListeners();
+				} catch(e) {
+					console.error('Invalid action slots data');
+				}
+			}
+
+			updatePassives();
+			showSection('info');
+			alert('Character data loaded!');
+		}).catch(err => {
+			console.error('Clipboard read failed:', err);
+			alert('Failed to read clipboard.');
+		});
+	};
+
+	// Initialize
+	window.addEventListener('DOMContentLoaded', () => {
+		D20_DATA = window.D20_CAMPAIGN_DATA || {};
+		populateDropdowns();
+		showSection('dice');
+		updateActionSlots();
+		attachSlotListeners();
+		updatePassives();
+		document.getElementById('classInfoSelect').dispatchEvent(new Event('change'));
+	});
+	</script>
+</body>
+</html>
