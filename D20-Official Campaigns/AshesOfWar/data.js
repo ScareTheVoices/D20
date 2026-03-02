@@ -317,17 +317,17 @@ window.D20_CAMPAIGN_DATA = {
                 description: "Gain +1 item slot for daggers."
             },
             skills: [
+                 {
+                    name: "Shadowstep Gambit",
+                    icon: "hidden.png",
+                    type: "class-skill",
+                    description: "When you attempt to move unseen, blend into darkness, or silently reposition yourself, roll 1d20. Add half your level (rounded down) to the result. Surrounding entities must roll 1d20 to notice user and if result isn't 20; entities subtract half their level (rounded down) from the result"
+                },
                 {
                     name: "Backstab",
                     icon: "backstab.png",
                     type: "class-skill",
                     description: "Deal double damage when attacking from stealth."
-                },
-                {
-                    name: "Shadowstep Gambit",
-                    icon: "hidden.png",
-                    type: "class-skill",
-                    description: "When you attempt to move unseen, blend into darkness, or silently reposition yourself, roll 1d20. Add half your level (rounded down) to the result. Surrounding entities must roll 1d20 to notice user and if result isn't 20; entities subtract half their level (rounded down) from the result"
                 }
             ],
             subclasses: [
@@ -348,31 +348,31 @@ window.D20_CAMPAIGN_DATA = {
                         name: "Silent Strike",
                         icon: "skull-knife.png",
                         type: "class-sub-passive",
-                        description: "Gain +2 to stealth attack damage."
+                        description: "Gain +2 while in stealth during attack damage."
                     },
                     skills: [
                         {
                             name: "Death Mark",
                             icon: "skull-crossed-bones.png",
                             type: "class-sub-skill",
-                            description: "Mark an enemy, causing them to take 50% extra damage from your next attack."
+                            description: "Mark an enemy, causing them to take addition 1d20 extra damage from your next attack."
                         }
                     ]
                 },
                 {
                     name: "Thief",
                     passive: {
-                        name: "Quick Fingers",
-                        icon: "hand-pocket.png",
-                        type: "class-sub-passive",
-                        description: "Gain +2 to sleight-of-hand and lockpicking checks."
+                        name: "Swift Steal",
+                        icon: "steal.png",
+                        type: "class-sub-skill",
+                        description: "Steal an item from an enemy without breaking stealth."
                     },
                     skills: [
                         {
-                            name: "Swift Steal",
-                            icon: "steal.png",
-                            type: "class-sub-skill",
-                            description: "Steal an item from an enemy without breaking stealth."
+                        name: "Quick Fingers",
+                        icon: "hand-pocket.png",
+                        type: "class-sub-passive",
+                        description: "Gain +2 to sleight-of-hand."
                         }
                     ]
                 }
@@ -1028,4 +1028,5 @@ window.D20_CAMPAIGN_DATA = {
     ]
 
 };
+
 
