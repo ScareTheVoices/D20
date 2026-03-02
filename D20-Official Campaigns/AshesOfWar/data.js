@@ -322,7 +322,12 @@ window.D20_CAMPAIGN_DATA = {
                     icon: "backstab.png",
                     type: "class-skill",
                     description: "Deal double damage when attacking from stealth."
-                }
+                },
+                {
+                    name: "Shadowstep Gambit",
+                    icon: "hidden.png",
+                    type: "class-skill",
+                    description: "When you attempt to move unseen, blend into darkness, or silently reposition yourself, roll 1d20. Add half your level (rounded down) to the result. Surrounding entities must roll 1d20 to notice user and if result isn't 20; entities subtract half their level (rounded down) from the result"
             ],
             subclasses: [
                 {
@@ -1020,4 +1025,5 @@ window.D20_CAMPAIGN_DATA = {
             ]
         }
     ]
+
 };
