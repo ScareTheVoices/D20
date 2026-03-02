@@ -119,7 +119,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Dragon Breath",
                     icon: "dragon-breath.png",
                     type: "race-skill",
-                    description: "Unleash a breath attack dealing 2d10 elemental damage (choose fire, ice, or acid) once per battle."
+                        description: "Unleash a breath attack dealing 2d20 elemental damage (choose fire, ice, or acid) once per battle."
                 }
             ]
         },
@@ -204,7 +204,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Boulder Toss",
                     icon: "rock-throw.png",
                     type: "race-skill",
-                    description: "Hurl a large rock, dealing 2d10 damage to a single target."
+                        description: "Hurl a large rock, dealing 2d20 damage to a single target."
                 }
             ]
         },
@@ -529,7 +529,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Healing Light",
                     icon: "light-heal.png",
                     type: "class-skill",
-                    description: "Heal an ally for 2d10 health."
+                        description: "Heal an ally for 2d20 health."
                 }
             ],
             subclasses: [
@@ -547,7 +547,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Divine Shield",
                             icon: "holy-shield.png",
                             type: "class-sub-skill",
-                            description: "Grant an ally a shield that absorbs 2d10 damage for 2 turns."
+                                description: "Grant an ally a shield that absorbs 2d20 damage for 2 turns."
                         }
                     ]
                 },
@@ -582,7 +582,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Smite Evil",
                             icon: "holy-hammer.png",
                             type: "class-sub-skill",
-                            description: "Deal 2d12 damage to an unholy creature with a melee attack."
+                                description: "Deal 2d20 damage to an unholy creature with a melee attack."
                         }
                     ]
                 }
@@ -602,7 +602,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Frenzied Strike",
                     icon: "axe-swing.png",
                     type: "class-skill",
-                    description: "Deal 2d12 damage but take 1d20 recoil damage."
+                        description: "Deal 2d20 damage but take 1d20 recoil damage."
                 }
             ],
             subclasses: [
@@ -693,7 +693,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Dire Form",
                             icon: "bear-head.png",
                             type: "class-sub-skill",
-                            description: "Transform into a powerful beast, gaining +2 strength and 2d10 health."
+                                description: "Transform into a powerful beast, gaining +2 strength and 2d20 health."
                         }
                     ]
                 },
@@ -728,7 +728,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Vine Barrier",
                             icon: "vine-shield.png",
                             type: "class-sub-skill",
-                            description: "Summon a barrier of vines that absorbs 2d20 damage for 2 turns."
+                                description: "Summon a barrier of vines that absorbs 2d20 damage for 2 turns."
                         }
                     ]
                 }
@@ -801,7 +801,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Thunder Punch",
                             icon: "thunder-fist.png",
                             type: "class-sub-skill",
-                            description: "Deliver a punch that deals 1d20 damage and stuns the enemy for 1 turn."
+                                description: "Deliver a punch that deals 1d20 damage and stuns the enemy for 1 turn."
                         }
                     ]
                 }
@@ -893,7 +893,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Eldritch Blast",
                     icon: "dark-bolt.png",
                     type: "class-skill",
-                    description: "Fire a blast of dark energy, dealing 2d10 damage."
+                        description: "Fire a blast of dark energy, dealing 2d20 damage."
                 }
             ],
             subclasses: [
@@ -984,7 +984,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Soul Slash",
                             icon: "soul-reap.png",
                             type: "class-sub-skill",
-                            description: "Strike an enemy for 2d12 damage, healing yourself for half the damage dealt."
+                                description: "Strike an enemy for 2d20 damage, healing yourself for half the damage dealt."
                         }
                     ]
                 },
