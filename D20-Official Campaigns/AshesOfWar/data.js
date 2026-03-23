@@ -1053,8 +1053,8 @@ window.D20_CAMPAIGN_DATA = {
             description: "The character cannot see and suffers penalties to perception checks."
         },
         {
-            name: "Sloth",
-            icon: "Slowness.png",
+            name: "Drowsiness",
+            icon: "Sloth.png",
             type: "status-effect",
             description: "While Sloth is present, all rolls and checks take a -2 penalty. Each time you perform an action, roll 1d20 — on a 10 or lower, the penalty doubles.",
             hide: true
