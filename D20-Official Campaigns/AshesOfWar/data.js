@@ -925,10 +925,10 @@ window.D20_CAMPAIGN_DATA = {
                     },
                     skills: [
                         {
-                            name: "Madness Gaze",
+                            name: "Curious Gaze",
                             icon: "eldritch-eye.png",
                             type: "class-sub-skill",
-                            description: "Cause an enemy to become Curious, attacking randomly for 1 turn."
+                            description: "Roll 1d20 and Affict a target with 'Curiosity Effect' for 3 turns, The Result of your roll becomes the DC for the status effect. Also the target must roll at the start of their turn and if the result is 7 or lower, the target is confused and cannot take actions. (Cooldown 2 turns)."
                         }
                     ]
                 },
@@ -1025,7 +1025,49 @@ window.D20_CAMPAIGN_DATA = {
                 }
             ]
         }
+    ],
+
+    statusEffects: [
+         {
+            name: "Burning",
+            icon: "burning.png",
+            type: "status-effect",
+            description: "The character is on fire, taking 5 damage at the start of each turn until extinguished."
+        },
+        {
+            name: "Poisoned",
+            icon: "poisoned.png",
+            type: "status-effect",
+            description: "The character has been poisoned and suffers -2 to checks and actions."
+        },
+        {
+            name: "Charmed",
+            icon: "charmed.png",
+            type: "status-effect",
+            description: "The character is charmed and cannot target the source of the charm."
+        },
+        {
+            name: "Blinded",
+            icon: "blinded.png",
+            type: "status-effect",
+            description: "The character cannot see and suffers penalties to perception checks."
+        },
+        {
+            name: "Sloth",
+            icon: "Slowness.png",
+            type: "status-effect",
+            description: "While Sloth is present, all rolls and checks take a -2 penalty. Each time you perform an action, roll 1d20 — on a 10 or lower, the penalty doubles.",
+            hide: true
+        },
+        {
+            name: "Curiosity Effect",
+            icon: "twirly-flower.png",
+            type: "status-effect",
+            description: "At the start of each turn, roll 1d20, (the DC is set by the initial application of the effect from the source of the Curiosity Effect) if result is less the DC;  .",
+            hide: true
+        }
     ]
+        
 
 };
 
