@@ -327,7 +327,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Backstab",
                     icon: "backstab.png",
                     type: "class-skill",
-                    description: "Once per target, deal +1d20/2 bonus damage when attacking from stealth."
+                    description: "Once per target, per battle, deal +1d20/2 bonus damage when attacking from stealth."
                 }
             ],
             subclasses: [
