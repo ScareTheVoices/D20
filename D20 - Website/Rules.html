@@ -340,6 +340,9 @@
         }
         .main-content {
             padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
         }
         .main-content h2 {
             color: #7b4ba3;
@@ -459,114 +462,82 @@
 
             <h3>Initial Setup</h3>
             <ul>
-                <li><strong>Player Order:</strong> Each player rolls a 20-sided die (d20). The highest roll goes first. In case of a tie, tied players roll again.</li>
-                <li><strong>Character Creation:</strong> All characters start at level 5. Players choose a class (with Game Master approval). Each class comes with a base skill. Characters start with one weapon that suits their class.</li>
+                <li><strong>Player Order:</strong> Each player rolls a d20. Highest roll goes first. Turn order then goes from highest to lowest. If players tie, tied players roll again.</li>
+                <li><strong>Character Creation:</strong> Each player starts at Level 5. Players choose a class approved by the GM. Each class has a base skill from the GM. Each character starts with one class-appropriate weapon.</li>
             </ul>
 
             <h3>Turn Structure</h3>
-            <p>The game is played in <strong>scenes</strong>. Each scene represents one complete turn rotation.</p>
             <ul>
-                <li>Each player gets <strong>one movement</strong> and <strong>one action</strong> per turn</li>
-                <li>Actions can include: attacking, using a skill, interacting with the environment, or other GM-approved actions</li>
-                <li>When multiple players are in the same scene, they may interact with each other</li>
-                <li>Once all players have completed their actions in a scene, the turn order continues with the next scene</li>
+                <li><strong>Turn Composition:</strong> Each turn (scene) gives a player one movement and one action. Actions can include attacking, using a skill, interacting with the environment, or another GM-approved action.</li>
+                <li><strong>Scenes:</strong> A scene is one full turn rotation. Players in the same scene may interact with each other. After all players finish their actions, turn order continues into the next scene.</li>
             </ul>
 
             <h3>Skill Checks and Combat</h3>
             
             <div class="rule-box">
-                <h4>📊 Skill Checks</h4>
-                <p>When a player attempts an action with uncertain outcome, they must roll a d20. The roll must be equal to or higher than a target number set by the GM to succeed.</p>
+                <h4>Skill Checks</h4>
+                <p>Roll a d20 to resolve actions. To succeed, the result must be equal to or higher than the GM-set target number.</p>
             </div>
 
             <div class="rule-box">
-                <h4>⚔️ Combat</h4>
-                <p>Combat follows the established turn order. All combatants (including enemies) roll a d20 to determine their place in the combat order. Combat proceeds in rounds following this order.</p>
+                <h4>Combat</h4>
+                <p>Combat order starts from the established turn order. Enemies also roll a d20 to join the order. Combat then proceeds in rounds using that order.</p>
             </div>
 
             <h3>Health & Damage</h3>
             
             <div class="rule-box">
-                <h4>❤️ Health</h4>
-                <div class="formula">Max Health = Character Level × 20</div>
-                <p>Example: A level 5 character has 100 maximum health.</p>
+                <h4>Health</h4>
+                <div class="formula">Maximum Health = Current Level x 20</div>
+                <p>Example: Level 5 = 100 max health.</p>
             </div>
 
             <div class="rule-box">
-                <h4>💥 Damage</h4>
-                <div class="formula">Attack Damage = Attacker Level × d20 Roll</div>
-                <p>Example: A level 5 character who rolls a 12 would deal 60 damage (5 × 12).</p>
+                <h4>Damage</h4>
+                <div class="formula">Attack Damage = Current Level x d20 roll</div>
+                <p>Example: Level 5 and roll 12 = 60 damage.</p>
             </div>
 
             <div class="rule-box">
-                <h4>🛡️ Defense</h4>
-                <div class="formula">Defense Value = Defender Level × d20 Roll</div>
-                <p>When attacked, a character may roll a d20 to defend:</p>
-                <ul>
-                    <li>If defense ≥ attack damage: The attack is completely blocked</li>
-                    <li>If defense < attack damage: Take (Attack Damage - Defense Value) as final damage</li>
-                </ul>
+                <h4>Defense</h4>
+                <div class="formula">Defense Value = Current Level x defense roll</div>
+                <p>On defense, roll a d20. If Defense Value is greater than or equal to Attack Value, the attack is fully blocked. Otherwise, subtract Defense Value from Attack Value to get final damage.</p>
+                <div class="formula">Final Damage = (Attacker Level x d20) - (Defender Level x d20)</div>
             </div>
 
             <h3>Leveling Up</h3>
             <ul>
-                <li>Characters can gain <strong>up to 3 levels in a single scene</strong></li>
-                <li>Leveling up can result from:
-                    <ul>
-                        <li>Winning battles or combat encounters</li>
-                        <li>Completing major story events or quests</li>
-                        <li>Finding and using powerful artifacts</li>
-                    </ul>
-                </li>
-                <li>As characters level up, their health, damage, and defense all scale accordingly</li>
+                <li><strong>Experience and Levels:</strong> Characters can gain up to three levels in a single scene. Level gains can come from battles, events, or artifacts.</li>
+            </ul>
+
+            <h3>Stats Sheet</h3>
+            <ul>
+                <li><strong>Skill Points:</strong> Characters gain 2 bonus stat points at each prime-number level after Level 5.</li>
+                <li><strong>Point Use:</strong> Bonus points can be assigned to Might, Vigor, Agility, Mind, and Instinct. Each point adds +1 to that stat's modifier.</li>
+                <li><strong>Submission:</strong> Stats must be submitted with Save and Lock. Locked points remain fixed until new prime-level points are earned.</li>
             </ul>
 
             <h3>Inventory Management</h3>
             <ul>
-                <li>Each character can hold <strong>up to 3 items</strong></li>
-                <li>Certain special items may allow characters to hold more than 3 items</li>
-                <li>All items must be:
-                    <ul>
-                        <li>Appropriate for the character's class</li>
-                        <li>Approved by the Game Master</li>
-                    </ul>
-                </li>
+                <li><strong>Items:</strong> Each character can hold up to three items. Some items may increase this limit. Starting Items must be class-appropriate and GM-approved.</li>
             </ul>
 
-            <h3>Game Rules & Endgame</h3>
+            <h3>Game Rules and Endgame</h3>
             <ul>
-                <li><strong>Class Restrictions:</strong> Characters' weapons must suit their class unless the GM decides otherwise</li>
-                <li><strong>Class Changes:</strong> Characters cannot change their class unless the GM specifically allows it</li>
-                <li><strong>Artifact Rules:</strong> Once an artifact's description and effects are determined by the GM, they cannot be changed</li>
-                <li><strong>Starting Location:</strong> All characters begin in the same location unless specified by the GM</li>
-                <li><strong>Endgame:</strong> The game concludes once the designated end goal is achieved. The end goal is defined by the GM and can involve:
-                    <ul>
-                        <li>Completing a major quest or mission</li>
-                        <li>Defeating a final boss or antagonist</li>
-                        <li>Reaching a specific location or destination</li>
-                    </ul>
-                </li>
+                <li><strong>Class and Weapon Restrictions:</strong> Weapons must suit the character's class unless the GM says otherwise. Class changes are not allowed unless the GM approves them.</li>
+                <li><strong>Artifact Rules:</strong> Once the GM sets an artifact's description and effects, they do not change.</li>
+                <li><strong>Starting Location:</strong> All characters start in the same story location unless the GM specifies otherwise.</li>
+                <li><strong>Endgame:</strong> The game ends when the GM-defined end goal is completed, such as finishing a quest, defeating a final boss, or reaching a destination.</li>
             </ul>
 
-            <h3>Game Master's Role</h3>
+            <h3>Miscellaneous</h3>
             <ul>
-                <li>The GM is responsible for setting scenes and describing the game world</li>
-                <li>The GM defines challenges and obstacles</li>
-                <li>The GM arbitrates all rules</li>
-                <li>The GM has the final say on all game-related decisions, including interpreting rules and resolving disputes</li>
-            </ul>
-
-            <h3>Role-Playing & Interaction</h3>
-            <p>Players are <strong>strongly encouraged</strong> to:</p>
-            <ul>
-                <li>Role-play their characters and speak in character when appropriate</li>
-                <li>Interact creatively with the game world</li>
-                <li>Collaborate with other players to create interesting stories</li>
-                <li>Suggest creative solutions to problems posed by the GM</li>
+                <li><strong>Game Master's Role:</strong> The GM sets scenes, defines challenges, and arbitrates rules. The GM has final say on all game decisions, including rule interpretation and disputes.</li>
+                <li><strong>Interaction and Role-Playing:</strong> Players are encouraged to role-play and interact with the world creatively. Communication and cooperation between players improve the story experience.</li>
             </ul>
 
             <p style="background: #f0e6ff; padding: 20px; border-left: 4px solid #7b4ba3; border-radius: 4px;">
-                <strong>Remember:</strong> D20 is designed to be flexible. If a situation isn't covered by these rules, work with your GM to come up with a fair solution that keeps the story moving and keeps everyone having fun!
+                <strong>Reminder:</strong> If something is not explicitly covered here, the GM decides how to resolve it.
             </p>
         </div>
     </div>
