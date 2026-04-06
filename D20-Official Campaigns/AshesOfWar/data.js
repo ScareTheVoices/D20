@@ -348,7 +348,7 @@ window.D20_CAMPAIGN_DATA = {
                         name: "Silent Strike",
                         icon: "skull-knife.png",
                         type: "class-sub-passive",
-                        description: "Gain +1 damage on your first successful stealth attack each battle."
+                        description: "Gain +2 towards Might on your first successful stealth attack each battle."
                     },
                     skills: [
                         {
