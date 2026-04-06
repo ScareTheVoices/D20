@@ -321,13 +321,13 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Shadowstep Gambit",
                     icon: "hidden.png",
                     type: "class-skill",
-                    description: "When you attempt to move unseen, blend into darkness, or silently reposition yourself, roll 1d20. Add half your level (rounded down) to the result. Surrounding entities must roll 1d20 to notice user and if result isn't 20; entities subtract half their level (rounded down) from the result"
+                    description: "Once per turn, roll 1d20 (Agility) to move unseen. Nearby entities roll 1d20; if they tie or beat your result, they detect you."
                 },
                 {
                     name: "Backstab",
                     icon: "backstab.png",
                     type: "class-skill",
-                    description: "Deal double damage when attacking from stealth."
+                    description: "Once per target, deal +1d20/2 bonus damage when attacking from stealth."
                 }
             ],
             subclasses: [
@@ -348,14 +348,14 @@ window.D20_CAMPAIGN_DATA = {
                         name: "Silent Strike",
                         icon: "skull-knife.png",
                         type: "class-sub-passive",
-                        description: "Gain +2 while in stealth during attack damage."
+                        description: "Gain +1 damage on your first successful stealth attack each battle."
                     },
                     skills: [
                         {
                             name: "Death Mark",
                             icon: "skull-crossed-bones.png",
                             type: "class-sub-skill",
-                            description: "Mark an enemy, causing them to take addition 1d20 extra damage from your next attack."
+                            description: "Once per battle, mark an enemy for 2 turns. Your next successful stealth attack against that target deals an additional +1d20/2 (Rounded Down) damage."
                         }
                     ]
                 },
@@ -1056,8 +1056,7 @@ window.D20_CAMPAIGN_DATA = {
             name: "Drowsiness",
             icon: "Sloth.png",
             type: "status-effect",
-            description: "While Sloth is present, all rolls and checks take a -2 penalty. Each time you perform an action, roll 1d20 — on a 10 or lower, the penalty doubles.",
-            hide: true
+            description: "While Sloth is present, all rolls and checks take a -2 penalty. Each time you perform an action, roll 1d20 — on a 10 or lower, the penalty doubles."
         },
         {
             name: "Curiosity Effect",
