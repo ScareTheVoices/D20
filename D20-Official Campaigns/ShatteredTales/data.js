@@ -558,6 +558,189 @@ window.D20_CAMPAIGN_DATA = {
         }
     ],
 
+    bestiary: [
+        {
+            name: "Fey",
+            type: "creature",
+            icon: "",
+            description: "A mystical being tied to old magic, nature, and trickery."
+        },
+        {
+            name: "Goblin",
+            type: "creature",
+            icon: "",
+            description: "A small, cunning raider that favors ambushes and scavenged gear."
+        },
+        {
+            name: "Orc",
+            type: "creature",
+            icon: "",
+            description: "A powerful warrior species known for aggression and battlefield resilience."
+        },
+        {
+            name: "Fairy",
+            type: "creature",
+            icon: "",
+            description: "A tiny winged fey creature capable of subtle enchantments."
+        },
+        {
+            name: "Giant",
+            type: "creature",
+            icon: "",
+            description: "A towering humanoid with immense physical strength."
+        },
+        {
+            name: "Kobold",
+            type: "creature",
+            icon: "",
+            description: "A crafty reptilian tunnel-dweller known for traps and teamwork."
+        },
+        {
+            name: "Daespawn",
+            type: "creature",
+            icon: "",
+            description: "A being marked by infernal lineage and dark resilience."
+        },
+        {
+            name: "Aesborn",
+            type: "creature",
+            icon: "",
+            description: "A radiant bloodline touched by divine or celestial energy."
+        },
+        {
+            name: "Goliath",
+            type: "creature",
+            icon: "",
+            description: "A mountain-born giantkin known for endurance and raw might."
+        },
+        {
+            name: "Dragon",
+            type: "creature",
+            icon: "",
+            description: "An ancient apex creature of scale, flight, and overwhelming power."
+        },
+        {
+            name: "Dwarf",
+            type: "creature",
+            icon: "",
+            description: "A sturdy folk famed for craftsmanship, resolve, and tradition."
+        },
+        {
+            name: "Lich",
+            type: "creature",
+            icon: "",
+            description: "An undead sorcerer who bound their soul to defy death."
+        },
+        {
+            name: "Sandworm",
+            type: "creature",
+            icon: "",
+            description: "A colossal burrower that hunts from beneath shifting dunes."
+        },
+        {
+            name: "Gravelworm",
+            type: "creature",
+            icon: "",
+            description: "A subterranean worm that tunnels through rock and loose stone."
+        },
+        {
+            name: "Mimic",
+            type: "creature",
+            icon: "",
+            description: "A shape-shifting ambusher that disguises itself as objects."
+        },
+        {
+            name: "Automaton",
+            type: "creature",
+            icon: "",
+            description: "A constructed entity driven by runes, gears, or lost programming."
+        },
+        {
+            name: "Mermaid",
+            type: "creature",
+            icon: "",
+            description: "An ocean-dwelling humanoid known for song and swift swimming."
+        },
+        {
+            name: "Fish",
+            type: "creature",
+            icon: "",
+            description: "A common aquatic creature found in rivers, lakes, and seas."
+        },
+        {
+            name: "Cow",
+            type: "creature",
+            icon: "",
+            description: "A domesticated grazing animal raised for food, labor, and trade."
+        },
+        {
+            name: "Dog",
+            type: "creature",
+            icon: "",
+            description: "A loyal domesticated companion with keen senses and trainable behavior."
+        },
+        {
+            name: "Cat",
+            type: "creature",
+            icon: "",
+            description: "An agile domesticated hunter known for stealth and curiosity."
+        },
+        {
+            name: "Special Cat",
+            type: "creature",
+            icon: "",
+            description: "A rare or unusual feline with traits beyond an ordinary house cat."
+        },
+        {
+            name: "Bird",
+            type: "creature",
+            icon: "",
+            description: "A feathered creature ranging from tiny songbirds to large fliers."
+        },
+        {
+            name: "Shark",
+            type: "creature",
+            icon: "",
+            description: "A predatory sea hunter with acute senses and powerful jaws."
+        },
+        {
+            name: "Hawk",
+            type: "creature",
+            icon: "",
+            description: "A sharp-eyed raptor that excels at aerial hunting."
+        },
+        {
+            name: "Bear",
+            type: "creature",
+            icon: "",
+            description: "A massive omnivore with great strength and territorial instincts."
+        },
+        {
+            name: "Wolf",
+            type: "creature",
+            icon: "",
+            description: "A pack-oriented predator known for endurance and coordinated strikes."
+        },
+        {
+            name: "Dire Wolf",
+            type: "creature",
+            icon: "",
+            description: "A larger and deadlier wolf variant feared for savage pack hunts."
+        },
+        {
+            name: "Sprite",
+            type: "creature",
+            icon: "",
+            description: "A tiny mischievous spirit closely tied to woodland magic."
+        },
+        {
+            name: "Djinn",
+            type: "creature",
+            icon: "",
+            description: "A powerful elemental spirit with vast magical influence."
+        }
+    ],
+
     statusEffects: [
         {
             name: "Burning",
