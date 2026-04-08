@@ -983,6 +983,8 @@
             if (!targetCanvas || !sourceCanvas) return;
             const targetCtx = targetCanvas.getContext('2d');
             if (!targetCtx) return;
+            targetCtx.imageSmoothingEnabled = true;
+            targetCtx.imageSmoothingQuality = 'high';
             targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
             targetCtx.drawImage(sourceCanvas, 0, 0, targetCanvas.width, targetCanvas.height);
         }
@@ -1057,6 +1059,8 @@
             if (cameraFrameState.transparent) {
                 cameraTransparencyBuffer.width = portraitSize.renderWidth;
                 cameraTransparencyBuffer.height = portraitSize.renderHeight;
+                cameraTransparencyBufferCtx.imageSmoothingEnabled = true;
+                cameraTransparencyBufferCtx.imageSmoothingQuality = 'high';
                 cameraTransparencyBufferCtx.clearRect(0, 0, portraitSize.renderWidth, portraitSize.renderHeight);
                 cameraTransparencyBufferCtx.drawImage(
                     portraitCameraFeed,
@@ -1072,19 +1076,47 @@
 
                 const imageData = cameraTransparencyBufferCtx.getImageData(0, 0, portraitSize.renderWidth, portraitSize.renderHeight);
                 const pixels = imageData.data;
+                let hasNativeAlpha = false;
+
+                // First pass: detect whether the incoming camera frame already carries alpha.
+                // If it does, preserve it exactly and skip manual keying.
                 for (let index = 0; index < pixels.length; index += 4) {
+                    if (pixels[index + 3] < 250) {
+                        hasNativeAlpha = true;
+                        break;
+                    }
+                }
+
+                // Fallback keying only when native alpha is not present.
+                // Use green-dominance keying only to avoid removing dark facial details (e.g. eyelashes).
+                if (!hasNativeAlpha) {
+                    for (let index = 0; index < pixels.length; index += 4) {
                     const red = pixels[index];
                     const green = pixels[index + 1];
                     const blue = pixels[index + 2];
-                    const brightness = red + green + blue;
-                    const isDarkBackground = brightness < 72;
-                    const isGreenScreen = green > 95 && green > (red * 1.18) && green > (blue * 1.18);
 
-                    if (isDarkBackground || isGreenScreen) {
-                        pixels[index + 3] = 0;
-                    } else if (brightness < 110) {
-                        pixels[index + 3] = Math.max(0, Math.min(255, (brightness - 72) * 7));
+                    const greenDominance = green - Math.max(red, blue);
+                    const alphaIndex = index + 3;
+
+                    // Feathered keying avoids jagged, pixelated edges on hair/lines.
+                    const featherStart = 16;
+                    const featherEnd = 50;
+                    const keyStrengthRaw = (greenDominance - featherStart) / (featherEnd - featherStart);
+                    const keyStrength = Math.max(0, Math.min(1, keyStrengthRaw));
+                    if (green > 65 && keyStrength > 0) {
+                        const preservedAlpha = 1 - keyStrength;
+                        pixels[alphaIndex] = Math.round(pixels[alphaIndex] * preservedAlpha);
+
+                        // Mild despill to reduce green fringe while keeping detail.
+                        const despillAmount = keyStrength * 0.35;
+                        pixels[index + 1] = Math.round(green * (1 - despillAmount));
                     }
+
+                    // Keep full cutout for obvious green backdrop.
+                    if (green > 95 && greenDominance > 62) {
+                        pixels[alphaIndex] = 0;
+                    }
+                }
                 }
                 cameraTransparencyBufferCtx.putImageData(imageData, 0, 0);
                 drawTransparentCameraFrame(portraitCameraCanvas, cameraTransparencyBuffer);
@@ -1093,6 +1125,10 @@
                 const portraitCtx = portraitCameraCanvas.getContext('2d');
                 const modalCtx = modalPortraitCameraCanvas.getContext('2d');
                 if (portraitCtx && modalCtx) {
+                    portraitCtx.imageSmoothingEnabled = true;
+                    portraitCtx.imageSmoothingQuality = 'high';
+                    modalCtx.imageSmoothingEnabled = true;
+                    modalCtx.imageSmoothingQuality = 'high';
                     portraitCtx.clearRect(0, 0, portraitSize.renderWidth, portraitSize.renderHeight);
                     portraitCtx.drawImage(
                         portraitCameraFeed,
