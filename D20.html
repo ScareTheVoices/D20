@@ -373,6 +373,17 @@
 .declare-dead-btn:hover {
     transform: scale(1.1);
 }
+
+* {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
     </style>
     <!-- Add in your <head> or before your main <script> -->
     <script src="data.js"></script>
@@ -462,6 +473,10 @@
         <div class="details">
             <div class="portrait">
                 <img id="portraitImage" src="https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/pics/placeholder.jpg" alt="Character Portrait" style="cursor:pointer;">
+                <div id="portraitCameraFrame" style="display:none; cursor:pointer; width:240px; height:450px; border-radius:10px; margin-bottom:20px; border:5px solid #000000; overflow:hidden; position:relative;">
+                    <video id="portraitCameraFeed" autoplay muted playsinline style="display:block; cursor:pointer; width:100%; height:100%; object-fit:cover; border:none; position:absolute; top:0; left:0;"></video>
+                    <canvas id="portraitCameraCanvas" style="display:none; width:100%; height:100%; position:absolute; top:0; left:0; pointer-events:none;"></canvas>
+                </div>
                 <div class="health-bar-container" onclick="editHealth()">
     <div class="health-text" id="healthText">100/100</div>
     <div class="health-bar" id="healthBar"></div>
@@ -602,7 +617,7 @@
                     <input type="checkbox" id="affinityCheckbox" style="width: 18px; height: 18px; accent-color: #533663; margin: 0; flex-shrink: 0;">
                     <span style="margin-left: 8px;">Affinity</span>
                 </label>
-                <label style="display: flex; align-items: center; font-size: 18px; cursor: pointer;">
+                <label id="statusEffectOptionRow" style="display: flex; align-items: center; font-size: 18px; cursor: pointer;">
                     <input type="checkbox" id="statusEffectCheckbox" style="width: 18px; height: 18px; accent-color: #533663; margin: 0; flex-shrink: 0;" checked>
                     <span style="margin-left: 8px;">Status Effect</span>
                 </label>
@@ -637,7 +652,37 @@
         <div class="modal-content" style="width:340px; max-width:90%; padding:24px; display:flex; flex-direction:column; align-items:center;">
             <span class="close-button" onclick="closePortraitModal()" style="top:10px; right:15px;">×</span>
             <img id="modalPortraitImage" src="placeholder.jpg" alt="Character Portrait" style="width:240px; height:450px; border-radius:10px; object-fit:cover; border:5px solid #000;">
-            <input type="file" accept="image/*" id="imageUploader" onchange="uploadImage()" style="margin-top:18px;">
+            <div id="modalPortraitCameraFrame" style="display:none; width:240px; height:450px; border-radius:10px; border:5px solid #000; overflow:hidden; position:relative;">
+                <video id="modalPortraitCameraFeed" autoplay muted playsinline style="display:block; width:100%; height:100%; object-fit:cover; border:none; position:absolute; top:0; left:0;"></video>
+                <canvas id="modalPortraitCameraCanvas" style="display:none; width:100%; height:100%; position:absolute; top:0; left:0; pointer-events:none;"></canvas>
+            </div>
+            <div id="portraitSourceRow" style="margin-top:18px; width:90%; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                <input type="file" accept="image/*" id="imageUploader" onchange="uploadImage()" style="margin-top:0; width:90%;">
+                <button type="button" id="cameraEditButton" style="display:none; margin-top:0; width:45%; background:#533663; color:#fff; border:none; border-radius:6px; padding:7px 10px; cursor:pointer;">Edit Camera View</button>
+                <label id="portraitUseCameraRow" style="display:none; align-items:center; font-size:14px; cursor:pointer; white-space:nowrap;">
+                    <input type="checkbox" id="portraitUseCameraCheckbox" style="width:16px; height:16px; accent-color:#533663; margin:0 6px 0 0; flex-shrink:0;">
+                    <span>Use Camera</span>
+                </label>
+            </div>
+            <div id="cameraEditPanel" style="display:none; margin-top:12px; width:90%; border:1px solid #533663; border-radius:8px; padding:10px; box-sizing:border-box;">
+                <label style="display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:8px;">
+                    <span style="min-width:55px;">Zoom</span>
+                    <input type="range" id="cameraScaleSlider" min="1" max="2.5" step="0.01" value="1" style="flex:1;">
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:8px;">
+                    <span style="min-width:55px;">Offset X</span>
+                    <input type="range" id="cameraOffsetXSlider" min="-140" max="140" step="1" value="0" style="flex:1;">
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:10px;">
+                    <span style="min-width:55px;">Offset Y</span>
+                    <input type="range" id="cameraOffsetYSlider" min="-220" max="220" step="1" value="0" style="flex:1;">
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:10px; cursor:pointer;">
+                    <input type="checkbox" id="cameraTransparentCheckbox" style="width:15px; height:15px; margin:0; accent-color:#533663;">
+                    <span>Transparent</span>
+                </label>
+                <button type="button" id="cameraEditDoneButton" style="width:100%; background:#2f5132; color:#fff; border:none; border-radius:6px; padding:7px 10px; cursor:pointer;">Done</button>
+            </div>
         </div>
     </div>
 
@@ -647,9 +692,9 @@
             <span class="close-button" onclick="closeSettingsPanel()" style="top: 10px; right: 15px;">×</span>
             <h2 style="margin-top: 0; margin-bottom: 18px; text-align: left; font-size: 1.4em;">Settings</h2>
             <div style="display: flex; flex-direction: column; gap: 12px; align-items: flex-start;">
-                <label style="display: flex; align-items: center; font-size: 18px; gap: 0; cursor: pointer;">
-                    <input type="checkbox" id="exportPortraitCheckbox" style="transform: scale(1.15); accent-color: #533663; margin: 0;" checked>
-                    <span style="margin-left: 4px;">Export Portrait</span>
+                <label style="display: grid; grid-template-columns: 20px auto; align-items: center; font-size: 18px; column-gap: 4px; cursor: pointer;">
+                    <input type="checkbox" id="exportPortraitCheckbox" style="transform: scale(1.15); accent-color: #533663; margin: 0; width: 16px; height: 16px;" checked>
+                    <span>Export Portrait</span>
                 </label>
                 <!-- Add this inside the settings panel, after Export Portrait -->
                 <label style="display: flex; align-items: center; font-size: 18px; gap: 0; cursor: pointer; margin-top: 10px; flex-wrap: wrap;">
@@ -659,13 +704,17 @@
                     <button type="button" onclick="resetCardBackground()" style="background:#444; color:#fff; border:none; border-radius:4px; padding:6px 12px; cursor:pointer; margin-left:8px;">Reset</button>
                 </label>
                 <!-- Add the Export Mat setting checkbox in the Settings Panel, after Export Portrait -->
-                <label style="display: flex; align-items: center; font-size: 18px; gap: 0; cursor: pointer; margin-top: 10px;">
-                    <input type="checkbox" id="exportMatCheckbox" style="transform: scale(1.15); accent-color: #533663; margin: 0;" checked>
-                    <span style="margin-left: 4px;">Export Mat</span>
+                <label style="display: grid; grid-template-columns: 20px auto; align-items: center; font-size: 18px; column-gap: 4px; cursor: pointer;">
+                    <input type="checkbox" id="exportMatCheckbox" style="transform: scale(1.15); accent-color: #533663; margin: 0; width: 16px; height: 16px;" checked>
+                    <span>Export Mat</span>
                 </label>
-                <label style="display: flex; align-items: center; font-size: 18px; gap: 0; cursor: pointer; margin-top: 10px;">
-                    <input type="checkbox" id="readableFontCheckbox" style="transform: scale(1.15); accent-color: #533663; margin: 0;">
-                    <span style="margin-left: 4px;">Readable Font</span>
+                <label style="display: grid; grid-template-columns: 20px auto; align-items: center; font-size: 18px; column-gap: 4px; cursor: pointer;">
+                    <input type="checkbox" id="readableFontCheckbox" style="transform: scale(1.15); accent-color: #533663; margin: 0; width: 16px; height: 16px;">
+                    <span>Readable Font</span>
+                </label>
+                <label style="display: grid; grid-template-columns: 20px auto; align-items: center; font-size: 18px; column-gap: 4px; cursor: pointer;">
+                    <input type="checkbox" id="cameraPortraitSettingCheckbox" style="transform: scale(1.15); accent-color: #533663; margin: 0; width: 16px; height: 16px;">
+                    <span>Camera Portrait</span>
                 </label>
                 <!-- Add this inside the settings panel, after the Export Mat setting checkbox -->
                 <label style="display: flex; align-items: center; font-size: 18px; gap: 0; cursor: pointer; margin-top: 10px;">
@@ -683,7 +732,7 @@
         position: fixed;
         bottom: 90px;
         left: 30px;
-        z-index: 3000;
+        z-index: 800;
         box-shadow: 0px 4px 12px rgba(0,0,0,0.6);
         ">
         <div id="calculatorHeader" style="
@@ -743,8 +792,10 @@
     position: fixed;
     bottom: 90px;
     left: 90px;
-    z-index: 3000;
+    z-index: 800;
     box-shadow: 0px 4px 12px rgba(0,0,0,0.6);
+    min-width: 320px;
+    min-height: 260px;
 ">
     <div id="notepadHeader" style="
         cursor: move;
@@ -764,6 +815,7 @@
     </div>
     <div class="modal-content" style="
         width: 320px;
+        height: 240px;
         max-width: 90vw;
         padding: 18px 20px 20px 20px;
         box-sizing: border-box;
@@ -773,13 +825,38 @@
         border-bottom-left-radius: 10px;
         border-bottom-right-radius: 10px;
         border-top: none;
+        display: flex;
+        flex-direction: column;
     ">
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+            <button id="notepadTabNotes" type="button" onclick="switchNotepadTab('notes')" style="flex:1; background:#533663; color:#fff; border:1px solid #676767; border-radius:4px; padding:6px 8px; cursor:pointer;">Notes</button>
+            <button id="notepadTabBestiary" type="button" onclick="switchNotepadTab('bestiary')" style="flex:1; background:#1e1e1e; color:#f0f0f0; border:1px solid #676767; border-radius:4px; padding:6px 8px; cursor:pointer;">Bestiary</button>
+            <button id="notepadTabStatus" type="button" onclick="switchNotepadTab('status')" style="flex:1; background:#1e1e1e; color:#f0f0f0; border:1px solid #676767; border-radius:4px; padding:6px 8px; cursor:pointer;">Status</button>
+            <button id="notepadTabBag" type="button" onclick="switchNotepadTab('bag')" style="flex:1; background:#1e1e1e; color:#f0f0f0; border:1px solid #676767; border-radius:4px; padding:6px 8px; cursor:pointer; display:none;">Bag</button>
+        </div>
         <div id="statusEffectNoteToolbar" style="display:block; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #676767;">
             <button onclick="showStatusEffectPicker()" style="background:#533663; color:#fff; border:none; border-radius:4px; padding:8px 14px; cursor:pointer; font-size:0.9em; font-weight:bold; transition:all 0.2s ease; width:100%;" onmouseover="this.style.background='#6d4574'; this.style.transform='translateY(-1px)';" onmouseout="this.style.background='#533663'; this.style.transform='translateY(0)';">+ Add Status Effect</button>
         </div>
-        <textarea id="notepadArea" style="width:100%; height:170px; font-size:1.1em; border-radius:6px; background:#1e1e1e; color:#f0f0f0; border:1px solid #676767; padding:10px; box-sizing:border-box; resize:none;"></textarea>
+        <div id="bagTabPanel" style="display:none; flex:1; overflow-y:auto;">
+            <div id="bagCapacityLabel" style="font-size:0.95em; color:#cfcfcf; margin-bottom:10px;"></div>
+            <div id="bagSlotsGrid" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;"></div>
+        </div>
+        <div id="bestiaryTabPanel" class="hide-scrollbar" style="display:none; flex:1; overflow-y:auto; overflow-x:hidden;"></div>
+        <textarea id="notepadArea" style="width:100%; flex:1; min-height:120px; font-size:1.1em; border-radius:6px; background:#1e1e1e; color:#f0f0f0; border:1px solid #676767; padding:10px; box-sizing:border-box; resize:none;"></textarea>
     </div>
+    <div id="notepadResizeHandle" style="position:absolute; right:2px; bottom:2px; width:16px; height:16px; cursor:nwse-resize; background:linear-gradient(135deg, transparent 0%, transparent 45%, #8a8a8a 45%, #8a8a8a 55%, transparent 55%, transparent 100%);"></div>
 </div>
+
+    <!-- Bag Capacity Modal -->
+    <div id="bagCapacityModal" class="modal" style="display:none;">
+        <div class="modal-content" style="width:320px; max-width:90%; padding:20px;">
+            <span class="close-button" onclick="closeBagCapacityModal()" style="top:10px; right:15px;">×</span>
+            <h2 style="margin-top:0; margin-bottom:12px; font-size:1.2em;">Bag Capacity</h2>
+            <p style="margin:0 0 12px 0; color:#cfcfcf;">How much space is in the bag? (1-10)</p>
+            <input id="bagCapacityInput" type="number" min="1" max="10" step="1" value="1" style="width:100%; box-sizing:border-box; margin-top:0;">
+            <button id="bagCapacityConfirmBtn" type="button" style="margin-top:12px; width:100%; padding:10px; background:#533663; color:#f0f0f0; border:none; border-radius:5px; cursor:pointer;">Set Capacity</button>
+        </div>
+    </div>
 
     <!-- Stats Sheet Modal -->
     <div id="statsSheetModal" style="
@@ -787,7 +864,7 @@
     position: fixed;
     bottom: 90px;
     left: 150px;
-    z-index: 3000;
+    z-index: 800;
     box-shadow: 0px 4px 12px rgba(0,0,0,0.6);
 ">
     <div id="statsSheetHeader" style="
@@ -864,6 +941,403 @@
 
     <script>
         let cardBgData = ""; // Add this at the top of your <script> section
+        let portraitCameraStream = null;
+        let cameraRenderId = null;
+        const cameraTransparencyBuffer = document.createElement('canvas');
+        const cameraTransparencyBufferCtx = cameraTransparencyBuffer.getContext('2d', { willReadFrequently: true });
+        const cameraFrameState = {
+            scale: 1,
+            offsetX: 0,
+            offsetY: 0,
+            transparent: false
+        };
+
+        function syncCameraCanvasSize(canvas, frame) {
+            if (!canvas || !frame) return null;
+            const cssWidth = frame.clientWidth || 240;
+            const cssHeight = frame.clientHeight || 450;
+            const pixelRatio = Math.max(1, window.devicePixelRatio || 1);
+            const renderWidth = Math.round(cssWidth * pixelRatio);
+            const renderHeight = Math.round(cssHeight * pixelRatio);
+            if (canvas.width !== renderWidth) canvas.width = renderWidth;
+            if (canvas.height !== renderHeight) canvas.height = renderHeight;
+            return { cssWidth, cssHeight, renderWidth, renderHeight };
+        }
+
+        function stopCameraRender() {
+            if (cameraRenderId) {
+                cancelAnimationFrame(cameraRenderId);
+                cameraRenderId = null;
+            }
+        }
+
+        function clearCameraCanvas(canvas) {
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function drawTransparentCameraFrame(targetCanvas, sourceCanvas) {
+            if (!targetCanvas || !sourceCanvas) return;
+            const targetCtx = targetCanvas.getContext('2d');
+            if (!targetCtx) return;
+            targetCtx.imageSmoothingEnabled = true;
+            targetCtx.imageSmoothingQuality = 'high';
+            targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+            targetCtx.drawImage(sourceCanvas, 0, 0, targetCanvas.width, targetCanvas.height);
+        }
+
+        function getCameraSourceRect(videoWidth, videoHeight, targetWidth, targetHeight) {
+            const frameAspect = targetWidth / targetHeight;
+            const videoAspect = videoWidth / videoHeight;
+            let cropWidth;
+            let cropHeight;
+
+            if (videoAspect > frameAspect) {
+                cropHeight = videoHeight;
+                cropWidth = cropHeight * frameAspect;
+            } else {
+                cropWidth = videoWidth;
+                cropHeight = cropWidth / frameAspect;
+            }
+
+            cropWidth /= cameraFrameState.scale;
+            cropHeight /= cameraFrameState.scale;
+
+            const sourcePixelsPerCssX = cropWidth / targetWidth;
+            const sourcePixelsPerCssY = cropHeight / targetHeight;
+            let centerX = (videoWidth / 2) - (cameraFrameState.offsetX * sourcePixelsPerCssX);
+            let centerY = (videoHeight / 2) - (cameraFrameState.offsetY * sourcePixelsPerCssY);
+
+            const halfCropWidth = cropWidth / 2;
+            const halfCropHeight = cropHeight / 2;
+            centerX = Math.max(halfCropWidth, Math.min(videoWidth - halfCropWidth, centerX));
+            centerY = Math.max(halfCropHeight, Math.min(videoHeight - halfCropHeight, centerY));
+
+            return {
+                sx: centerX - halfCropWidth,
+                sy: centerY - halfCropHeight,
+                sw: cropWidth,
+                sh: cropHeight
+            };
+        }
+
+        function renderCameraFrame() {
+            if (!portraitCameraStream) {
+                stopCameraRender();
+                return;
+            }
+
+            const portraitCameraFeed = document.getElementById('portraitCameraFeed');
+            const portraitCameraFrame = document.getElementById('portraitCameraFrame');
+            const portraitCameraCanvas = document.getElementById('portraitCameraCanvas');
+            const modalPortraitCameraFrame = document.getElementById('modalPortraitCameraFrame');
+            const modalPortraitCameraCanvas = document.getElementById('modalPortraitCameraCanvas');
+            if (!portraitCameraFeed || !portraitCameraFrame || !portraitCameraCanvas || !modalPortraitCameraFrame || !modalPortraitCameraCanvas) {
+                stopCameraRender();
+                return;
+            }
+
+            if (portraitCameraFeed.readyState < 2 || !portraitCameraFeed.videoWidth || !portraitCameraFeed.videoHeight) {
+                cameraRenderId = requestAnimationFrame(renderCameraFrame);
+                return;
+            }
+
+            const portraitSize = syncCameraCanvasSize(portraitCameraCanvas, portraitCameraFrame);
+            const modalSize = syncCameraCanvasSize(modalPortraitCameraCanvas, modalPortraitCameraFrame);
+            if (!portraitSize || !modalSize) {
+                cameraRenderId = requestAnimationFrame(renderCameraFrame);
+                return;
+            }
+
+            const sourceWidth = portraitCameraFeed.videoWidth;
+            const sourceHeight = portraitCameraFeed.videoHeight;
+            const sourceRect = getCameraSourceRect(sourceWidth, sourceHeight, portraitSize.cssWidth, portraitSize.cssHeight);
+
+            if (cameraFrameState.transparent) {
+                cameraTransparencyBuffer.width = portraitSize.renderWidth;
+                cameraTransparencyBuffer.height = portraitSize.renderHeight;
+                cameraTransparencyBufferCtx.imageSmoothingEnabled = true;
+                cameraTransparencyBufferCtx.imageSmoothingQuality = 'high';
+                cameraTransparencyBufferCtx.clearRect(0, 0, portraitSize.renderWidth, portraitSize.renderHeight);
+                cameraTransparencyBufferCtx.drawImage(
+                    portraitCameraFeed,
+                    sourceRect.sx,
+                    sourceRect.sy,
+                    sourceRect.sw,
+                    sourceRect.sh,
+                    0,
+                    0,
+                    portraitSize.renderWidth,
+                    portraitSize.renderHeight
+                );
+
+                const imageData = cameraTransparencyBufferCtx.getImageData(0, 0, portraitSize.renderWidth, portraitSize.renderHeight);
+                const pixels = imageData.data;
+                let hasNativeAlpha = false;
+
+                // First pass: detect whether the incoming camera frame already carries alpha.
+                // If it does, preserve it exactly and skip manual keying.
+                for (let index = 0; index < pixels.length; index += 4) {
+                    if (pixels[index + 3] < 250) {
+                        hasNativeAlpha = true;
+                        break;
+                    }
+                }
+
+                // Fallback keying only when native alpha is not present.
+                // Use green-dominance keying only to avoid removing dark facial details (e.g. eyelashes).
+                if (!hasNativeAlpha) {
+                    for (let index = 0; index < pixels.length; index += 4) {
+                    const red = pixels[index];
+                    const green = pixels[index + 1];
+                    const blue = pixels[index + 2];
+
+                    const greenDominance = green - Math.max(red, blue);
+                    const alphaIndex = index + 3;
+
+                    // Feathered keying avoids jagged, pixelated edges on hair/lines.
+                    const featherStart = 16;
+                    const featherEnd = 50;
+                    const keyStrengthRaw = (greenDominance - featherStart) / (featherEnd - featherStart);
+                    const keyStrength = Math.max(0, Math.min(1, keyStrengthRaw));
+                    if (green > 65 && keyStrength > 0) {
+                        const preservedAlpha = 1 - keyStrength;
+                        pixels[alphaIndex] = Math.round(pixels[alphaIndex] * preservedAlpha);
+
+                        // Mild despill to reduce green fringe while keeping detail.
+                        const despillAmount = keyStrength * 0.35;
+                        pixels[index + 1] = Math.round(green * (1 - despillAmount));
+                    }
+
+                    // Keep full cutout for obvious green backdrop.
+                    if (green > 95 && greenDominance > 62) {
+                        pixels[alphaIndex] = 0;
+                    }
+                }
+                }
+                cameraTransparencyBufferCtx.putImageData(imageData, 0, 0);
+                drawTransparentCameraFrame(portraitCameraCanvas, cameraTransparencyBuffer);
+                drawTransparentCameraFrame(modalPortraitCameraCanvas, cameraTransparencyBuffer);
+            } else {
+                const portraitCtx = portraitCameraCanvas.getContext('2d');
+                const modalCtx = modalPortraitCameraCanvas.getContext('2d');
+                if (portraitCtx && modalCtx) {
+                    portraitCtx.imageSmoothingEnabled = true;
+                    portraitCtx.imageSmoothingQuality = 'high';
+                    modalCtx.imageSmoothingEnabled = true;
+                    modalCtx.imageSmoothingQuality = 'high';
+                    portraitCtx.clearRect(0, 0, portraitSize.renderWidth, portraitSize.renderHeight);
+                    portraitCtx.drawImage(
+                        portraitCameraFeed,
+                        sourceRect.sx,
+                        sourceRect.sy,
+                        sourceRect.sw,
+                        sourceRect.sh,
+                        0,
+                        0,
+                        portraitSize.renderWidth,
+                        portraitSize.renderHeight
+                    );
+                    modalCtx.clearRect(0, 0, modalSize.renderWidth, modalSize.renderHeight);
+                    modalCtx.drawImage(
+                        portraitCameraFeed,
+                        sourceRect.sx,
+                        sourceRect.sy,
+                        sourceRect.sw,
+                        sourceRect.sh,
+                        0,
+                        0,
+                        modalSize.renderWidth,
+                        modalSize.renderHeight
+                    );
+                }
+            }
+
+            cameraRenderId = requestAnimationFrame(renderCameraFrame);
+        }
+
+        function updateCameraRenderUI() {
+            const portraitCameraFeed = document.getElementById('portraitCameraFeed');
+            const portraitCameraCanvas = document.getElementById('portraitCameraCanvas');
+            const modalPortraitCameraFeed = document.getElementById('modalPortraitCameraFeed');
+            const modalPortraitCameraCanvas = document.getElementById('modalPortraitCameraCanvas');
+            if (!portraitCameraFeed || !portraitCameraCanvas || !modalPortraitCameraFeed || !modalPortraitCameraCanvas) return;
+
+            if (portraitCameraStream) {
+                portraitCameraFeed.style.visibility = 'hidden';
+                modalPortraitCameraFeed.style.visibility = 'hidden';
+                portraitCameraCanvas.style.display = 'block';
+                modalPortraitCameraCanvas.style.display = 'block';
+                stopCameraRender();
+                renderCameraFrame();
+            } else {
+                portraitCameraFeed.style.visibility = 'visible';
+                modalPortraitCameraFeed.style.visibility = 'visible';
+                portraitCameraCanvas.style.display = 'none';
+                modalPortraitCameraCanvas.style.display = 'none';
+                clearCameraCanvas(portraitCameraCanvas);
+                clearCameraCanvas(modalPortraitCameraCanvas);
+                stopCameraRender();
+            }
+        }
+
+        function applyCameraFrameTransform() {
+            if (portraitCameraStream) {
+                updateCameraRenderUI();
+            }
+        }
+
+        function stopPortraitCameraStream() {
+            stopCameraRender();
+            if (!portraitCameraStream) return;
+            portraitCameraStream.getTracks().forEach(track => track.stop());
+            portraitCameraStream = null;
+            updateCameraRenderUI();
+        }
+
+        function setPortraitDisplayMode(useCamera) {
+            const portraitImage = document.getElementById('portraitImage');
+            const portraitCameraFeed = document.getElementById('portraitCameraFeed');
+            const portraitCameraFrame = document.getElementById('portraitCameraFrame');
+            const modalPortraitImage = document.getElementById('modalPortraitImage');
+            const modalPortraitCameraFeed = document.getElementById('modalPortraitCameraFeed');
+            const modalPortraitCameraFrame = document.getElementById('modalPortraitCameraFrame');
+            if (!portraitImage || !portraitCameraFeed || !portraitCameraFrame || !modalPortraitImage || !modalPortraitCameraFeed || !modalPortraitCameraFrame) return;
+
+            if (useCamera) {
+                portraitImage.style.display = 'none';
+                portraitCameraFrame.style.display = 'block';
+                modalPortraitImage.style.display = 'none';
+                modalPortraitCameraFrame.style.display = 'block';
+            } else {
+                portraitImage.style.display = 'block';
+                portraitCameraFrame.style.display = 'none';
+                modalPortraitImage.style.display = 'block';
+                modalPortraitCameraFrame.style.display = 'none';
+            }
+        }
+
+        async function startPortraitCamera(deviceId) {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Camera is not supported on this device/browser.');
+                return false;
+            }
+
+            try {
+                const constraints = {
+                    video: deviceId ? {
+                        deviceId: { exact: deviceId },
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        frameRate: { ideal: 30, max: 60 }
+                    } : {
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        frameRate: { ideal: 30, max: 60 },
+                        facingMode: 'user'
+                    },
+                    audio: false
+                };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                stopPortraitCameraStream();
+                portraitCameraStream = stream;
+
+                const portraitCameraFeed = document.getElementById('portraitCameraFeed');
+                const modalPortraitCameraFeed = document.getElementById('modalPortraitCameraFeed');
+                portraitCameraFeed.srcObject = stream;
+                modalPortraitCameraFeed.srcObject = stream;
+
+                await portraitCameraFeed.play().catch(() => {});
+                await modalPortraitCameraFeed.play().catch(() => {});
+                applyCameraFrameTransform();
+                updateCameraRenderUI();
+                setPortraitDisplayMode(true);
+                return true;
+            } catch (err) {
+                console.error('Failed to start camera:', err);
+                alert('Unable to access camera. Please allow camera permission and try again.');
+                return false;
+            }
+        }
+
+        function applyCameraPortraitSettingUI() {
+            const settingCheckbox = document.getElementById('cameraPortraitSettingCheckbox');
+            const portraitUseCameraRow = document.getElementById('portraitUseCameraRow');
+            const portraitUseCameraCheckbox = document.getElementById('portraitUseCameraCheckbox');
+            const imageUploader = document.getElementById('imageUploader');
+            const cameraEditButton = document.getElementById('cameraEditButton');
+            const cameraEditPanel = document.getElementById('cameraEditPanel');
+            if (!settingCheckbox || !portraitUseCameraRow || !portraitUseCameraCheckbox || !imageUploader || !cameraEditButton || !cameraEditPanel) return;
+
+            const settingEnabled = settingCheckbox.checked;
+            portraitUseCameraRow.style.display = settingEnabled ? 'flex' : 'none';
+            imageUploader.style.width = settingEnabled ? '45%' : '90%';
+
+            if (!settingEnabled) {
+                portraitUseCameraCheckbox.checked = false;
+                cameraEditButton.style.display = 'none';
+                cameraEditPanel.style.display = 'none';
+                imageUploader.style.display = 'block';
+                stopPortraitCameraStream();
+                setPortraitDisplayMode(false);
+                return;
+            }
+
+            if (portraitUseCameraCheckbox.checked) {
+                imageUploader.style.display = 'none';
+                cameraEditButton.style.display = 'block';
+            } else {
+                imageUploader.style.display = 'block';
+                cameraEditButton.style.display = 'none';
+                cameraEditPanel.style.display = 'none';
+                stopPortraitCameraStream();
+                setPortraitDisplayMode(false);
+            }
+        }
+
+        async function handlePortraitUseCameraToggle() {
+            const portraitUseCameraCheckbox = document.getElementById('portraitUseCameraCheckbox');
+            const cameraEditButton = document.getElementById('cameraEditButton');
+            const cameraEditPanel = document.getElementById('cameraEditPanel');
+            const imageUploader = document.getElementById('imageUploader');
+            if (!portraitUseCameraCheckbox || !cameraEditButton || !cameraEditPanel || !imageUploader) return;
+
+            if (portraitUseCameraCheckbox.checked) {
+                const started = await startPortraitCamera();
+                if (!started) {
+                    portraitUseCameraCheckbox.checked = false;
+                    applyCameraPortraitSettingUI();
+                    return;
+                }
+                imageUploader.style.display = 'none';
+                cameraEditButton.style.display = 'block';
+            } else {
+                cameraEditButton.style.display = 'none';
+                cameraEditPanel.style.display = 'none';
+                imageUploader.style.display = 'block';
+                stopPortraitCameraStream();
+                setPortraitDisplayMode(false);
+            }
+        }
+
+        function openPortraitModal() {
+            const portraitImage = document.getElementById('portraitImage');
+            const modalPortraitImage = document.getElementById('modalPortraitImage');
+            const portraitUseCameraCheckbox = document.getElementById('portraitUseCameraCheckbox');
+            if (modalPortraitImage && portraitImage) {
+                modalPortraitImage.src = portraitImage.src;
+            }
+
+            if (portraitUseCameraCheckbox && portraitUseCameraCheckbox.checked && portraitCameraStream) {
+                setPortraitDisplayMode(true);
+            } else {
+                setPortraitDisplayMode(false);
+            }
+            document.getElementById('portraitModal').style.display = 'flex';
+        }
 
         function updateName() {
             const nameField = document.getElementById('characterName').value;
@@ -899,6 +1373,13 @@
             const fileInput = document.getElementById('imageUploader');
             const file = fileInput.files[0];
             if (file) {
+                const portraitUseCameraCheckbox = document.getElementById('portraitUseCameraCheckbox');
+                if (portraitUseCameraCheckbox) {
+                    portraitUseCameraCheckbox.checked = false;
+                }
+                stopPortraitCameraStream();
+                setPortraitDisplayMode(false);
+
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     document.getElementById('portraitImage').src = e.target.result;
@@ -994,6 +1475,7 @@
                 slot.style.backgroundImage = '';
                 slot.textContent = normalizedIcon || fallbackLabel;
             }
+            updateBagTabVisibility();
         }
 
         function exportCode() {
@@ -1043,6 +1525,10 @@
             // Get current health values
             const currentHealth = currentHP || 0;  // Add this line
 
+            // Save current tab before export
+            saveActiveNotepadTab();
+            const bagState = parseBagState();
+
             let exportData = `
 Character Name: ${characterName}
 Level: ${level}
@@ -1054,7 +1540,10 @@ Currency: ${currency}
 Affinity Option: ${affinityChecked ? "Enabled" : "Disabled"}
 Affinity Icon: ${affinityIcon}
 Action Icons: ${JSON.stringify(actionIcons)}
-Notepad: ${document.getElementById('notepadArea') ? encodeURIComponent(document.getElementById('notepadArea').value) : ""}
+Notepad: ${encodeURIComponent(notepadSessions.notes)}
+Bestiary: ${encodeURIComponent(JSON.stringify(bestiarySession.revealed))}
+Status: ${encodeURIComponent(notepadSessions.status)}
+Bag: ${encodeURIComponent(JSON.stringify(bagState))}
 Stats Sheet: ${encodeURIComponent(JSON.stringify(getStatsSheetState()))}
 `.trim();
 
@@ -1122,6 +1611,8 @@ function pasteCode() {
             alert('Character code format not recognized.');
             return;
         }
+
+        isApplyingCharacterImport = true;
 
         const importedSubclass = (typeof data['Subclass'] !== 'undefined') ? data['Subclass'] : '';
 
@@ -1194,9 +1685,51 @@ function pasteCode() {
 
         if (typeof data['Notepad'] !== 'undefined') {
             const note = decodeURIComponent(data['Notepad']);
+            notepadSessions.notes = note;
             if (document.getElementById('notepadArea')) {
-                document.getElementById('notepadArea').value = note;
-                localStorage.setItem('d20notepad', note);
+                if (activeNotepadTab === 'notes') {
+                    document.getElementById('notepadArea').value = note;
+                }
+            }
+        }
+
+        if (typeof data['Bestiary'] !== 'undefined') {
+            try {
+                const parsed = JSON.parse(decodeURIComponent(data['Bestiary']));
+                bestiarySession.revealed = Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                bestiarySession.revealed = [];
+            }
+            if (activeNotepadTab === 'bestiary') {
+                renderBestiaryPanel();
+            }
+        }
+
+        if (typeof data['Status'] !== 'undefined') {
+            const status = decodeURIComponent(data['Status']);
+            notepadSessions.status = status;
+            if (document.getElementById('notepadArea') && activeNotepadTab === 'status') {
+                document.getElementById('notepadArea').value = status;
+            }
+        }
+
+        if (typeof data['Bag'] !== 'undefined') {
+            const bag = decodeURIComponent(data['Bag']);
+            try {
+                const parsed = JSON.parse(bag);
+                const capacity = parseInt(parsed.capacity, 10) || 0;
+                const slots = Array.isArray(parsed.slots)
+                    ? parsed.slots.map(v => (typeof v === 'string' ? v : ''))
+                    : [];
+                saveBagState({ capacity, slots });
+                if (hasBackpackInActionSlots()) {
+                    updateBagTabVisibility();
+                    if (activeNotepadTab === 'bag') {
+                        renderBagSlots();
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to parse bag state:', e);
             }
         }
 
@@ -1205,7 +1738,6 @@ function pasteCode() {
             try {
                 const parsedStatsSheet = JSON.parse(statsSheetRaw);
                 setStatsSheetState(parsedStatsSheet);
-                localStorage.setItem('d20statssheet', JSON.stringify(parsedStatsSheet));
             } catch {
                 resetStatsSheetToDefaults();
             }
@@ -1219,6 +1751,9 @@ function pasteCode() {
             currentHP = parseInt(data['Health']) || 0;
             updateHealthBar(false);
         }
+
+        isApplyingCharacterImport = false;
+        updateBagTabVisibility();
 
         updateName();
         updateStats();
@@ -1515,6 +2050,7 @@ function updateActionSlotH() {
             hSlot.style.backgroundImage = '';
         }
     }
+    updateBagTabVisibility();
 }
 
 function showModal(title, icon, description, type) {
@@ -1631,13 +2167,11 @@ document.querySelectorAll('.action-slot').forEach(slot => {
         // Function to handle icon selection
         function selectIcon(iconName) {
             if (selectedSlot) {
-                // Set the selected image as the background of the clicked action slot
-                selectedSlot.style.backgroundImage = `url('https://raw.githubusercontent.com/scarethevoices/D20/main/pics/itemicons/equip/${iconName}')`;
-                selectedSlot.style.backgroundSize = 'cover'; // Ensure the image covers the slot
-                selectedSlot.style.backgroundPosition = 'center'; // Center the image
-
-                // Remove the label (text content) from the action slot
-                selectedSlot.textContent = '';
+                const iconUrl = `https://raw.githubusercontent.com/scarethevoices/D20/main/pics/itemicons/equip/${iconName}`;
+                applyActionIconToSlot(selectedSlot, iconUrl, '');
+                if (selectedSlot.classList.contains('bag-slot')) {
+                    saveBagSlotsFromDom();
+                }
             }
             const menu = document.getElementById('actionMenu');
             menu.style.display = 'none'; // Hide the menu
@@ -1650,10 +2184,10 @@ document.querySelectorAll('.action-slot').forEach(slot => {
             if (!selectedSlot || !file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                selectedSlot.style.backgroundImage = `url('${e.target.result}')`;
-                selectedSlot.style.backgroundSize = 'cover';
-                selectedSlot.style.backgroundPosition = 'center';
-                selectedSlot.textContent = '';
+                applyActionIconToSlot(selectedSlot, e.target.result, '');
+                if (selectedSlot.classList.contains('bag-slot')) {
+                    saveBagSlotsFromDom();
+                }
             };
             reader.readAsDataURL(file);
         }
@@ -1774,7 +2308,11 @@ document.querySelectorAll('.action-slot').forEach(slot => {
                         selectedSlot.textContent = slotIndex.toString();
                     }
                 }
+                if (selectedSlot.classList.contains('bag-slot')) {
+                    saveBagSlotsFromDom();
+                }
             }
+            updateBagTabVisibility();
             const menu = document.getElementById('actionMenu');
             menu.style.display = 'none'; // Hide the menu
         }
@@ -1794,6 +2332,7 @@ document.querySelectorAll('.action-slot').forEach(slot => {
         }
 
         function openExtraPanel() {
+            updateStatusTabVisibility();
             document.getElementById('extraPanel').style.display = 'flex';
         }
         function closeExtraPanel() {
@@ -1896,7 +2435,10 @@ document.querySelectorAll('.action-slot').forEach(slot => {
 
         // Handle Status Effect checkbox toggle
         document.getElementById('statusEffectCheckbox').addEventListener('change', function() {
-            document.getElementById('statusEffectNoteToolbar').style.display = this.checked ? 'block' : 'none';
+            if (!hasCampaignStatusEffects()) {
+                this.checked = false;
+            }
+            document.getElementById('statusEffectNoteToolbar').style.display = (this.checked && activeNotepadTab === 'status') ? 'block' : 'none';
             updateStatusEffectDisplay();
         });
 
@@ -1908,9 +2450,12 @@ document.querySelectorAll('.action-slot').forEach(slot => {
             const statsBox = document.querySelector('.stats-box');
             const existing = statsBox.querySelectorAll('.status-effect-button');
             existing.forEach(b => b.remove());
+            if (!hasCampaignStatusEffects()) return;
             if (!document.getElementById('statusEffectCheckbox').checked) return;
             const ta = document.getElementById('notepadArea');
-            const text = ta.value || localStorage.getItem('d20notepad') || '';
+            const text = (activeNotepadTab === 'status' && ta)
+                ? ta.value
+                : (notepadSessions.status || '');
             const effects = (window.D20_CAMPAIGN_DATA && window.D20_CAMPAIGN_DATA.statusEffects) || [];
             const seen = new Set();
             effects.forEach(effect => {
@@ -1937,6 +2482,7 @@ document.querySelectorAll('.action-slot').forEach(slot => {
         }
 
         function showStatusEffectPicker() {
+            if (!hasCampaignStatusEffects()) return;
             const picker = document.getElementById('statusEffectPicker');
             const iconsDiv = document.getElementById('statusEffectPickerIcons');
             iconsDiv.innerHTML = '';
@@ -1971,7 +2517,7 @@ document.querySelectorAll('.action-slot').forEach(slot => {
                     ta.value = beforeText + insert + afterText;
                     ta.selectionStart = ta.selectionEnd = start + insert.length;
                     ta.focus();
-                    localStorage.setItem('d20notepad', ta.value);
+                    saveActiveNotepadTab();
                     updateStatusEffectDisplay();
                     closeStatusEffectPicker();
                 };
@@ -1984,11 +2530,444 @@ document.querySelectorAll('.action-slot').forEach(slot => {
             document.getElementById('statusEffectPicker').style.display = 'none';
         }
 
+        const notepadStorageKeys = {
+            notes: 'd20notepad',
+            bestiary: 'd20bestiary',
+            status: 'd20status',
+            bag: 'd20bag'
+        };
+        let activeNotepadTab = 'notes';
+
+        // Session memory for notepad content (not persisted to localStorage)
+        let notepadSessions = {
+            notes: '',
+            bestiary: '',
+            status: ''
+        };
+
+        // Session memory for bag state (not persisted to localStorage)
+        let bagSession = {
+            capacity: 0,
+            slots: []
+        };
+        let hadBackpackLastCheck = false;
+        let isApplyingCharacterImport = false;
+
+        // Session memory for bestiary (Pokédex state — revealed creature names only)
+        let bestiarySession = { revealed: [] };
+
+        function parseBagState() {
+            // Read from session memory, not localStorage
+            const capacity = bagSession.capacity || 0;
+            const slots = Array.isArray(bagSession.slots) ? bagSession.slots : [];
+            return { capacity, slots };
+        }
+
+        function saveBagState(state) {
+            const capacity = Math.max(0, Math.min(10, parseInt(state.capacity, 10) || 0));
+            const slots = Array.isArray(state.slots)
+                ? state.slots.slice(0, capacity).map(v => (typeof v === 'string' ? v : ''))
+                : [];
+            // Store to session memory, not localStorage
+            bagSession.capacity = capacity;
+            bagSession.slots = slots;
+        }
+
+        function resetBagSession() {
+            bagSession.capacity = 0;
+            bagSession.slots = [];
+        }
+
+        function renderBestiaryPanel() {
+            const creatures = (window.D20_CAMPAIGN_DATA && window.D20_CAMPAIGN_DATA.bestiary) || [];
+            const panel = document.getElementById('bestiaryTabPanel');
+            if (!panel) return;
+            const revealedSet = new Set(bestiarySession.revealed);
+            const revealedCount = creatures.filter(c => revealedSet.has(c.name)).length;
+
+            panel.style.display = 'flex';
+            panel.style.flexDirection = 'column';
+            panel.style.minHeight = '0';
+
+            panel.innerHTML = '';
+
+            const counter = document.createElement('div');
+            counter.style.cssText = 'font-size:0.82em; color:#cfcfcf; margin-bottom:8px; text-align:right;';
+            counter.textContent = `${revealedCount} / ${creatures.length} Discovered`;
+            panel.appendChild(counter);
+
+            const grid = document.createElement('div');
+            grid.className = 'hide-scrollbar';
+            grid.style.cssText = 'display:grid; grid-template-columns:repeat(4, 1fr); gap:5px; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden;';
+
+            creatures.forEach(creature => {
+                const isRevealed = revealedSet.has(creature.name);
+                const card = document.createElement('div');
+                card.style.cssText = [
+                    'border-radius:5px',
+                    'padding:6px 3px',
+                    'text-align:center',
+                    'cursor:pointer',
+                    'transition:transform 0.15s,border-color 0.15s,box-shadow 0.15s',
+                    'user-select:none',
+                    isRevealed ? 'background:#1a2e1a;border:1px solid #4a7a4a;' : 'background:#1a1a1a;border:1px solid #3a3a3a;'
+                ].join(';');
+
+                const iconWrap = document.createElement('div');
+                iconWrap.style.cssText = 'width:28px;height:28px;border-radius:3px;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;font-size:14px;';
+
+                if (isRevealed) {
+                    iconWrap.style.background = '#2c3e2c';
+                    if (creature.icon) {
+                        const img = document.createElement('img');
+                        img.src = `icons/${creature.icon}`;
+                        img.style.cssText = 'width:28px;height:28px;border-radius:3px;object-fit:cover;';
+                        img.onerror = function() { iconWrap.textContent = '?'; };
+                        iconWrap.appendChild(img);
+                    } else {
+                        iconWrap.textContent = '?';
+                    }
+                    const name = document.createElement('div');
+                    name.style.cssText = 'font-size:0.6em;color:#88d888;word-break:break-word;line-height:1.2;';
+                    name.textContent = creature.name;
+                    card.appendChild(iconWrap);
+                    card.appendChild(name);
+                    card.addEventListener('click', () => showBestiaryEntryModal(creature));
+                } else {
+                    iconWrap.style.background = '#282828';
+                    iconWrap.style.color = '#444';
+                    iconWrap.style.fontSize = '16px';
+                    iconWrap.textContent = '?';
+                    const unknown = document.createElement('div');
+                    unknown.style.cssText = 'font-size:0.6em;color:#444;';
+                    unknown.textContent = '???';
+                    card.appendChild(iconWrap);
+                    card.appendChild(unknown);
+                    card.addEventListener('click', () => toggleBestiaryReveal(creature.name));
+                }
+
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-2px)';
+                    card.style.boxShadow = '0 3px 10px rgba(0,0,0,0.35)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = 'none';
+                });
+                grid.appendChild(card);
+            });
+
+            panel.appendChild(grid);
+        }
+
+        function toggleBestiaryReveal(creatureName) {
+            const idx = bestiarySession.revealed.indexOf(creatureName);
+            if (idx === -1) {
+                bestiarySession.revealed.push(creatureName);
+            } else {
+                bestiarySession.revealed.splice(idx, 1);
+            }
+            renderBestiaryPanel();
+        }
+
+        function showBestiaryEntryModal(creature) {
+            const existing = document.getElementById('bestiaryEntryModal');
+            if (existing) existing.remove();
+
+            const overlay = document.createElement('div');
+            overlay.id = 'bestiaryEntryModal';
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:2000;';
+
+            const box = document.createElement('div');
+            box.style.cssText = 'background:#2c2c2c;border:2px solid #676767;border-radius:10px;padding:24px;width:300px;max-width:90%;color:#f0f0f0;text-align:center;position:relative;';
+
+            const closeBtn = document.createElement('span');
+            closeBtn.textContent = '×';
+            closeBtn.style.cssText = 'position:absolute;top:10px;right:14px;font-size:22px;cursor:pointer;color:#f0f0f0;font-weight:bold;line-height:1;';
+            closeBtn.addEventListener('click', () => overlay.remove());
+
+            const iconWrap = document.createElement('div');
+            iconWrap.style.cssText = 'width:56px;height:56px;background:#1e2e1e;border-radius:8px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:28px;';
+            if (creature.icon) {
+                const img = document.createElement('img');
+                img.src = `icons/${creature.icon}`;
+                img.style.cssText = 'width:52px;height:52px;border-radius:6px;object-fit:cover;';
+                img.onerror = function() { iconWrap.textContent = '?'; };
+                iconWrap.appendChild(img);
+            } else {
+                iconWrap.textContent = '?';
+            }
+
+            const title = document.createElement('h3');
+            title.textContent = creature.name;
+            title.style.cssText = 'margin:0 0 10px 0;font-size:1.2em;';
+
+            const desc = document.createElement('p');
+            desc.textContent = creature.description || 'No data available.';
+            desc.style.cssText = 'font-size:0.9em;color:#cfcfcf;line-height:1.5;margin:0 0 16px 0;';
+
+            const unrevealBtn = document.createElement('button');
+            unrevealBtn.textContent = 'Mark as Unknown';
+            unrevealBtn.style.cssText = 'background:#553333;color:#f0f0f0;border:none;border-radius:5px;padding:8px 16px;cursor:pointer;font-size:0.85em;';
+            unrevealBtn.addEventListener('click', () => {
+                toggleBestiaryReveal(creature.name);
+                overlay.remove();
+            });
+
+            box.appendChild(closeBtn);
+            box.appendChild(iconWrap);
+            box.appendChild(title);
+            box.appendChild(desc);
+            box.appendChild(unrevealBtn);
+            overlay.appendChild(box);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+            document.body.appendChild(overlay);
+        }
+
+        function hasValidBagCapacity() {
+            const cap = parseBagState().capacity;
+            return Number.isInteger(cap) && cap >= 1 && cap <= 10;
+        }
+
+        function closeBagCapacityModal() {
+            const modal = document.getElementById('bagCapacityModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function openBagCapacityModal() {
+            const modal = document.getElementById('bagCapacityModal');
+            const input = document.getElementById('bagCapacityInput');
+            if (!modal || !input) return;
+            const existing = parseBagState().capacity;
+            input.value = (existing >= 1 && existing <= 10) ? existing : 1;
+            modal.style.display = 'flex';
+        }
+
+        function setBagCapacity(capacityValue) {
+            const capacity = Math.max(1, Math.min(10, parseInt(capacityValue, 10) || 1));
+            const existing = parseBagState();
+            const nextSlots = Array.isArray(existing.slots) ? existing.slots.slice(0, capacity) : [];
+            while (nextSlots.length < capacity) {
+                nextSlots.push('');
+            }
+            saveBagState({ capacity, slots: nextSlots });
+        }
+
+        function saveBagSlotsFromDom() {
+            const state = parseBagState();
+            const capacity = state.capacity;
+            if (capacity < 1) return;
+            const slotEls = document.querySelectorAll('#bagSlotsGrid .bag-slot');
+            const slots = Array.from(slotEls).slice(0, capacity).map(slot => extractBackgroundImageUrl(slot.style.backgroundImage || ''));
+            saveBagState({ capacity, slots });
+        }
+
+        function renderBagSlots() {
+            const bagPanel = document.getElementById('bagTabPanel');
+            const label = document.getElementById('bagCapacityLabel');
+            const grid = document.getElementById('bagSlotsGrid');
+            if (!bagPanel || !label || !grid) return;
+
+            const state = parseBagState();
+            const capacity = state.capacity;
+            label.textContent = capacity > 0 ? `Bag Space: ${capacity}/10` : 'Bag Space: not set';
+            grid.innerHTML = '';
+
+            if (capacity < 1) return;
+
+            for (let i = 0; i < capacity; i++) {
+                const slot = document.createElement('button');
+                slot.type = 'button';
+                slot.className = 'action-slot bag-slot';
+                slot.style.margin = '0';
+                slot.style.width = '60px';
+                slot.style.height = '60px';
+                slot.style.fontSize = '16px';
+                slot.style.color = '#f0f0f0';
+                slot.addEventListener('click', function(event) {
+                    selectedSlot = event.currentTarget;
+                    const menu = document.getElementById('actionMenu');
+                    if (menu) menu.style.display = 'flex';
+                });
+                grid.appendChild(slot);
+                applyActionIconToSlot(slot, state.slots[i] || '', (i + 1).toString());
+            }
+        }
+
+        function hasBackpackInActionSlots() {
+            const actionSlots = document.querySelectorAll('.actions .action-slot');
+            return Array.from(actionSlots).some(slot => {
+                const bgUrl = extractBackgroundImageUrl(slot.style.backgroundImage || '');
+                return bgUrl.toLowerCase().includes('backpack.png');
+            });
+        }
+
+        function hasCampaignBestiary() {
+            const data = window.D20_CAMPAIGN_DATA;
+            return !!(data && Object.prototype.hasOwnProperty.call(data, 'bestiary'));
+        }
+
+        function hasCampaignStatusEffects() {
+            const data = window.D20_CAMPAIGN_DATA;
+            return !!(data && Object.prototype.hasOwnProperty.call(data, 'statusEffects'));
+        }
+
+        function updateBestiaryTabVisibility() {
+            const bestiaryTab = document.getElementById('notepadTabBestiary');
+            if (!bestiaryTab) return;
+            const shouldShow = hasCampaignBestiary();
+            bestiaryTab.style.display = shouldShow ? '' : 'none';
+            if (!shouldShow && activeNotepadTab === 'bestiary') {
+                switchNotepadTab('notes');
+            }
+            setNotepadTabButtonStyles();
+        }
+
+        function updateStatusTabVisibility() {
+            const statusTab = document.getElementById('notepadTabStatus');
+            if (!statusTab) return;
+            const shouldShow = hasCampaignStatusEffects();
+            statusTab.style.display = shouldShow ? '' : 'none';
+
+            const statusOptionRow = document.getElementById('statusEffectOptionRow');
+            if (statusOptionRow) {
+                statusOptionRow.style.display = shouldShow ? 'flex' : 'none';
+            }
+
+            if (!shouldShow) {
+                const statusCheckbox = document.getElementById('statusEffectCheckbox');
+                if (statusCheckbox) statusCheckbox.checked = false;
+                const toolbar = document.getElementById('statusEffectNoteToolbar');
+                if (toolbar) toolbar.style.display = 'none';
+                updateStatusEffectDisplay();
+            }
+
+            if (!shouldShow && activeNotepadTab === 'status') {
+                switchNotepadTab('notes');
+            }
+            setNotepadTabButtonStyles();
+        }
+
+        function updateBagTabVisibility() {
+            const bagTab = document.getElementById('notepadTabBag');
+            if (!bagTab) return;
+            const shouldShow = hasBackpackInActionSlots();
+            const wasVisible = bagTab.style.display !== 'none';
+
+            // Reset bag data only when a backpack is actually removed.
+            if (hadBackpackLastCheck && !shouldShow) {
+                resetBagSession();
+            }
+            hadBackpackLastCheck = shouldShow;
+
+            bagTab.style.display = shouldShow ? '' : 'none';
+            if (!shouldShow && activeNotepadTab === 'bag') {
+                switchNotepadTab('notes');
+            }
+
+            if (shouldShow && !wasVisible) {
+                if (!hasValidBagCapacity()) {
+                    if (!isApplyingCharacterImport) {
+                        openBagCapacityModal();
+                    }
+                } else {
+                    renderBagSlots();
+                }
+            }
+            setNotepadTabButtonStyles();
+        }
+
+        function setNotepadTabButtonStyles() {
+            const notesBtn = document.getElementById('notepadTabNotes');
+            const bestiaryBtn = document.getElementById('notepadTabBestiary');
+            const statusBtn = document.getElementById('notepadTabStatus');
+            const bagBtn = document.getElementById('notepadTabBag');
+            if (!notesBtn || !bestiaryBtn || !statusBtn || !bagBtn) return;
+
+            const tabs = [
+                { name: 'notes', el: notesBtn },
+                { name: 'bestiary', el: bestiaryBtn },
+                { name: 'status', el: statusBtn },
+                { name: 'bag', el: bagBtn }
+            ];
+
+            tabs.forEach(tab => {
+                const isActive = tab.name === activeNotepadTab;
+                tab.el.style.background = isActive ? '#533663' : '#1e1e1e';
+                tab.el.style.color = isActive ? '#fff' : '#f0f0f0';
+            });
+        }
+
+        function saveActiveNotepadTab() {
+            if (activeNotepadTab === 'bag') {
+                saveBagSlotsFromDom();
+                return;
+            }
+            if (activeNotepadTab === 'bestiary') return; // bestiary state managed by bestiarySession
+            const ta = document.getElementById('notepadArea');
+            if (!ta) return;
+            if (notepadSessions.hasOwnProperty(activeNotepadTab)) {
+                notepadSessions[activeNotepadTab] = ta.value;
+            }
+        }
+
+        function switchNotepadTab(tabName) {
+            if (!notepadStorageKeys[tabName]) return;
+            if (tabName === 'bestiary' && !hasCampaignBestiary()) return;
+            if (tabName === 'status' && !hasCampaignStatusEffects()) return;
+            if (tabName === 'bag' && !hasBackpackInActionSlots()) return;
+            if (tabName === 'bag' && !hasValidBagCapacity()) {
+                openBagCapacityModal();
+                return;
+            }
+            saveActiveNotepadTab();
+            activeNotepadTab = tabName;
+
+            const ta = document.getElementById('notepadArea');
+            const bagPanel = document.getElementById('bagTabPanel');
+            const bestiaryPanel = document.getElementById('bestiaryTabPanel');
+
+            if (tabName === 'bag') {
+                if (ta) ta.style.display = 'none';
+                if (bagPanel) bagPanel.style.display = 'block';
+                if (bestiaryPanel) bestiaryPanel.style.display = 'none';
+                renderBagSlots();
+            } else if (tabName === 'bestiary') {
+                if (ta) ta.style.display = 'none';
+                if (bagPanel) bagPanel.style.display = 'none';
+                if (bestiaryPanel) bestiaryPanel.style.display = 'flex';
+                renderBestiaryPanel();
+            } else {
+                if (ta) ta.style.display = 'block';
+                if (bagPanel) bagPanel.style.display = 'none';
+                if (bestiaryPanel) bestiaryPanel.style.display = 'none';
+            }
+
+            if (ta && tabName !== 'bag' && tabName !== 'bestiary') {
+                ta.value = notepadSessions[tabName] || '';
+            }
+
+            const toolbar = document.getElementById('statusEffectNoteToolbar');
+            const statusEffectEnabled = document.getElementById('statusEffectCheckbox')?.checked;
+            if (toolbar) {
+                toolbar.style.display = (tabName === 'status' && statusEffectEnabled) ? 'block' : 'none';
+            }
+
+            setNotepadTabButtonStyles();
+            if (tabName === 'status') {
+                updateStatusEffectDisplay();
+            }
+        }
+
         // Show modal when portrait is clicked
         document.getElementById('portraitImage').onclick = function() {
-            // Set modal image to current portrait
-            document.getElementById('modalPortraitImage').src = document.getElementById('portraitImage').src;
-            document.getElementById('portraitModal').style.display = 'flex';
+            openPortraitModal();
+        };
+        document.getElementById('portraitCameraFrame').onclick = function() {
+            openPortraitModal();
+        };
+        document.getElementById('portraitCameraFeed').onclick = function() {
+            openPortraitModal();
         };
 
         // Hide modal function
@@ -2111,15 +3090,40 @@ document.getElementById('notepadBtn').onclick = function() {
     modal.style.bottom = '90px';
     modal.style.right = '';
     modal.style.position = 'fixed';
-    document.getElementById('notepadArea').value = localStorage.getItem('d20notepad') || '';
+    updateBestiaryTabVisibility();
+    updateStatusTabVisibility();
+    updateBagTabVisibility();
+    switchNotepadTab('notes');
 };
 function closeNotepad() {
     document.getElementById('notepadModal').style.display = 'none';
-    localStorage.setItem('d20notepad', document.getElementById('notepadArea').value);
+    saveActiveNotepadTab();
 }
 document.getElementById('notepadArea').addEventListener('input', function() {
-    localStorage.setItem('d20notepad', this.value);
-    updateStatusEffectDisplay();
+    saveActiveNotepadTab();
+    if (activeNotepadTab === 'status') {
+        updateStatusEffectDisplay();
+    }
+});
+
+document.getElementById('bagCapacityConfirmBtn').addEventListener('click', function() {
+    const input = document.getElementById('bagCapacityInput');
+    let capacity = parseInt(input.value, 10);
+    if (!Number.isInteger(capacity)) capacity = 1;
+    capacity = Math.max(1, Math.min(10, capacity));
+    input.value = capacity;
+
+    setBagCapacity(capacity);
+    closeBagCapacityModal();
+    renderBagSlots();
+
+    if (activeNotepadTab === 'bag') {
+        switchNotepadTab('bag');
+    }
+});
+
+document.getElementById('bagCapacityModal').addEventListener('click', function(e) {
+    if (e.target === this) closeBagCapacityModal();
 });
 // Prevent accidental text selection while dragging
 document.getElementById('notepadModal').onselectstart = function() { return false; };
@@ -2127,13 +3131,31 @@ document.getElementById('notepadModal').onselectstart = function() { return fals
 (function() {
     const notepadModal = document.getElementById('notepadModal');
     const header = document.getElementById('notepadHeader');
+    const resizeHandle = document.getElementById('notepadResizeHandle');
     let offsetX = 0, offsetY = 0, isDragging = false;
+    let isResizing = false, startWidth = 0, startHeight = 0, startX = 0, startY = 0;
+    const minWidth = 320;
+    const minHeight = 260;
 
     header.onmousedown = function(e) {
+        if (isResizing) return;
         isDragging = true;
         const rect = notepadModal.getBoundingClientRect();
         offsetX = e.clientX - rect.left;
         offsetY = e.clientY - rect.top;
+        document.body.style.userSelect = "none";
+    };
+
+    resizeHandle.onmousedown = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        isResizing = true;
+        const rect = notepadModal.getBoundingClientRect();
+        startWidth = rect.width;
+        startHeight = rect.height;
+        startX = e.clientX;
+        startY = e.clientY;
+        notepadModal.style.width = rect.width + 'px';
         document.body.style.userSelect = "none";
     };
 
@@ -2145,10 +3167,21 @@ document.getElementById('notepadModal').onselectstart = function() { return fals
             notepadModal.style.bottom = "auto";
             notepadModal.style.position = "fixed";
         }
+        if (isResizing) {
+            const nextWidth = Math.max(minWidth, startWidth + (e.clientX - startX));
+            const nextHeight = Math.max(minHeight, startHeight + (e.clientY - startY));
+            notepadModal.style.width = nextWidth + 'px';
+            const content = notepadModal.querySelector('.modal-content');
+            if (content) {
+                content.style.width = '100%';
+                content.style.height = Math.max(210, nextHeight - header.offsetHeight) + 'px';
+            }
+        }
     });
 
     document.addEventListener('mouseup', function() {
         isDragging = false;
+        isResizing = false;
         document.body.style.userSelect = "";
     });
 })();
@@ -2168,7 +3201,6 @@ document.getElementById('statsSheetBtn').onclick = function() {
 
 function closeStatsSheet() {
     document.getElementById('statsSheetModal').style.display = 'none';
-    localStorage.setItem('d20statssheet', JSON.stringify(getStatsSheetState()));
 }
 
 // Prevent accidental text selection while dragging
@@ -2413,7 +3445,7 @@ function updateStatsSheetUI(changedAllocKey) {
         spentEl.style.color = spentPoints > totalPoints ? '#ff8080' : '#f0f0f0';
     }
 
-    localStorage.setItem('d20statssheet', JSON.stringify(getStatsSheetState()));
+    // Stats sheet data is only saved through export/import, not auto-persisted to localStorage
 }
 
 function bindStatsSheetInputs() {
@@ -2435,9 +3467,7 @@ function bindStatsSheetInputs() {
             const snapshot = getStatsSheetState();
             committedAllocations = { ...snapshot.allocations };
             pointsAtLastSubmission = getTotalPrimeSkillPoints(Math.max(1, parseInt(document.getElementById('level')?.value, 10) || 1));
-            saveCharacterToLocal();
             setStatsSheetLocked(true);
-            localStorage.setItem('d20statssheet', JSON.stringify(getStatsSheetState()));
         });
     }
 
@@ -2478,6 +3508,8 @@ populateDropdowns();
 window.addEventListener('DOMContentLoaded', function() {
     try {
         populateDropdowns();
+        updateBestiaryTabVisibility();
+        updateStatusTabVisibility();
         bindStatsSheetInputs();
         updateStatsSheetUI();
         updateSubclassDropdown();
@@ -2495,30 +3527,7 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 function saveCharacterToLocal() {
-    const data = {
-        characterName: document.getElementById('characterName').value || '',
-        level: document.getElementById('level').value || '',
-        race: document.getElementById('race').value || '',
-        className: document.getElementById('class').value || '',
-        currency: document.getElementById('currency').value || '',
-        affinityChecked: document.getElementById('affinityCheckbox').checked,
-        statusEffectChecked: document.getElementById('statusEffectCheckbox').checked,
-        selectedAffinity: window.selectedAffinity || "none.png",
-        portraitImage: document.getElementById('portraitImage').src || '',
-        cardBgData: window.cardBgData || '',
-        actionIcons: Array.from(document.querySelectorAll('.actions .action-slot')).map(slot => {
-            const bg = slot.style.backgroundImage;
-            const bgUrl = extractBackgroundImageUrl(bg);
-            if (bgUrl) {
-                return bgUrl;
-            } else {
-                return slot.textContent.trim();
-            }
-        }),
-        statsSheet: getStatsSheetState(),
-        health: currentHP,  // Add this line
-    };
-    localStorage.setItem('d20character', JSON.stringify(data));
+    // Data is now only saved through export/import mechanism, not auto-persisted to localStorage
 }
 
 function loadCharacterFromLocal() {
@@ -2542,7 +3551,7 @@ function loadCharacterFromLocal() {
     }
     if (typeof data.statusEffectChecked !== 'undefined') {
         document.getElementById('statusEffectCheckbox').checked = data.statusEffectChecked;
-        document.getElementById('statusEffectNoteToolbar').style.display = data.statusEffectChecked ? 'block' : 'none';
+        document.getElementById('statusEffectNoteToolbar').style.display = (data.statusEffectChecked && activeNotepadTab === 'status') ? 'block' : 'none';
         updateStatusEffectDisplay();
     }
     if (typeof data.selectedAffinity !== 'undefined') {
@@ -2569,13 +3578,9 @@ function loadCharacterFromLocal() {
     if (typeof data.statsSheet !== 'undefined') {
         if (typeof data.statsSheet === 'object' && data.statsSheet !== null) {
             setStatsSheetState(data.statsSheet);
-            localStorage.setItem('d20statssheet', JSON.stringify(data.statsSheet));
         } else if (typeof data.statsSheet === 'string') {
-            // Backward compatibility with old text-only stats storage.
-            localStorage.setItem('d20statssheet', data.statsSheet);
+            // Backward compatibility: skip if old text-only format
         }
-    } else {
-        loadStatsSheetFromLocalStorage();
     }
     updateStatsSheetUI();
     // Load health
@@ -2655,6 +3660,15 @@ function updateSubclass() {
 const volumeSlider = document.getElementById('volumeSlider');
 const volumeValue = document.getElementById('volumeValue');
 const readableFontCheckbox = document.getElementById('readableFontCheckbox');
+const cameraPortraitSettingCheckbox = document.getElementById('cameraPortraitSettingCheckbox');
+const portraitUseCameraCheckbox = document.getElementById('portraitUseCameraCheckbox');
+const cameraEditButton = document.getElementById('cameraEditButton');
+const cameraEditDoneButton = document.getElementById('cameraEditDoneButton');
+const cameraEditPanel = document.getElementById('cameraEditPanel');
+const cameraScaleSlider = document.getElementById('cameraScaleSlider');
+const cameraOffsetXSlider = document.getElementById('cameraOffsetXSlider');
+const cameraOffsetYSlider = document.getElementById('cameraOffsetYSlider');
+const cameraTransparentCheckbox = document.getElementById('cameraTransparentCheckbox');
 const allAudio = [
     document.getElementById('diceSound'),
     document.getElementById('rulebookSound')
@@ -2676,6 +3690,67 @@ if (readableFontCheckbox) {
     const shouldEnableReadable = savedReadableFont === '1';
     readableFontCheckbox.checked = shouldEnableReadable;
     setReadableFontMode(shouldEnableReadable);
+}
+
+if (cameraPortraitSettingCheckbox) {
+    cameraPortraitSettingCheckbox.addEventListener('change', function() {
+        const enabled = this.checked;
+        localStorage.setItem('d20_camera_portrait', enabled ? '1' : '0');
+        applyCameraPortraitSettingUI();
+    });
+
+    const savedCameraPortrait = localStorage.getItem('d20_camera_portrait');
+    cameraPortraitSettingCheckbox.checked = savedCameraPortrait === '1';
+    applyCameraPortraitSettingUI();
+}
+
+if (portraitUseCameraCheckbox) {
+    portraitUseCameraCheckbox.addEventListener('change', function() {
+        handlePortraitUseCameraToggle();
+    });
+}
+
+if (cameraEditButton && cameraEditPanel) {
+    cameraEditButton.addEventListener('click', function() {
+        const isOpen = cameraEditPanel.style.display === 'block';
+        cameraEditPanel.style.display = isOpen ? 'none' : 'block';
+        cameraEditButton.textContent = isOpen ? 'Edit Camera View' : 'Editing...';
+    });
+}
+
+if (cameraEditDoneButton && cameraEditPanel && cameraEditButton) {
+    cameraEditDoneButton.addEventListener('click', function() {
+        cameraEditPanel.style.display = 'none';
+        cameraEditButton.textContent = 'Edit Camera View';
+    });
+}
+
+if (cameraScaleSlider) {
+    cameraScaleSlider.addEventListener('input', function() {
+        cameraFrameState.scale = Number(this.value) || 1;
+        applyCameraFrameTransform();
+    });
+}
+
+if (cameraOffsetXSlider) {
+    cameraOffsetXSlider.addEventListener('input', function() {
+        cameraFrameState.offsetX = Number(this.value) || 0;
+        applyCameraFrameTransform();
+    });
+}
+
+if (cameraOffsetYSlider) {
+    cameraOffsetYSlider.addEventListener('input', function() {
+        cameraFrameState.offsetY = Number(this.value) || 0;
+        applyCameraFrameTransform();
+    });
+}
+
+if (cameraTransparentCheckbox) {
+    cameraTransparentCheckbox.addEventListener('change', function() {
+        cameraFrameState.transparent = Boolean(this.checked);
+        updateCameraTransparencyUI();
+    });
 }
 
 function setAllAudioVolume(vol) {
