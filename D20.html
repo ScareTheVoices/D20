@@ -3195,7 +3195,6 @@ document.getElementById('statsSheetBtn').onclick = function() {
     modal.style.bottom = '90px';
     modal.style.right = '';
     modal.style.position = 'fixed';
-    loadStatsSheetFromLocalStorage();
     updateStatsSheetUI();
 };
 
@@ -3381,13 +3380,11 @@ function setStatsSheetLocked(locked) {
     }
 }
 
-function loadStatsSheetFromLocalStorage() {
-    const parsed = safeGetLocalJSON('d20statssheet', null);
-    if (!parsed) {
-        setStatsSheetLocked(false);
-        return;
+function clearLegacyStatsSheetStorage() {
+    // Stats sheet now lives in character save data (export/import), not shared localStorage.
+    if (localStorage.getItem('d20statssheet') !== null) {
+        localStorage.removeItem('d20statssheet');
     }
-    setStatsSheetState(parsed);
 }
 
 function updateStatsSheetUI(changedAllocKey) {
@@ -3507,6 +3504,7 @@ populateDropdowns();
 
 window.addEventListener('DOMContentLoaded', function() {
     try {
+        clearLegacyStatsSheetStorage();
         populateDropdowns();
         updateBestiaryTabVisibility();
         updateStatusTabVisibility();
