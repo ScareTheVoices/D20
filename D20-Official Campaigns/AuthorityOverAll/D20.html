@@ -1,0 +1,4264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D20</title> <!-- Updated tab name -->
+    <link rel="icon" href="https://raw.githubusercontent.com/scarethevoices/D20/main/pics/d20.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
+    <style>
+        body {
+            --app-font: 'Permanent Marker', cursive;
+            --readable-font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: var(--app-font);
+            background: linear-gradient(to bottom, #3a3a3a, #1e1e1e);
+            color: #f0f0f0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        body.readable-font {
+            --app-font: var(--readable-font);
+        }
+        .character-card {
+            background: linear-gradient(to bottom, #4b4b4b, #2f2f2f);
+            border-radius: 15px;
+            padding: 20px;
+            width: 960px; /* Updated width */
+            height: 540px; /* Updated height */
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: row; /* Ensure horizontal layout */
+            justify-content: space-between; /* Space between stats and portrait */
+            align-items: flex-start; /* Align items at the top */
+        }
+        .character-name {
+            text-align: center;
+            font-size: 32px; /* Resized font */
+            padding: 15px;
+            border: 2px solid #676767;
+            border-radius: 10px;
+            background: #2c2c2c;
+            margin-bottom: 20px;
+        }
+        .details {
+            display: flex;
+            flex-direction: row-reverse; /* Reverse the order to place the portrait on the right */
+            justify-content: space-between;
+            width: 100%; /* Ensure full use of space */
+        }
+        .stats {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            width: 50%;
+        }
+        .portrait {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 50%; /* Adjust width to take half of the card */
+            position: relative; /* Make the portrait container the reference for .actions */
+        }
+        .stat, .action-slot {
+            margin: 5px; /* Reduced margin to move circles closer */
+            width: 75px; /* Equal width */
+            height: 75px; /* Equal height */
+            border: 2px solid #676767;
+            border-radius: 50%; /* Ensures the element is a circle */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1e1e1e;
+            font-size: 18px; /* Resized text */
+        }
+        input, select {
+            font-size: 18px; /* Resized input font */
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #676767;
+            border-radius: 5px;
+            background: #2c2c2c;
+            color: #f0f0f0;
+            width: 90%;
+        }
+        .portrait img {
+            width: 240px; /* Updated image width */
+            height: 450px; /* Updated image height */
+            border-radius: 10px;
+            margin-bottom: 20px;
+            object-fit: cover;
+            border: 5px solid #000000; /* Optional: Add a border for the frame */
+        }
+        .actions {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            position: absolute;
+            left: -60px;
+            height: 100%;
+            gap: 10px;
+            z-index: 10; /* Ensure it appears above other elements */
+        }
+
+        .actions .action-slot {
+            margin: 0; /* Remove extra margin */
+            width: 75px; /* Equal width */
+            height: 75px; /* Equal height */
+            border: 2px solid #676767;
+            border-radius: 50%; /* Ensures the element is a circle */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1e1e1e;
+            font-size: 18px; /* Resized text */
+            color: #f0f0f0;
+            cursor: pointer; /* Add pointer cursor for buttons */
+            outline: none; /* Remove default button outline */
+        }
+
+        .actions .action-slot:hover {
+            background: #533663; /* Add hover effect */
+            transition: background 0.2s ease-in-out;
+        }
+
+        .actions .action-slot:last-child {
+            position: absolute;
+            bottom: 0px;
+            left: 25px;
+            display: none; /* Hide Action Slot H by default */
+        }
+        .stats-box {
+            background: #2c2c2c;
+            border: 2px solid #676767;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+            width: 50%;
+            height: 484px; /* Set a fixed height */
+            overflow-y: auto; /* Enable vertical scrolling if content overflows */
+        }
+
+        .stats-box input {
+            width: 94%; /* Make inputs fill the box */
+            margin-bottom: 10px; /* Add spacing between inputs */
+            font-size: 16px;
+            padding: 8px;
+            border: 1px solid #676767;
+            border-radius: 5px;
+            background: #1e1e1e;
+            color: #f0f0f0;
+        }
+        .rulebook-icon {
+            position: absolute;
+            top: 10px; /* Distance from the top */
+            right: 10px; /* Distance from the right */
+            width: 50px; /* Icon width */
+            height: 50px; /* Icon height */
+            z-index: 1000; /* Ensure it appears above other elements */
+        }
+
+        .rulebook-icon img {
+            width: 100%; /* Make the image fill the container */
+            height: 100%; /* Maintain aspect ratio */
+            object-fit: cover; /* Ensure the image fits properly */
+            cursor: pointer; /* Change cursor to pointer on hover */
+            border-radius: 5px; /* Optional: Add rounded corners */
+            border: 2px solid #676767; /* Optional: Add a border */
+        }
+
+        .rulebook-icon img:hover {
+            transform: scale(1.1); /* Slight zoom effect on hover */
+            transition: transform 0.2s ease-in-out; /* Smooth transition */
+        }
+        .modal {
+            position: fixed;
+            top: 50%; /* Center vertically */
+            left: 50%; /* Center horizontally */
+            transform: translate(-50%, -50%); /* Adjust for the modal's size */
+            width: 100%; /* Full-screen width */
+            height: 100%; /* Full-screen height */
+            background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+            display: none; /* Hidden by default */
+            justify-content: center; /* Center content horizontally */
+            align-items: center; /* Center content vertically */
+            z-index: 2000; /* Ensure it appears above other elements */
+        }
+
+        .modal-content {
+            background: #2c2c2c;
+            border: 2px solid #676767;
+            border-radius: 10px;
+            padding: 20px;
+            width: 80%;
+            max-height: 80%;
+            overflow-y: auto; /* Enable scrolling for long content */
+            color: #f0f0f0;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
+
+        .close-button {
+            position: absolute;
+            right: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #f0f0f0;
+            cursor: pointer;
+        }
+
+        .close-button:hover {
+            color: #ff0000;
+        }
+        .rules-content h3 {
+            margin-top: 20px;
+            color: #533663;
+        }
+
+        .rules-content p {
+            margin: 10px 0;
+        }
+        .die-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            position: relative;
+            z-index: 1; /* Lower z-index to place it below the buttons */
+        }
+        .action-menu {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #2c2c2c;
+            border: 2px solid #676767;
+            border-radius: 10px;
+            padding: 20px; /* Adjust padding for spacing */
+            display: flex;
+            flex-direction: column; /* Stack search bar and icons vertically */
+            gap: 15px; /* Add spacing between search bar and icons */
+            z-index: 1000; /* Ensure it appears above other elements */
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.6);
+            width: 850px; /* Slightly smaller than the character card */
+            height: 480px; /* Slightly smaller than the character card */
+            overflow-y: auto; /* Enable scrolling if content overflows */
+        }
+
+        .menu-content {
+            display: flex;
+            flex-direction: row; /* Arrange icons in a horizontal line */
+            flex-wrap: wrap; /* Allow icons to wrap to the next line if needed */
+            justify-content: flex-start; /* Align icons to the left */
+            align-items: center; /* Align icons vertically */
+            gap: 10px; /* Add spacing between icons */
+        }
+
+        .menu-icon {
+            width: 50px; /* Set a smaller width for the icons */
+            height: 50px; /* Set a smaller height for the icons */
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            transition: transform 0.2s, border-color 0.2s;
+            object-fit: cover; /* Ensure the image fits properly within the icon */
+        }
+
+        .menu-icon:hover {
+            transform: scale(1.2); /* Slightly enlarge the icon on hover */
+            border-color: #533663;
+        }
+
+        #settingsPanel .modal-content {
+            overflow-x: hidden;
+            flex-wrap: wrap;
+            width: 320px;
+            max-width: 95vw;
+            box-sizing: border-box;
+        }
+
+        #loadingOverlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100vw; height: 100vh;
+            background: linear-gradient(to bottom, #3a3a3a, #1e1e1e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+            color: #f0f0f0;
+            font-size: 2.5em;
+            font-family: Arial, sans-serif;
+            transition: opacity 0.5s;
+        }
+
+        #loadingOverlay div {
+            text-align: center;
+            margin-top: 18px;
+        }
+        .health-bar-container {
+            width: 240px;
+            height: 20px;
+            background: #2c2c2c;
+            border: 2px solid #676767;
+            border-radius: 10px;
+            margin-top: 443px;
+            position: absolute;
+            overflow: hidden;
+        }
+
+        .health-bar {
+    position: relative;
+    height: 100%;
+    transition: width 0.3s ease, background 0.4s ease;
+    z-index: 1;
+}
+
+
+        .health-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    color: #f0f0f0;
+    font-size: 14px;
+    line-height: 20px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    z-index: 2;
+    cursor: text;
+    user-select: text;
+    outline: none;
+    pointer-events: auto;
+}
+
+/* Death Overlay Styles */
+.death-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    border-radius: 10px;
+}
+
+.death-skull {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 20px;
+}
+
+.declare-dead-btn {
+    padding: 10px 20px;
+    background: #ff3333;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    cursor: pointer;
+    font-family: 'Permanent Marker', cursive;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s;
+}
+
+.declare-dead-btn:hover {
+    transform: scale(1.1);
+}
+
+* {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
+    </style>
+    <!-- Add in your <head> or before your main <script> -->
+    <script src="data.js"></script>
+    <script src="SkillTree.js"></script>
+</head>
+<body>
+    <div id="loadingOverlay" style="
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: 100vw; height: 100vh;
+        background: linear-gradient(to bottom, #3a3a3a, #1e1e1e);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 5000;
+        color: #f0f0f0;
+        font-size: 2.5em;
+        font-family: Arial, sans-serif;
+        transition: opacity 0.5s;
+    ">
+        <img id="loadingBanner" src="banner.png" alt="" style="position:relative; z-index:1; max-width:720px; width:85%; max-height:400px; object-fit:contain; border-radius:12px; opacity:0.9; display:none;">
+        <div id="loadingDefault" style="position:relative; z-index:1;">
+            <img src="https://raw.githubusercontent.com/scarethevoices/D20/main/pics/d20.png" alt="Loading..." style="width:100px; height:100px; display:block; margin:auto;">
+            <div style="text-align:center; margin-top:18px;">Loading...</div>
+        </div>
+        <div style="
+            position: absolute;
+            bottom: 18px;
+            right: 32px;
+            color: #f0f0f0;
+            font-family: 'Permanent Marker', Arial, sans-serif;
+            font-size: 2.1rem;
+            opacity: 0.7;
+            letter-spacing: 1px;
+            pointer-events: none;
+            user-select: none;
+            text-shadow: 2px 2px 6px #000;
+            z-index: 2;
+        ">
+            ScareTheVoices
+        </div>
+    </div>
+    <script>
+        (function() {
+            const banner = document.getElementById('loadingBanner');
+            const defaultContent = document.getElementById('loadingDefault');
+            banner.onload = function() {
+                banner.style.display = 'block';
+                defaultContent.style.display = 'none';
+            };
+            banner.onerror = function() {
+                banner.style.display = 'none';
+                defaultContent.style.display = 'block';
+            };
+        })();
+    </script>
+    <div class="character-card">
+        <!-- Replace the contents of .stats-box with this cleaner, grouped layout -->
+        <div class="stats-box">
+            <input type="text" placeholder="Character Name" id="characterName" oninput="updateName()"><br>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="number" placeholder="Level" id="level" min="1" oninput="updateStats()" style="width: 40%;">
+                <div style="position: relative; flex: 1; min-width: 0;">
+                    <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 22px; color: #533663; pointer-events: none; font-family: 'Permanent Marker', cursive;">$</span>
+                    <input type="number" placeholder="Currency" id="currency" min="0" oninput="updateStats()" style="padding-left: 28px; width: 76%; min-width: 0;">
+                </div>
+            </div>
+            <br>
+            <!-- Dropdown for Race -->
+            <select id="race" onchange="updateRace()">
+                 <option value="">Select Race</option>
+                </select><br>
+            <!-- Dropdown for Class -->
+            <div id="classContainer">
+                <select id="class" onchange="updateClass()">
+                    <option value="">Select Class</option>
+                </select><br>
+            </div>
+            <!-- Subclass Dropdown (hidden by default) -->
+            <div id="subclassContainer" style="display:none;">
+                <select id="subclass" onchange="updateSubclass()" style="margin-top:10px;">
+                    <option value="">Select Subclass</option>
+                </select>
+            </div>
+            <div class="button-row">
+                <button onclick="exportCode()" style="margin-top: 10px; padding: 10px; background: #533663; color: #f0f0f0; border: none; border-radius: 5px; cursor: pointer;">Export Code</button>
+                <button onclick="pasteCode()" style="margin-top: 10px; padding: 10px; background: #3c763d; color: #f0f0f0; border: none; border-radius: 5px; cursor: pointer;">Paste Code</button>
+            </div>
+        </div>
+        <div class="details">
+            <div class="portrait">
+                <img id="portraitImage" src="https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/pics/placeholder.jpg" alt="Character Portrait" style="cursor:pointer;">
+                <div id="portraitCameraFrame" style="display:none; cursor:pointer; width:240px; height:450px; border-radius:10px; margin-bottom:20px; border:5px solid #000000; overflow:hidden; position:relative;">
+                    <video id="portraitCameraFeed" autoplay muted playsinline style="display:block; cursor:pointer; width:100%; height:100%; object-fit:cover; border:none; position:absolute; top:0; left:0;"></video>
+                    <canvas id="portraitCameraCanvas" style="display:none; width:100%; height:100%; position:absolute; top:0; left:0; pointer-events:none;"></canvas>
+                </div>
+                <div class="health-bar-container" onclick="editHealth()">
+    <div class="health-text" id="healthText">100/100</div>
+    <div class="health-bar" id="healthBar"></div>
+</div>
+
+                <div class="actions">
+                    <button class="action-slot">1</button>
+                    <button class="action-slot">2</button>
+                    <button class="action-slot">3</button>
+                    <button class="action-slot">H</button>
+                </div>
+                <button id="affinityBtn" style="display:none; position:absolute; top:-10px; right: -20px; z-index:10; background:none; border:none; cursor:pointer; padding:0;">
+                    <img id="affinityIcon"
+                         src=""
+                         alt="Affinity"
+                         style="width:70px; height:70px; border-radius:0%; border:5px solid #000000;">
+                </button>
+            </div>
+            <div class="die-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; position: relative;">
+                <button id="rollDie" onclick="rollDie()" style="background: none; border: none; cursor: pointer; position: relative;">
+                    <img src="https://raw.githubusercontent.com/scarethevoices/D20/main/pics/20SidedDie.png" alt="Roll D20" style="width: 300px; height: 300px;">
+                    <div id="dieResult" style="position: absolute; top: 48%; left: 51.5%; transform: translate(-50%, -50%); font-size: 48px; color: #533663; font-weight: bold;">-</div>
+                </button>
+            </div>
+            <audio id="diceSound" src="https://raw.githubusercontent.com/scarethevoices/D20/main/sounds/diceroll.mp3"></audio>
+        </div>
+    </div>
+    <div class="circle-container">
+        <div class="circle" id="circle1"></div>
+        <div class="circle" id="circle2"></div>
+    </div>
+    <div class="rulebook-icon">
+        <a href="javascript:void(0);" title="Rulebook" onclick="openRulebook()">
+            <img src="https://raw.githubusercontent.com/scarethevoices/D20/main/pics/RuleBook.png" alt="Rulebook Icon">
+        </a>
+    </div>
+
+    <!-- Add Extra button under the rulebook icon -->
+    <div class="extra-icon" style="position: absolute; top: 70px; right: 10px; z-index: 1000;">
+        <button onclick="openExtraPanel()" style="width: 50px; height: 50px; background: #533663; color: #f0f0f0; border: 2px solid #676767; border-radius: 5px; font-size: 18px; cursor: pointer; padding: 0;">
+            <img src="https://raw.githubusercontent.com/scarethevoices/D20/main/pics/Extra.png" alt="Extra" style="width: 100%; height: 100%; object-fit: cover; border-radius: 5px;">
+        </button>
+    </div>
+
+    <!-- Settings Button (bottom left) -->
+    <div id="settingsBtn" style="position: fixed; bottom: 18px; left: 18px; z-index: 1200;">
+        <button style="background: none; border: none; cursor: pointer; padding: 0;">
+            <img src="https://raw.githubusercontent.com/scarethevoices/D20/main/pics/cog.png" alt="Settings" style="width: 48px; height: 48px;">
+        </button>
+    </div>
+
+    <!-- Add this just after the settingsBtn div, near the bottom left -->
+    <div id="calculatorBtn" style="position: fixed; bottom: 18px; left: 78px; z-index: 1200;">
+        <button style="background: none; border: none; cursor: pointer; padding: 0;">
+            <img src="https://raw.githubusercontent.com/scarethevoices/D20/main/pics/calculator.png" alt="Calculator" style="width: 48px; height: 48px;">
+        </button>
+    </div>
+
+    <!-- Add this just after the calculatorBtn div, near the bottom left -->
+    <div id="notepadBtn" style="position: fixed; bottom: 18px; left: 138px; z-index: 1200;">
+        <button style="background: none; border: none; cursor: pointer; padding: 0;">
+            <img src="https://raw.githubusercontent.com/scarethevoices/D20/main/pics/notebook.png" alt="Notepad" style="width: 48px; height: 48px;">
+        </button>
+    </div>
+
+    <!-- Stats Sheet Button (next to Notes) -->
+    <div id="statsSheetBtn" style="position: fixed; bottom: 18px; left: 198px; z-index: 1200;">
+        <button title="Stats Sheet" style="background: none; border: none; cursor: pointer; padding: 0;">
+            <img src="https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/pics/stats.png" alt="Stats" style="width: 48px; height: 48px;">
+        </button>
+    </div>
+
+    <!-- Rulebook Modal -->
+    <div id="rulebookModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeRulebook()">×</span>
+            <h2>Rules of the Game: D20</h2>
+            <div class="rules-content">
+                <h3>Initial Setup</h3>
+                <p><strong>1. Player Order:</strong> Each player rolls a d20. Highest roll goes first. Turn order then goes from highest to lowest. If players tie, tied players roll again.</p>
+                <p><strong>2. Character Creation:</strong> Each player starts at Level 5. Players choose a class approved by the GM. Each class has a base skill from the GM. Each character starts with one class-appropriate weapon.</p>
+                
+                <h3>Turn Structure</h3>
+                <p><strong>1. Turn Composition:</strong> Each turn (scene) gives a player one movement and one action. Actions can include attacking, using a skill, interacting with the environment, or another GM-approved action.</p>
+                <p><strong>2. Scenes:</strong> A scene is one full turn rotation. Players in the same scene may interact with each other. After all players finish their actions, turn order continues into the next scene.</p>
+                
+                <h3>Skill Checks and Combat</h3>
+                <p><strong>1. Skill Checks:</strong> Roll a d20 to resolve actions. To succeed, the result must be equal to or higher than the GM-set target number.</p>
+                <p><strong>2. Combat:</strong> Combat order starts from the established turn order. Enemies also roll a d20 to join the order. Combat then proceeds in rounds using that order.</p>
+                <p><strong>3. Health:</strong> Maximum Health = Current Level x 20. Example: Level 5 = 100 max health.</p>
+                <p><strong>4. Damage:</strong> Attack Damage = Current Level x d20 roll. Example: Level 5 and roll 12 = 60 damage.</p>
+                <p><strong>5. Defense:</strong> On defense, roll a d20. Defense Value = Current Level x defense roll. If Defense Value is greater than or equal to Attack Value, the attack is fully blocked. Otherwise, subtract Defense Value from Attack Value to get final damage.</p>
+                <p><em>Final Damage = (Attacker Level × d20) − (Defender Level × d20)</em></p>
+                
+                <h3>Leveling Up</h3>
+                <p><strong>1. Experience and Levels:</strong> Characters can gain up to three levels in a single scene. Level gains can come from battles, events, or artifacts.</p>
+
+                <h3>Stats Sheet</h3>
+                <p><strong>1. Skill Points:</strong> Characters gain 2 bonus stat points at each prime-number level after Level 5.</p>
+                <p><strong>2. Point Use:</strong> Bonus points can be assigned to Might, Vigor, Agility, Mind, and Instinct. Each point adds +1 to that stat's modifier.</p>
+                <p><strong>3. Submission:</strong> Stats must be submitted with Save and Lock. Locked points remain fixed until new prime-level points are earned.</p>
+                
+                <h3>Inventory Management</h3>
+                <p><strong>1. Items:</strong> Each character can hold up to three items. Some items may increase this limit. Starting Items must be class-appropriate and GM-approved.</p>
+                
+                <h3>Game Rules and Endgame</h3>
+                <p><strong>1. Class and Weapon Restrictions:</strong> Weapons must suit the character's class unless the GM says otherwise. Class changes are not allowed unless the GM approves them.</p>
+                <p><strong>2. Artifact Rules:</strong> Once the GM sets an artifact's description and effects, they do not change.</p>
+                <p><strong>3. Starting Location:</strong> All characters start in the same story location unless the GM specifies otherwise.</p>
+                <p><strong>4. Endgame:</strong> The game ends when the GM-defined end goal is completed, such as finishing a quest, defeating a final boss, or reaching a destination.</p>
+                
+                <h3>Miscellaneous</h3>
+                <p><strong>1. Game Master's Role:</strong> The GM sets scenes, defines challenges, and arbitrates rules. The GM has final say on all game decisions, including rule interpretation and disputes.</p>
+                <p><strong>2. Interaction and Role-Playing:</strong> Players are encouraged to role-play and interact with the world creatively. Communication and cooperation between players improve the story experience.</p>
+            </div>
+        </div>
+    </div>
+    <audio id="rulebookSound" src="https://raw.githubusercontent.com/scarethevoices/D20/main/sounds/RuleBook.mp3"></audio>
+
+    <!-- Action Menu -->
+    <div id="actionMenu" class="action-menu" style="display: none;">
+        <input type="text" id="searchBar" placeholder="Search items..." oninput="filterMenu()" 
+               style="width: 80%; height: 6%; padding: 3px; margin-bottom: 10px; border: 1px solid #676767; border-radius: 5px; background: #1e1e1e; color: #f0f0f0; font-size: 12px;">
+        <div class="menu-content"></div>
+        <button id="clearSlotButton" onclick="clearSlot()" 
+                style="margin-top: 15px; padding: 10px; background: #ff4d4d; color: #f0f0f0; border: none; border-radius: 5px; cursor: pointer; width: 100%;">
+            Clear Slot
+        </button>
+    </div>
+
+    <!-- Extra Panel Modal -->
+    <div id="extraPanel" class="modal" style="display: none;">
+        <div class="modal-content" style="width: 320px; max-width: 90%; padding: 28px 20px 20px 20px; box-sizing: border-box; text-align: left;">
+            <span class="close-button" onclick="closeExtraPanel()" style="top: 10px; right: 15px;">×</span>
+            <h2 style="margin-top: 0; margin-bottom: 18px; text-align: left; font-size: 1.4em;">Extra Options</h2>
+            <div style="display: flex; flex-direction: column; gap: 12px; align-items: flex-start;">
+                <label style="display: flex; align-items: center; font-size: 18px; cursor: pointer;">
+                    <input type="checkbox" id="affinityCheckbox" style="width: 18px; height: 18px; accent-color: #533663; margin: 0; flex-shrink: 0;">
+                    <span style="margin-left: 8px;">Affinity</span>
+                </label>
+                <label id="statusEffectOptionRow" style="display: flex; align-items: center; font-size: 18px; cursor: pointer;">
+                    <input type="checkbox" id="statusEffectCheckbox" style="width: 18px; height: 18px; accent-color: #533663; margin: 0; flex-shrink: 0;" checked>
+                    <span style="margin-left: 8px;">Status Effect</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Affinity Picker Modal -->
+    <div id="affinityPicker" class="modal" style="display:none;">
+        <div class="modal-content" style="width:340px; max-width:90%; padding:24px;">
+            <span class="close-button" onclick="closeAffinityPicker()" style="top:10px; right:15px;">×</span>
+            <h2 style="margin-top:0; margin-bottom:18px; text-align:left; font-size:1.2em;">Select Affinity</h2>
+            <div id="affinityIcons" style="display:flex; flex-wrap:wrap; gap:12px;">
+                <!-- Affinity icons will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Effect Picker Modal -->
+    <div id="statusEffectPicker" class="modal" style="display:none;">
+        <div class="modal-content" style="width:360px; max-width:90%; padding:24px;">
+            <span class="close-button" onclick="closeStatusEffectPicker()" style="top:10px; right:15px;">×</span>
+            <h2 style="margin-top:0; margin-bottom:18px; text-align:left; font-size:1.2em;">Select Status Effect</h2>
+            <div id="statusEffectPickerIcons" style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start;">
+                <!-- Status effect icons will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Portrait Modal -->
+    <div id="portraitModal" class="modal" style="display:none; z-index:3000;">
+        <div class="modal-content" style="width:340px; max-width:90%; padding:24px; display:flex; flex-direction:column; align-items:center;">
+            <span class="close-button" onclick="closePortraitModal()" style="top:10px; right:15px;">×</span>
+            <img id="modalPortraitImage" src="placeholder.jpg" alt="Character Portrait" style="width:240px; height:450px; border-radius:10px; object-fit:cover; border:5px solid #000;">
+            <div id="modalPortraitCameraFrame" style="display:none; width:240px; height:450px; border-radius:10px; border:5px solid #000; overflow:hidden; position:relative;">
+                <video id="modalPortraitCameraFeed" autoplay muted playsinline style="display:block; width:100%; height:100%; object-fit:cover; border:none; position:absolute; top:0; left:0;"></video>
+                <canvas id="modalPortraitCameraCanvas" style="display:none; width:100%; height:100%; position:absolute; top:0; left:0; pointer-events:none;"></canvas>
+            </div>
+            <div id="portraitSourceRow" style="margin-top:18px; width:90%; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                <input type="file" accept="image/*" id="imageUploader" onchange="uploadImage()" style="margin-top:0; width:90%;">
+                <button type="button" id="cameraEditButton" style="display:none; margin-top:0; width:45%; background:#533663; color:#fff; border:none; border-radius:6px; padding:7px 10px; cursor:pointer;">Edit Camera View</button>
+                <label id="portraitUseCameraRow" style="display:none; align-items:center; font-size:14px; cursor:pointer; white-space:nowrap;">
+                    <input type="checkbox" id="portraitUseCameraCheckbox" style="width:16px; height:16px; accent-color:#533663; margin:0 6px 0 0; flex-shrink:0;">
+                    <span>Use Camera</span>
+                </label>
+            </div>
+            <div id="cameraEditPanel" style="display:none; margin-top:12px; width:90%; border:1px solid #533663; border-radius:8px; padding:10px; box-sizing:border-box;">
+                <label style="display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:8px;">
+                    <span style="min-width:55px;">Zoom</span>
+                    <input type="range" id="cameraScaleSlider" min="1" max="2.5" step="0.01" value="1" style="flex:1;">
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:8px;">
+                    <span style="min-width:55px;">Offset X</span>
+                    <input type="range" id="cameraOffsetXSlider" min="-140" max="140" step="1" value="0" style="flex:1;">
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:10px;">
+                    <span style="min-width:55px;">Offset Y</span>
+                    <input type="range" id="cameraOffsetYSlider" min="-220" max="220" step="1" value="0" style="flex:1;">
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:10px; cursor:pointer;">
+                    <input type="checkbox" id="cameraTransparentCheckbox" style="width:15px; height:15px; margin:0; accent-color:#533663;">
+                    <span>Transparent</span>
+                </label>
+                <button type="button" id="cameraEditDoneButton" style="width:100%; background:#2f5132; color:#fff; border:none; border-radius:6px; padding:7px 10px; cursor:pointer;">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Panel Modal -->
+    <div id="settingsPanel" class="modal" style="display: none;">
+        <div class="modal-content" style="width: 320px; max-width: 90%; padding: 28px 20px 20px 20px; box-sizing: border-box; text-align: left;">
+            <span class="close-button" onclick="closeSettingsPanel()" style="top: 10px; right: 15px;">×</span>
+            <h2 style="margin-top: 0; margin-bottom: 18px; text-align: left; font-size: 1.4em;">Settings</h2>
+            <div style="display: flex; flex-direction: column; gap: 12px; align-items: flex-start;">
+                <label style="display: grid; grid-template-columns: 20px auto; align-items: center; font-size: 18px; column-gap: 4px; cursor: pointer;">
+                    <input type="checkbox" id="exportPortraitCheckbox" style="transform: scale(1.15); accent-color: #533663; margin: 0; width: 16px; height: 16px;" checked>
+                    <span>Export Portrait</span>
+                </label>
+                <!-- Add this inside the settings panel, after Export Portrait -->
+                <label style="display: flex; align-items: center; font-size: 18px; gap: 0; cursor: pointer; margin-top: 10px; flex-wrap: wrap;">
+                    <input type="file" id="cardBgUploader" accept="image/*" style="display:none;">
+                    <button type="button" onclick="document.getElementById('cardBgUploader').click()" style="margin-right:8px; background:#533663; color:#fff; border:none; border-radius:4px; padding:6px 12px; cursor:pointer;">Upload Card Background</button>
+                    <span id="bgFileName" style="font-size: 14px; color: #aaa;"></span>
+                    <button type="button" onclick="resetCardBackground()" style="background:#444; color:#fff; border:none; border-radius:4px; padding:6px 12px; cursor:pointer; margin-left:8px;">Reset</button>
+                </label>
+                <!-- Add the Export Mat setting checkbox in the Settings Panel, after Export Portrait -->
+                <label style="display: grid; grid-template-columns: 20px auto; align-items: center; font-size: 18px; column-gap: 4px; cursor: pointer;">
+                    <input type="checkbox" id="exportMatCheckbox" style="transform: scale(1.15); accent-color: #533663; margin: 0; width: 16px; height: 16px;" checked>
+                    <span>Export Mat</span>
+                </label>
+                <label style="display: grid; grid-template-columns: 20px auto; align-items: center; font-size: 18px; column-gap: 4px; cursor: pointer;">
+                    <input type="checkbox" id="readableFontCheckbox" style="transform: scale(1.15); accent-color: #533663; margin: 0; width: 16px; height: 16px;">
+                    <span>Readable Font</span>
+                </label>
+                <label style="display: grid; grid-template-columns: 20px auto; align-items: center; font-size: 18px; column-gap: 4px; cursor: pointer;">
+                    <input type="checkbox" id="cameraPortraitSettingCheckbox" style="transform: scale(1.15); accent-color: #533663; margin: 0; width: 16px; height: 16px;">
+                    <span>Camera Portrait</span>
+                </label>
+                <!-- Add this inside the settings panel, after the Export Mat setting checkbox -->
+                <label style="display: flex; align-items: center; font-size: 18px; gap: 0; cursor: pointer; margin-top: 10px;">
+                    <span style="margin-right: 10px;">Volume</span>
+                    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1" style="flex:1;">
+                    <span id="volumeValue" style="margin-left: 10px;">100%</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculator Modal -->
+    <div id="calculatorModal" style="
+        display: none;
+        position: fixed;
+        bottom: 90px;
+        left: 30px;
+        z-index: 800;
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.6);
+        ">
+        <div id="calculatorHeader" style="
+            cursor: move;
+            background: #533663;
+            color: #fff;
+            padding: 8px 12px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            font-size: 1.1em;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        ">
+            <span>Calculator</span>
+            <span class="close-button" onclick="closeCalculator()" style="cursor:pointer; font-size: 1.3em;">×</span>
+        </div>
+        <div class="modal-content" style="
+            width: 320px;
+            max-width: 90vw;
+            padding: 18px 20px 20px 20px;
+            box-sizing: border-box;
+            text-align: left;
+            background: #2c2c2c;
+            border: 2px solid #676767;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            border-top: none;
+        ">
+            <input id="calcDisplay" type="text" readonly style="width: 100%; font-size: 1.3em; margin-bottom: 12px; padding: 8px; border-radius: 5px; border: 1px solid #676767; background: #1e1e1e; color: #f0f0f0;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                <button onclick="calcInput('7')">7</button>
+                <button onclick="calcInput('8')">8</button>
+                <button onclick="calcInput('9')">9</button>
+                <button onclick="calcInput('/')">÷</button>
+                <button onclick="calcInput('4')">4</button>
+                <button onclick="calcInput('5')">5</button>
+                <button onclick="calcInput('6')">6</button>
+                <button onclick="calcInput('*')">×</button>
+                <button onclick="calcInput('1')">1</button>
+                <button onclick="calcInput('2')">2</button>
+                <button onclick="calcInput('3')">3</button>
+                <button onclick="calcInput('-')">−</button>
+                <button onclick="calcInput('0')">0</button>
+                <button onclick="calcInput('.')">.</button>
+                <button onclick="calcEquals()">=</button>
+                <button onclick="calcInput('+')">+</button>
+                <button onclick="calcClear()" style="grid-column: span 4; background: #ff4d4d; color: #fff;">C</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notepad Modal -->
+    <div id="notepadModal" style="
+    display: none;
+    position: fixed;
+    bottom: 90px;
+    left: 90px;
+    z-index: 800;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.6);
+    min-width: 320px;
+    min-height: 260px;
+">
+    <div id="notepadHeader" style="
+        cursor: move;
+        background: #533663;
+        color: #fff;
+        padding: 8px 12px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        font-size: 1.1em;
+        user-select: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    ">
+        <span>Notepad</span>
+        <span class="close-button" onclick="closeNotepad()" style="cursor:pointer; font-size: 1.3em;">×</span>
+    </div>
+    <div class="modal-content" style="
+        width: 320px;
+        height: 240px;
+        max-width: 90vw;
+        padding: 18px 20px 20px 20px;
+        box-sizing: border-box;
+        text-align: left;
+        background: #2c2c2c;
+        border: 2px solid #676767;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        border-top: none;
+        display: flex;
+        flex-direction: column;
+    ">
+        <div style="display: flex; background: #3a2a4a; border-left: 2px solid #676767; border-right: 2px solid #676767;">
+            <button id="notepadTabNotes" type="button" onclick="switchNotepadTab('notes')" style="flex:1; padding: 8px 12px; background: #2c2c2c; color: #f0f0f0; border: none; border-bottom: 2px solid #533663; cursor: pointer; font-family: inherit; font-size: 13px;">Notes</button>
+            <button id="notepadTabBestiary" type="button" onclick="switchNotepadTab('bestiary')" style="flex:1; padding: 8px 12px; background: #3a2a4a; color: #aaa; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: inherit; font-size: 13px;">Bestiary</button>
+            <button id="notepadTabStatus" type="button" onclick="switchNotepadTab('status')" style="flex:1; padding: 8px 12px; background: #3a2a4a; color: #aaa; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: inherit; font-size: 13px;">Status</button>
+            <button id="notepadTabBag" type="button" onclick="switchNotepadTab('bag')" style="flex:1; padding: 8px 12px; background: #3a2a4a; color: #aaa; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: inherit; font-size: 13px; display:none;">Bag</button>
+        </div>
+        <div id="statusEffectNoteToolbar" style="display:block; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #676767;">
+            <button onclick="showStatusEffectPicker()" style="background:#533663; color:#fff; border:none; border-radius:4px; padding:8px 14px; cursor:pointer; font-size:0.9em; font-weight:bold; transition:all 0.2s ease; width:100%;" onmouseover="this.style.background='#6d4574'; this.style.transform='translateY(-1px)';" onmouseout="this.style.background='#533663'; this.style.transform='translateY(0)';">+ Add Status Effect</button>
+        </div>
+        <div id="bagTabPanel" style="display:none; flex:1; overflow-y:auto;">
+            <div id="bagCapacityLabel" style="font-size:0.95em; color:#cfcfcf; margin-bottom:10px;"></div>
+            <div id="bagSlotsGrid" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;"></div>
+        </div>
+        <div id="bestiaryTabPanel" class="hide-scrollbar" style="display:none; flex:1; overflow-y:auto; overflow-x:hidden;"></div>
+        <textarea id="notepadArea" style="width:100%; flex:1; min-height:120px; font-size:1.1em; border-radius:6px; background:#1e1e1e; color:#f0f0f0; border:1px solid #676767; padding:10px; box-sizing:border-box; resize:none;"></textarea>
+    </div>
+    <div id="notepadResizeHandle" style="position:absolute; right:2px; bottom:2px; width:16px; height:16px; cursor:nwse-resize; background:linear-gradient(135deg, transparent 0%, transparent 45%, #8a8a8a 45%, #8a8a8a 55%, transparent 55%, transparent 100%);"></div>
+</div>
+
+    <!-- Bag Capacity Modal -->
+    <div id="bagCapacityModal" class="modal" style="display:none;">
+        <div class="modal-content" style="width:320px; max-width:90%; padding:20px;">
+            <span class="close-button" onclick="closeBagCapacityModal()" style="top:10px; right:15px;">×</span>
+            <h2 style="margin-top:0; margin-bottom:12px; font-size:1.2em;">Bag Capacity</h2>
+            <p style="margin:0 0 12px 0; color:#cfcfcf;">How much space is in the bag? (1-10)</p>
+            <input id="bagCapacityInput" type="number" min="1" max="10" step="1" value="1" style="width:100%; box-sizing:border-box; margin-top:0;">
+            <button id="bagCapacityConfirmBtn" type="button" style="margin-top:12px; width:100%; padding:10px; background:#533663; color:#f0f0f0; border:none; border-radius:5px; cursor:pointer;">Set Capacity</button>
+        </div>
+    </div>
+
+    <!-- Stats Sheet Modal -->
+    <div id="statsSheetModal" style="
+    display: none;
+    position: fixed;
+    bottom: 90px;
+    left: 150px;
+    z-index: 800;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.6);
+">
+    <div id="statsSheetHeader" style="
+        cursor: move;
+        background: #533663;
+        color: #fff;
+        padding: 8px 12px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        font-size: 1.1em;
+        user-select: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    ">
+        <span>Stats Sheet</span>
+        <span class="close-button" onclick="closeStatsSheet()" style="cursor:pointer; font-size: 1.3em;">×</span>
+    </div>
+    <!-- Stats Sheet Tabs (Skill Tree tab hidden by default, shown when SkillTree flag is set) -->
+    <div id="statsSheetTabs" style="display: flex; background: #3a2a4a; border-left: 2px solid #676767; border-right: 2px solid #676767;">
+        <button id="statsSheetTab-stats" onclick="switchStatsSheetTab('stats')" style="flex:1; padding: 8px 12px; background: #2c2c2c; color: #f0f0f0; border: none; border-bottom: 2px solid #533663; cursor: pointer; font-family: inherit; font-size: 13px;">Stats Sheet</button>
+        <button id="statsSheetTab-skilltree" onclick="switchStatsSheetTab('skilltree')" style="display:none; flex:1; padding: 8px 12px; background: #3a2a4a; color: #aaa; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: inherit; font-size: 13px;">Skill Tree</button>
+    </div>
+    <div class="modal-content" style="
+        width: 460px;
+        max-width: 90vw;
+        padding: 18px 20px 20px 20px;
+        box-sizing: border-box;
+        text-align: left;
+        background: #2c2c2c;
+        border: 2px solid #676767;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        border-top: none;
+    ">
+        <!-- Stats Sheet Panel -->
+        <div id="statsSheetPanel-stats" style="min-height:350px;">
+        <div style="font-size: 14px; color: #cfcfcf; margin-bottom: 10px;">
+            Available Points:
+            <span id="availableSkillPoints" style="color: #f0f0f0; font-weight: bold;">0</span>
+        </div>
+        <div id="statsSheetRows" style="display:grid; grid-template-columns: 130px 100px 1fr; gap: 8px; align-items: center; font-size: 14px;">
+            <div style="color:#aaa;">Stat</div><div style="color:#aaa;">Bonus Pts</div><div style="color:#aaa;">Modifier</div>
+
+            <div id="labelMight" class="stats-label" data-stat="Might" style="cursor: pointer; color: #f0f0f0;">Might</div>
+            <input id="allocMight" type="number" min="0" value="0" style="width:78px; padding:6px;">
+            <span id="modMight" style="font-weight:bold; color:#9fdf9f;"><span id="modValueMight">+0</span> <span id="rawRollMight" style="margin-left:6px; font-size:12px; color:#bbbbbb;">(roll: -)</span></span>
+
+            <div id="labelVigor" class="stats-label" data-stat="Vigor" style="cursor: pointer; color: #f0f0f0;">Vigor</div>
+            <input id="allocVigor" type="number" min="0" value="0" style="width:78px; padding:6px;">
+            <span id="modVigor" style="font-weight:bold; color:#9fdf9f;"><span id="modValueVigor">+0</span> <span id="rawRollVigor" style="margin-left:6px; font-size:12px; color:#bbbbbb;">(roll: -)</span></span>
+
+            <div id="labelAgility" class="stats-label" data-stat="Agility" style="cursor: pointer; color: #f0f0f0;">Agility</div>
+            <input id="allocAgility" type="number" min="0" value="0" style="width:78px; padding:6px;">
+            <span id="modAgility" style="font-weight:bold; color:#9fdf9f;"><span id="modValueAgility">+0</span> <span id="rawRollAgility" style="margin-left:6px; font-size:12px; color:#bbbbbb;">(roll: -)</span></span>
+
+            <div id="labelMind" class="stats-label" data-stat="Mind" style="cursor: pointer; color: #f0f0f0;">Mind</div>
+            <input id="allocMind" type="number" min="0" value="0" style="width:78px; padding:6px;">
+            <span id="modMind" style="font-weight:bold; color:#9fdf9f;"><span id="modValueMind">+0</span> <span id="rawRollMind" style="margin-left:6px; font-size:12px; color:#bbbbbb;">(roll: -)</span></span>
+
+            <div id="labelInstinct" class="stats-label" data-stat="Instinct" style="cursor: pointer; color: #f0f0f0;">Instinct</div>
+            <input id="allocInstinct" type="number" min="0" value="0" style="width:78px; padding:6px;">
+            <span id="modInstinct" style="font-weight:bold; color:#9fdf9f;"><span id="modValueInstinct">+0</span> <span id="rawRollInstinct" style="margin-left:6px; font-size:12px; color:#bbbbbb;">(roll: -)</span></span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; margin-top: 12px;">
+            <button id="statsSheetSaveLockBtn" type="button" style="background:#3c763d; color:#fff; border:none; border-radius:5px; padding:8px 12px; cursor:pointer;">Save & Lock</button>
+            <span id="statsLockState" style="font-size: 13px; color: #bdbdbd;">Unlocked</span>
+        </div>
+        <div id="statsLockHelp" style="margin-top: 6px; font-size: 12px; color: #9f9f9f;">
+            Submit your points to lock them. New points unlock when you reach a new prime-level bonus.
+        </div>
+        <div style="margin-top: 14px; font-size: 13px; color: #bbbbbb; line-height: 1.35;">
+            Might: strength, striking power, push/pull/lift.
+            Vigor: toughness, damage endurance, poison/alcohol resistance.
+            Agility: sleight of hand, stealth, fixing, ranged weapons, acrobatics.
+            Mind: knowledge, understanding, speaking and reasoning.
+            Instinct: senses, reflexes, subconscious reactions.
+        </div>
+        </div><!-- end statsSheetPanel-stats -->
+
+        <!-- Skill Tree Panel (hidden by default) -->
+        <div id="statsSheetPanel-skilltree" style="display:none; min-height:350px; overflow-y:auto;">
+            <!-- Skill Tree content will be added here -->
+        </div>
+    </div>
+</div>
+
+    <script>
+        let cardBgData = ""; // Add this at the top of your <script> section
+        let portraitCameraStream = null;
+        let cameraRenderId = null;
+        const cameraTransparencyBuffer = document.createElement('canvas');
+        const cameraTransparencyBufferCtx = cameraTransparencyBuffer.getContext('2d', { willReadFrequently: true });
+        const cameraFrameState = {
+            scale: 1,
+            offsetX: 0,
+            offsetY: 0,
+            transparent: false
+        };
+
+        function syncCameraCanvasSize(canvas, frame) {
+            if (!canvas || !frame) return null;
+            const cssWidth = frame.clientWidth || 240;
+            const cssHeight = frame.clientHeight || 450;
+            const pixelRatio = Math.max(1, window.devicePixelRatio || 1);
+            const renderWidth = Math.round(cssWidth * pixelRatio);
+            const renderHeight = Math.round(cssHeight * pixelRatio);
+            if (canvas.width !== renderWidth) canvas.width = renderWidth;
+            if (canvas.height !== renderHeight) canvas.height = renderHeight;
+            return { cssWidth, cssHeight, renderWidth, renderHeight };
+        }
+
+        function stopCameraRender() {
+            if (cameraRenderId) {
+                cancelAnimationFrame(cameraRenderId);
+                cameraRenderId = null;
+            }
+        }
+
+        function clearCameraCanvas(canvas) {
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function drawTransparentCameraFrame(targetCanvas, sourceCanvas) {
+            if (!targetCanvas || !sourceCanvas) return;
+            const targetCtx = targetCanvas.getContext('2d');
+            if (!targetCtx) return;
+            targetCtx.imageSmoothingEnabled = true;
+            targetCtx.imageSmoothingQuality = 'high';
+            targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+            targetCtx.drawImage(sourceCanvas, 0, 0, targetCanvas.width, targetCanvas.height);
+        }
+
+        function getCameraSourceRect(videoWidth, videoHeight, targetWidth, targetHeight) {
+            const frameAspect = targetWidth / targetHeight;
+            const videoAspect = videoWidth / videoHeight;
+            let cropWidth;
+            let cropHeight;
+
+            if (videoAspect > frameAspect) {
+                cropHeight = videoHeight;
+                cropWidth = cropHeight * frameAspect;
+            } else {
+                cropWidth = videoWidth;
+                cropHeight = cropWidth / frameAspect;
+            }
+
+            cropWidth /= cameraFrameState.scale;
+            cropHeight /= cameraFrameState.scale;
+
+            const sourcePixelsPerCssX = cropWidth / targetWidth;
+            const sourcePixelsPerCssY = cropHeight / targetHeight;
+            let centerX = (videoWidth / 2) - (cameraFrameState.offsetX * sourcePixelsPerCssX);
+            let centerY = (videoHeight / 2) - (cameraFrameState.offsetY * sourcePixelsPerCssY);
+
+            const halfCropWidth = cropWidth / 2;
+            const halfCropHeight = cropHeight / 2;
+            centerX = Math.max(halfCropWidth, Math.min(videoWidth - halfCropWidth, centerX));
+            centerY = Math.max(halfCropHeight, Math.min(videoHeight - halfCropHeight, centerY));
+
+            return {
+                sx: centerX - halfCropWidth,
+                sy: centerY - halfCropHeight,
+                sw: cropWidth,
+                sh: cropHeight
+            };
+        }
+
+        function renderCameraFrame() {
+            if (!portraitCameraStream) {
+                stopCameraRender();
+                return;
+            }
+
+            const portraitCameraFeed = document.getElementById('portraitCameraFeed');
+            const portraitCameraFrame = document.getElementById('portraitCameraFrame');
+            const portraitCameraCanvas = document.getElementById('portraitCameraCanvas');
+            const modalPortraitCameraFrame = document.getElementById('modalPortraitCameraFrame');
+            const modalPortraitCameraCanvas = document.getElementById('modalPortraitCameraCanvas');
+            if (!portraitCameraFeed || !portraitCameraFrame || !portraitCameraCanvas || !modalPortraitCameraFrame || !modalPortraitCameraCanvas) {
+                stopCameraRender();
+                return;
+            }
+
+            if (portraitCameraFeed.readyState < 2 || !portraitCameraFeed.videoWidth || !portraitCameraFeed.videoHeight) {
+                cameraRenderId = requestAnimationFrame(renderCameraFrame);
+                return;
+            }
+
+            const portraitSize = syncCameraCanvasSize(portraitCameraCanvas, portraitCameraFrame);
+            const modalSize = syncCameraCanvasSize(modalPortraitCameraCanvas, modalPortraitCameraFrame);
+            if (!portraitSize || !modalSize) {
+                cameraRenderId = requestAnimationFrame(renderCameraFrame);
+                return;
+            }
+
+            const sourceWidth = portraitCameraFeed.videoWidth;
+            const sourceHeight = portraitCameraFeed.videoHeight;
+            const sourceRect = getCameraSourceRect(sourceWidth, sourceHeight, portraitSize.cssWidth, portraitSize.cssHeight);
+
+            if (cameraFrameState.transparent) {
+                cameraTransparencyBuffer.width = portraitSize.renderWidth;
+                cameraTransparencyBuffer.height = portraitSize.renderHeight;
+                cameraTransparencyBufferCtx.imageSmoothingEnabled = true;
+                cameraTransparencyBufferCtx.imageSmoothingQuality = 'high';
+                cameraTransparencyBufferCtx.clearRect(0, 0, portraitSize.renderWidth, portraitSize.renderHeight);
+                cameraTransparencyBufferCtx.drawImage(
+                    portraitCameraFeed,
+                    sourceRect.sx,
+                    sourceRect.sy,
+                    sourceRect.sw,
+                    sourceRect.sh,
+                    0,
+                    0,
+                    portraitSize.renderWidth,
+                    portraitSize.renderHeight
+                );
+
+                const imageData = cameraTransparencyBufferCtx.getImageData(0, 0, portraitSize.renderWidth, portraitSize.renderHeight);
+                const pixels = imageData.data;
+                let hasNativeAlpha = false;
+
+                // First pass: detect whether the incoming camera frame already carries alpha.
+                // If it does, preserve it exactly and skip manual keying.
+                for (let index = 0; index < pixels.length; index += 4) {
+                    if (pixels[index + 3] < 250) {
+                        hasNativeAlpha = true;
+                        break;
+                    }
+                }
+
+                // Fallback keying only when native alpha is not present.
+                // Use green-dominance keying only to avoid removing dark facial details (e.g. eyelashes).
+                if (!hasNativeAlpha) {
+                    for (let index = 0; index < pixels.length; index += 4) {
+                    const red = pixels[index];
+                    const green = pixels[index + 1];
+                    const blue = pixels[index + 2];
+
+                    const greenDominance = green - Math.max(red, blue);
+                    const alphaIndex = index + 3;
+
+                    // Feathered keying avoids jagged, pixelated edges on hair/lines.
+                    const featherStart = 16;
+                    const featherEnd = 50;
+                    const keyStrengthRaw = (greenDominance - featherStart) / (featherEnd - featherStart);
+                    const keyStrength = Math.max(0, Math.min(1, keyStrengthRaw));
+                    if (green > 65 && keyStrength > 0) {
+                        const preservedAlpha = 1 - keyStrength;
+                        pixels[alphaIndex] = Math.round(pixels[alphaIndex] * preservedAlpha);
+
+                        // Mild despill to reduce green fringe while keeping detail.
+                        const despillAmount = keyStrength * 0.35;
+                        pixels[index + 1] = Math.round(green * (1 - despillAmount));
+                    }
+
+                    // Keep full cutout for obvious green backdrop.
+                    if (green > 95 && greenDominance > 62) {
+                        pixels[alphaIndex] = 0;
+                    }
+                }
+                }
+                cameraTransparencyBufferCtx.putImageData(imageData, 0, 0);
+                drawTransparentCameraFrame(portraitCameraCanvas, cameraTransparencyBuffer);
+                drawTransparentCameraFrame(modalPortraitCameraCanvas, cameraTransparencyBuffer);
+            } else {
+                const portraitCtx = portraitCameraCanvas.getContext('2d');
+                const modalCtx = modalPortraitCameraCanvas.getContext('2d');
+                if (portraitCtx && modalCtx) {
+                    portraitCtx.imageSmoothingEnabled = true;
+                    portraitCtx.imageSmoothingQuality = 'high';
+                    modalCtx.imageSmoothingEnabled = true;
+                    modalCtx.imageSmoothingQuality = 'high';
+                    portraitCtx.clearRect(0, 0, portraitSize.renderWidth, portraitSize.renderHeight);
+                    portraitCtx.drawImage(
+                        portraitCameraFeed,
+                        sourceRect.sx,
+                        sourceRect.sy,
+                        sourceRect.sw,
+                        sourceRect.sh,
+                        0,
+                        0,
+                        portraitSize.renderWidth,
+                        portraitSize.renderHeight
+                    );
+                    modalCtx.clearRect(0, 0, modalSize.renderWidth, modalSize.renderHeight);
+                    modalCtx.drawImage(
+                        portraitCameraFeed,
+                        sourceRect.sx,
+                        sourceRect.sy,
+                        sourceRect.sw,
+                        sourceRect.sh,
+                        0,
+                        0,
+                        modalSize.renderWidth,
+                        modalSize.renderHeight
+                    );
+                }
+            }
+
+            cameraRenderId = requestAnimationFrame(renderCameraFrame);
+        }
+
+        function updateCameraRenderUI() {
+            const portraitCameraFeed = document.getElementById('portraitCameraFeed');
+            const portraitCameraCanvas = document.getElementById('portraitCameraCanvas');
+            const modalPortraitCameraFeed = document.getElementById('modalPortraitCameraFeed');
+            const modalPortraitCameraCanvas = document.getElementById('modalPortraitCameraCanvas');
+            if (!portraitCameraFeed || !portraitCameraCanvas || !modalPortraitCameraFeed || !modalPortraitCameraCanvas) return;
+
+            if (portraitCameraStream) {
+                portraitCameraFeed.style.visibility = 'hidden';
+                modalPortraitCameraFeed.style.visibility = 'hidden';
+                portraitCameraCanvas.style.display = 'block';
+                modalPortraitCameraCanvas.style.display = 'block';
+                stopCameraRender();
+                renderCameraFrame();
+            } else {
+                portraitCameraFeed.style.visibility = 'visible';
+                modalPortraitCameraFeed.style.visibility = 'visible';
+                portraitCameraCanvas.style.display = 'none';
+                modalPortraitCameraCanvas.style.display = 'none';
+                clearCameraCanvas(portraitCameraCanvas);
+                clearCameraCanvas(modalPortraitCameraCanvas);
+                stopCameraRender();
+            }
+        }
+
+        function applyCameraFrameTransform() {
+            if (portraitCameraStream) {
+                updateCameraRenderUI();
+            }
+        }
+
+        function stopPortraitCameraStream() {
+            stopCameraRender();
+            if (!portraitCameraStream) return;
+            portraitCameraStream.getTracks().forEach(track => track.stop());
+            portraitCameraStream = null;
+            updateCameraRenderUI();
+        }
+
+        function setPortraitDisplayMode(useCamera) {
+            const portraitImage = document.getElementById('portraitImage');
+            const portraitCameraFeed = document.getElementById('portraitCameraFeed');
+            const portraitCameraFrame = document.getElementById('portraitCameraFrame');
+            const modalPortraitImage = document.getElementById('modalPortraitImage');
+            const modalPortraitCameraFeed = document.getElementById('modalPortraitCameraFeed');
+            const modalPortraitCameraFrame = document.getElementById('modalPortraitCameraFrame');
+            if (!portraitImage || !portraitCameraFeed || !portraitCameraFrame || !modalPortraitImage || !modalPortraitCameraFeed || !modalPortraitCameraFrame) return;
+
+            if (useCamera) {
+                portraitImage.style.display = 'none';
+                portraitCameraFrame.style.display = 'block';
+                modalPortraitImage.style.display = 'none';
+                modalPortraitCameraFrame.style.display = 'block';
+            } else {
+                portraitImage.style.display = 'block';
+                portraitCameraFrame.style.display = 'none';
+                modalPortraitImage.style.display = 'block';
+                modalPortraitCameraFrame.style.display = 'none';
+            }
+        }
+
+        async function startPortraitCamera(deviceId) {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Camera is not supported on this device/browser.');
+                return false;
+            }
+
+            try {
+                const constraints = {
+                    video: deviceId ? {
+                        deviceId: { exact: deviceId },
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        frameRate: { ideal: 30, max: 60 }
+                    } : {
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        frameRate: { ideal: 30, max: 60 },
+                        facingMode: 'user'
+                    },
+                    audio: false
+                };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                stopPortraitCameraStream();
+                portraitCameraStream = stream;
+
+                const portraitCameraFeed = document.getElementById('portraitCameraFeed');
+                const modalPortraitCameraFeed = document.getElementById('modalPortraitCameraFeed');
+                portraitCameraFeed.srcObject = stream;
+                modalPortraitCameraFeed.srcObject = stream;
+
+                await portraitCameraFeed.play().catch(() => {});
+                await modalPortraitCameraFeed.play().catch(() => {});
+                applyCameraFrameTransform();
+                updateCameraRenderUI();
+                setPortraitDisplayMode(true);
+                return true;
+            } catch (err) {
+                console.error('Failed to start camera:', err);
+                alert('Unable to access camera. Please allow camera permission and try again.');
+                return false;
+            }
+        }
+
+        function applyCameraPortraitSettingUI() {
+            const settingCheckbox = document.getElementById('cameraPortraitSettingCheckbox');
+            const portraitUseCameraRow = document.getElementById('portraitUseCameraRow');
+            const portraitUseCameraCheckbox = document.getElementById('portraitUseCameraCheckbox');
+            const imageUploader = document.getElementById('imageUploader');
+            const cameraEditButton = document.getElementById('cameraEditButton');
+            const cameraEditPanel = document.getElementById('cameraEditPanel');
+            if (!settingCheckbox || !portraitUseCameraRow || !portraitUseCameraCheckbox || !imageUploader || !cameraEditButton || !cameraEditPanel) return;
+
+            const settingEnabled = settingCheckbox.checked;
+            portraitUseCameraRow.style.display = settingEnabled ? 'flex' : 'none';
+            imageUploader.style.width = settingEnabled ? '45%' : '90%';
+
+            if (!settingEnabled) {
+                portraitUseCameraCheckbox.checked = false;
+                cameraEditButton.style.display = 'none';
+                cameraEditPanel.style.display = 'none';
+                imageUploader.style.display = 'block';
+                stopPortraitCameraStream();
+                setPortraitDisplayMode(false);
+                return;
+            }
+
+            if (portraitUseCameraCheckbox.checked) {
+                imageUploader.style.display = 'none';
+                cameraEditButton.style.display = 'block';
+            } else {
+                imageUploader.style.display = 'block';
+                cameraEditButton.style.display = 'none';
+                cameraEditPanel.style.display = 'none';
+                stopPortraitCameraStream();
+                setPortraitDisplayMode(false);
+            }
+        }
+
+        async function handlePortraitUseCameraToggle() {
+            const portraitUseCameraCheckbox = document.getElementById('portraitUseCameraCheckbox');
+            const cameraEditButton = document.getElementById('cameraEditButton');
+            const cameraEditPanel = document.getElementById('cameraEditPanel');
+            const imageUploader = document.getElementById('imageUploader');
+            if (!portraitUseCameraCheckbox || !cameraEditButton || !cameraEditPanel || !imageUploader) return;
+
+            if (portraitUseCameraCheckbox.checked) {
+                const started = await startPortraitCamera();
+                if (!started) {
+                    portraitUseCameraCheckbox.checked = false;
+                    applyCameraPortraitSettingUI();
+                    return;
+                }
+                imageUploader.style.display = 'none';
+                cameraEditButton.style.display = 'block';
+            } else {
+                cameraEditButton.style.display = 'none';
+                cameraEditPanel.style.display = 'none';
+                imageUploader.style.display = 'block';
+                stopPortraitCameraStream();
+                setPortraitDisplayMode(false);
+            }
+        }
+
+        function openPortraitModal() {
+            const portraitImage = document.getElementById('portraitImage');
+            const modalPortraitImage = document.getElementById('modalPortraitImage');
+            const portraitUseCameraCheckbox = document.getElementById('portraitUseCameraCheckbox');
+            if (modalPortraitImage && portraitImage) {
+                modalPortraitImage.src = portraitImage.src;
+            }
+
+            if (portraitUseCameraCheckbox && portraitUseCameraCheckbox.checked && portraitCameraStream) {
+                setPortraitDisplayMode(true);
+            } else {
+                setPortraitDisplayMode(false);
+            }
+            document.getElementById('portraitModal').style.display = 'flex';
+        }
+
+        function updateName() {
+            const nameField = document.getElementById('characterName').value;
+            const nameDiv = document.querySelector('.character-name');
+            nameDiv.textContent = nameField || 'Character Name';
+            saveCharacterToLocal();
+        }
+
+        function updateStats() {
+            const level = document.getElementById('level').value || 'Level';
+            const race = document.getElementById('race').value || 'Race';
+            const className = document.getElementById('class').value || 'Class';
+            const skill = document.getElementById('skill').value || 'Skill';
+            const passiveTrait = document.getElementById('passiveTrait').value || 'Passive Trait';
+            const classPassiveTrait = document.getElementById('classPassiveTrait').value || 'Class Passive Trait';
+            const atk = document.getElementById('atk').value || 'ATK';
+            const def = document.getElementById('def').value || 'DEF';
+            const currency = document.getElementById('currency')?.value || '0';
+
+            const stats = document.querySelector('.stats');
+            stats.innerHTML = `
+                <div class="stat">Lvl. ${level}</div>
+                <div class="stat">Race: ${race}</div>
+                <div class="stat">Class: ${className}</div>
+                <div class="stat">Skill: ${skill}</div>
+                <div class="stat">Passive: ${passiveTrait}</div>
+                <div class="stat">Class Passive: ${classPassiveTrait}</div>
+                <div class="stat">$${currency}</div>
+            `;
+        }
+
+        function uploadImage() {
+            const fileInput = document.getElementById('imageUploader');
+            const file = fileInput.files[0];
+            if (file) {
+                const portraitUseCameraCheckbox = document.getElementById('portraitUseCameraCheckbox');
+                if (portraitUseCameraCheckbox) {
+                    portraitUseCameraCheckbox.checked = false;
+                }
+                stopPortraitCameraStream();
+                setPortraitDisplayMode(false);
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('portraitImage').src = e.target.result;
+                    document.getElementById('modalPortraitImage').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function rollDie() {
+            const rawResult = Math.floor(Math.random() * 20) + 1;
+            const dieResultEl = document.getElementById('dieResult');
+            const hasSelectedStat = Boolean(selectedRollStat);
+            const selectedMod = hasSelectedStat ? getSelectedStatModifier() : 0;
+            const totalResult = rawResult + selectedMod;
+
+            dieResultEl.textContent = totalResult;
+
+            if (lastRawRoll !== null && rawResult === lastRawRoll) {
+                dieResultEl.style.color = '#ff0000';
+            } else if (hasSelectedStat) {
+                dieResultEl.style.color = '#05bf07';
+            } else {
+                dieResultEl.style.color = '#533663';
+            }
+
+            if (hasSelectedStat) {
+                updateStatRawRoll(selectedRollStat, rawResult);
+                clearSelectedRollStat();
+            }
+
+            lastRawRoll = rawResult;
+            const diceSound = document.getElementById('diceSound');
+            diceSound.play();
+        }
+
+        function extractBackgroundImageUrl(backgroundImageValue) {
+            if (typeof backgroundImageValue !== 'string') return '';
+            const trimmed = backgroundImageValue.trim();
+            const match = trimmed.match(/^url\((.*)\)$/i);
+            if (!match) return '';
+
+            let innerValue = match[1].trim();
+            if (
+                (innerValue.startsWith('"') && innerValue.endsWith('"')) ||
+                (innerValue.startsWith("'") && innerValue.endsWith("'"))
+            ) {
+                innerValue = innerValue.slice(1, -1).trim();
+            }
+            return innerValue;
+        }
+
+        function normalizeActionIconValue(rawValue) {
+            if (typeof rawValue !== 'string') return '';
+            const trimmed = rawValue.trim();
+            if (!trimmed) return '';
+
+            if (/^url\(/i.test(trimmed)) {
+                return extractBackgroundImageUrl(trimmed);
+            }
+
+            if (
+                (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+                (trimmed.startsWith("'") && trimmed.endsWith("'"))
+            ) {
+                return trimmed.slice(1, -1).trim();
+            }
+
+            return trimmed;
+        }
+
+        function isActionIconImageValue(value) {
+            if (typeof value !== 'string') return false;
+            const normalized = value.trim();
+            if (!normalized) return false;
+
+            return (
+                /^https?:\/\//i.test(normalized) ||
+                /^data:image\//i.test(normalized) ||
+                /^blob:/i.test(normalized) ||
+                /^file:/i.test(normalized)
+            );
+        }
+
+        function applyActionIconToSlot(slot, iconValue, fallbackLabel) {
+            const normalizedIcon = normalizeActionIconValue(iconValue || '');
+            if (isActionIconImageValue(normalizedIcon)) {
+                slot.style.backgroundImage = `url('${normalizedIcon}')`;
+                slot.style.backgroundSize = 'cover';
+                slot.style.backgroundPosition = 'center';
+                slot.textContent = '';
+            } else {
+                slot.style.backgroundImage = '';
+                slot.textContent = normalizedIcon || fallbackLabel;
+            }
+            updateBagTabVisibility();
+        }
+
+        function exportCode() {
+            const characterName = document.getElementById('characterName').value || '';
+            const level = document.getElementById('level').value || '';
+            const race = document.getElementById('race').value || '';
+            const className = document.getElementById('class').value || '';
+            const subclass = document.getElementById('subclass')?.value || '';
+            const currency = document.getElementById('currency').value || '';
+
+            // Extra Options
+            const affinityChecked = document.getElementById('affinityCheckbox').checked;
+            const affinityIcon = affinityChecked ? (selectedAffinity || "none.png") : "";
+
+            // Settings: Export Portrait
+            const exportPortrait = document.getElementById('exportPortraitCheckbox')?.checked !== false;
+            // Settings: Export Mat
+            const exportMat = document.getElementById('exportMatCheckbox')?.checked !== false;
+
+            // Get portrait image as Data URL, but only if not placeholder and exportPortrait is enabled
+            const portraitImage = document.getElementById('portraitImage');
+            let portraitData = '';
+            if (
+                exportPortrait &&
+                portraitImage.src &&
+                portraitImage.src.startsWith('data:image') &&
+                !portraitImage.src.includes('placeholder')
+            ) {
+                portraitData = portraitImage.src;
+            }
+
+            // Get Action Slot icons (background images)
+            const actionSlots = document.querySelectorAll('.actions .action-slot');
+            let actionIcons = [];
+            actionSlots.forEach((slot, i) => {
+                // Extract the background image URL if set
+                const bg = slot.style.backgroundImage;
+                const bgUrl = extractBackgroundImageUrl(bg);
+                if (bgUrl) {
+                    actionIcons.push(bgUrl);
+                } else {
+                    // If no icon, store the slot label (e.g., "1", "2", "3", "H", "S")
+                    actionIcons.push(slot.textContent.trim());
+                }
+            });
+
+            // Get current health values
+            const currentHealth = currentHP || 0;  // Add this line
+
+            // Save current tab before export
+            saveActiveNotepadTab();
+            const bagState = parseBagState();
+
+            let exportData = `
+Character Name: ${characterName}
+Level: ${level}
+Health: ${currentHealth}
+Race: ${race}
+Class: ${className}
+Subclass: ${subclass}
+Currency: ${currency}
+Affinity Option: ${affinityChecked ? "Enabled" : "Disabled"}
+Affinity Icon: ${affinityIcon}
+Action Icons: ${JSON.stringify(actionIcons)}
+Notepad: ${encodeURIComponent(notepadSessions.notes)}
+Bestiary: ${encodeURIComponent(JSON.stringify(bestiarySession.revealed))}
+Status: ${encodeURIComponent(notepadSessions.status)}
+Bag: ${encodeURIComponent(JSON.stringify(bagState))}
+Stats Sheet: ${encodeURIComponent(JSON.stringify(getStatsSheetState()))}
+Skill Tree Claimed: ${encodeURIComponent(JSON.stringify(skillTreeClaimedSkills))}
+`.trim();
+
+    if (portraitData) {
+        exportData += `\nPortrait Image: ${portraitData}`;
+    }
+    if (exportMat && cardBgData) {
+        exportData += `\nCard Background: ${cardBgData}`;
+    }
+
+    const safeName = (characterName || 'Character')
+        .replace(/[\\/:*?"<>|]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim() || 'Character';
+    const fileName = `${safeName}.txt`;
+    const blob = new Blob([exportData], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function pasteCode() {
+    function parseCharacterCode(text) {
+        const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+        const data = {};
+        lines.forEach(line => {
+            const match = line.match(/^([^:]+):\s*(.*)$/);
+            if (!match) return;
+            data[match[1].trim()] = match[2].trim();
+        });
+        return data;
+    }
+
+    function resetStatsSheetToDefaults() {
+        committedAllocations = {
+            might: 0,
+            vigor: 0,
+            agility: 0,
+            mind: 0,
+            instinct: 0
+        };
+        pointsAtLastSubmission = 0;
+        setStatsSheetState({
+            allocations: committedAllocations,
+            committedAllocations,
+            pointsAtLastSubmission,
+            locked: false
+        });
+        updateStatsSheetUI();
+    }
+
+    function applyCharacterCodeText(text) {
+        if (!text || !text.trim()) {
+            alert('No character code found to paste.');
+            return;
+        }
+
+        const data = parseCharacterCode(text);
+        if (!Object.keys(data).length) {
+            alert('Character code format not recognized.');
+            return;
+        }
+
+        isApplyingCharacterImport = true;
+
+        const importedSubclass = (typeof data['Subclass'] !== 'undefined') ? data['Subclass'] : '';
+
+        if (typeof data['Character Name'] !== 'undefined') {
+            document.getElementById('characterName').value = data['Character Name'];
+        }
+        if (typeof data['Level'] !== 'undefined') {
+            document.getElementById('level').value = data['Level'];
+        }
+        if (typeof data['Race'] !== 'undefined') {
+            document.getElementById('race').value = data['Race'];
+            updateRace();
+        }
+        if (typeof data['Class'] !== 'undefined') {
+            document.getElementById('class').value = data['Class'];
+            updateClass();
+        }
+        // Build subclass dropdown immediately based on imported class+level.
+        updateSubclassDropdown();
+
+        // Apply subclass on first pass and refresh subclass passives/skills.
+        if (importedSubclass) {
+            const subclassSelect = document.getElementById('subclass');
+            if (subclassSelect) {
+                const availableOptions = Array.from(subclassSelect.options).map(o => o.value);
+                if (availableOptions.includes(importedSubclass)) {
+                    subclassSelect.value = importedSubclass;
+                }
+                updateSubclass();
+            }
+        }
+        if (typeof data['Currency'] !== 'undefined') {
+            document.getElementById('currency').value = data['Currency'];
+        }
+
+        if (typeof data['Affinity Option'] !== 'undefined') {
+            const affinityChecked = data['Affinity Option'] === 'Enabled';
+            document.getElementById('affinityCheckbox').checked = affinityChecked;
+            affinityBtn.style.display = affinityChecked ? 'block' : 'none';
+        }
+        if (typeof data['Affinity Icon'] !== 'undefined') {
+            selectedAffinity = data['Affinity Icon'] || 'none.png';
+            updateAffinityBtn();
+        }
+
+        if (typeof data['Action Icons'] !== 'undefined') {
+            try {
+                const actionIcons = JSON.parse(data['Action Icons']);
+                const actionSlots = document.querySelectorAll('.actions .action-slot');
+                actionSlots.forEach((slot, i) => {
+                    const icon = actionIcons[i];
+                    applyActionIconToSlot(slot, icon, i === 3 ? 'H' : (i + 1).toString());
+                });
+            } catch (e) {
+                // Ignore if parsing fails
+            }
+        }
+
+        if (typeof data['Portrait Image'] !== 'undefined' && data['Portrait Image'].startsWith('data:image')) {
+            document.getElementById('portraitImage').src = data['Portrait Image'];
+            document.getElementById('modalPortraitImage').src = data['Portrait Image'];
+        }
+
+        if (typeof data['Card Background'] !== 'undefined' && data['Card Background'].startsWith('data:image')) {
+            document.querySelector('.character-card').style.backgroundImage = `url('${data['Card Background']}')`;
+            document.querySelector('.character-card').style.backgroundSize = 'cover';
+            document.querySelector('.character-card').style.backgroundPosition = 'center';
+            cardBgData = data['Card Background'];
+        }
+
+        if (typeof data['Notepad'] !== 'undefined') {
+            const note = decodeURIComponent(data['Notepad']);
+            notepadSessions.notes = note;
+            if (document.getElementById('notepadArea')) {
+                if (activeNotepadTab === 'notes') {
+                    document.getElementById('notepadArea').value = note;
+                }
+            }
+        }
+
+        if (typeof data['Bestiary'] !== 'undefined') {
+            try {
+                const parsed = JSON.parse(decodeURIComponent(data['Bestiary']));
+                bestiarySession.revealed = Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                bestiarySession.revealed = [];
+            }
+            if (activeNotepadTab === 'bestiary') {
+                renderBestiaryPanel();
+            }
+        }
+
+        if (typeof data['Status'] !== 'undefined') {
+            const status = decodeURIComponent(data['Status']);
+            notepadSessions.status = status;
+            if (document.getElementById('notepadArea') && activeNotepadTab === 'status') {
+                document.getElementById('notepadArea').value = status;
+            }
+        }
+
+        if (typeof data['Bag'] !== 'undefined') {
+            const bag = decodeURIComponent(data['Bag']);
+            try {
+                const parsed = JSON.parse(bag);
+                const capacity = parseInt(parsed.capacity, 10) || 0;
+                const slots = Array.isArray(parsed.slots)
+                    ? parsed.slots.map(v => (typeof v === 'string' ? v : ''))
+                    : [];
+                saveBagState({ capacity, slots });
+                if (hasBackpackInActionSlots()) {
+                    updateBagTabVisibility();
+                    if (activeNotepadTab === 'bag') {
+                        renderBagSlots();
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to parse bag state:', e);
+            }
+        }
+
+        if (typeof data['Stats Sheet'] !== 'undefined') {
+            const statsSheetRaw = decodeURIComponent(data['Stats Sheet']);
+            try {
+                const parsedStatsSheet = JSON.parse(statsSheetRaw);
+                setStatsSheetState(parsedStatsSheet);
+            } catch {
+                resetStatsSheetToDefaults();
+            }
+            updateStatsSheetUI();
+        } else {
+            // Older character codes had no stats sheet.
+            resetStatsSheetToDefaults();
+        }
+
+        if (typeof data['Skill Tree Claimed'] !== 'undefined') {
+            try {
+                const parsedClaimed = JSON.parse(decodeURIComponent(data['Skill Tree Claimed']));
+                skillTreeClaimedSkills = Array.isArray(parsedClaimed)
+                    ? parsedClaimed.filter(name => typeof name === 'string')
+                    : [];
+            } catch {
+                skillTreeClaimedSkills = [];
+            }
+            renderClaimedSkillTreeOnCard();
+        }
+
+        if (typeof data['Health'] !== 'undefined') {
+            currentHP = parseInt(data['Health']) || 0;
+            updateHealthBar(false);
+        }
+
+        isApplyingCharacterImport = false;
+        updateBagTabVisibility();
+
+        updateName();
+        updateStats();
+        saveCharacterToLocal();
+    }
+
+    let fileInput = document.getElementById('characterCodeFileInput');
+    if (!fileInput) {
+        fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.txt,text/plain';
+        fileInput.id = 'characterCodeFileInput';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = typeof e.target.result === 'string' ? e.target.result : '';
+                applyCharacterCodeText(text);
+            };
+            reader.onerror = function(err) {
+                console.error('Failed to read character file:', err);
+                alert('Could not read the selected character file.');
+            };
+            reader.readAsText(file);
+            fileInput.value = '';
+        });
+    }
+
+    fileInput.click();
+}
+
+function updateRace() {
+    const raceName = document.getElementById('race').value;
+    const statsBox = document.querySelector('.stats-box');
+    const race = window.D20_CAMPAIGN_DATA.races.find(r => r.name === raceName) || {};
+
+    // Remove any existing race trait display
+    const existingTraits = statsBox.querySelectorAll('.race-passive-trait, .race-skill-button');
+    existingTraits.forEach(trait => trait.remove());
+
+    // Handle passives (array or single)
+    let passives = [];
+    if (Array.isArray(race.passives)) passives = race.passives;
+    else if (race.passive) passives = [race.passive];
+
+    passives.forEach(trait => {
+        const traitCard = document.createElement('div');
+        traitCard.className = 'race-passive-trait';
+        traitCard.style.display = 'inline-flex';
+        traitCard.style.alignItems = 'center';
+        traitCard.style.marginRight = '5px';
+        traitCard.style.cursor = 'pointer';
+
+        const traitIcon = document.createElement('img');
+        traitIcon.src = `icons/${trait.icon}`;
+        traitIcon.alt = trait.name;
+        traitIcon.style.width = '50px';
+        traitIcon.style.height = '50px';
+
+        traitCard.appendChild(traitIcon);
+
+        traitCard.addEventListener('click', () => {
+            showModal(trait.name, trait.icon, trait.description, trait.type);
+        });
+
+        const exportButtonRow = statsBox.querySelector('.button-row');
+        statsBox.insertBefore(traitCard, exportButtonRow);
+    });
+
+    // Handle skills (array or single)
+    let skills = [];
+    if (Array.isArray(race.skills)) skills = race.skills;
+    else if (race.skill) skills = [race.skill];
+
+    skills.forEach(skill => {
+        const skillButton = document.createElement('button');
+        skillButton.className = 'race-skill-button';
+        skillButton.style.display = 'inline-flex';
+        skillButton.style.alignItems = 'center';
+        skillButton.style.marginRight = '5px';
+        skillButton.style.background = 'none';
+        skillButton.style.border = 'none';
+        skillButton.style.cursor = 'pointer';
+
+        const skillIcon = document.createElement('img');
+        skillIcon.src = `icons/${skill.icon}`;
+        skillIcon.alt = skill.name;
+        skillIcon.style.width = '50px';
+        skillIcon.style.height = '50px';
+
+        skillButton.appendChild(skillIcon);
+
+        skillButton.addEventListener('click', () => {
+            showModal(skill.name, skill.icon, skill.description, skill.type);
+        });
+
+        const exportButtonRow = statsBox.querySelector('.button-row');
+        statsBox.insertBefore(skillButton, exportButtonRow);
+    });
+
+    updateActionSlotH();
+}
+
+function updateClass() {
+    const className = document.getElementById('class').value;
+    const statsBox = document.querySelector('.stats-box');
+    const cls = window.D20_CAMPAIGN_DATA.classes.find(c => c.name === className) || {};
+    const isSkillTreeMode = !!(window.D20_CAMPAIGN_DATA && window.D20_CAMPAIGN_DATA.SkillTree === true);
+
+    // Remove any existing passive trait display
+    const existingPassives = statsBox.querySelectorAll('.passive-trait');
+    existingPassives.forEach(passive => passive.remove());
+
+    // In Skill Tree mode, old class/subclass abilities should not be shown.
+    if (isSkillTreeMode) {
+        const existingSkills = statsBox.querySelectorAll('.skill-button');
+        const existingSubclassIcons = statsBox.querySelectorAll('.subclass-icon, .subclass-skill-button');
+        existingSkills.forEach(skill => skill.remove());
+        existingSubclassIcons.forEach(el => el.remove());
+        updateActionSlotH();
+        return;
+    }
+
+    // Add all passive traits if present (array or single)
+    let passives = [];
+    if (Array.isArray(cls.passives)) passives = cls.passives;
+    else if (cls.passive) passives = [cls.passive];
+
+    passives.forEach(passiveTrait => {
+        const passiveTraitButton = document.createElement('button');
+        passiveTraitButton.className = 'passive-trait';
+        passiveTraitButton.style.display = 'inline-flex';
+        passiveTraitButton.style.alignItems = 'center';
+        passiveTraitButton.style.marginRight = '5px';
+        passiveTraitButton.style.background = 'none';
+        passiveTraitButton.style.border = 'none';
+        passiveTraitButton.style.cursor = 'pointer';
+
+        const passiveIcon = document.createElement('img');
+        passiveIcon.src = `icons/${passiveTrait.icon}`;
+        passiveIcon.alt = passiveTrait.name;
+        passiveIcon.style.width = '50px';
+        passiveIcon.style.height = '50px';
+
+        passiveTraitButton.appendChild(passiveIcon);
+
+        passiveTraitButton.addEventListener('click', () => {
+            showModal(passiveTrait.name, passiveTrait.icon, passiveTrait.description, passiveTrait.type);
+        });
+
+        const exportButtonRow = statsBox.querySelector('.button-row');
+        statsBox.insertBefore(passiveTraitButton, exportButtonRow);
+    });
+
+    // Remove any existing skill buttons
+    const existingSkills = statsBox.querySelectorAll('.skill-button');
+    existingSkills.forEach(skill => skill.remove());
+
+    // Add skill buttons for the selected class
+    if (cls.skills) {
+        cls.skills.forEach(skill => {
+            const skillButton = document.createElement('button');
+            skillButton.className = 'skill-button';
+            skillButton.style.display = 'inline-flex';
+            skillButton.style.alignItems = 'center';
+            skillButton.style.marginRight = '5px';
+            skillButton.style.background = 'none';
+            skillButton.style.border = 'none';
+            skillButton.style.cursor = 'pointer';
+
+            const skillIcon = document.createElement('img');
+            skillIcon.src = `icons/${skill.icon}`;
+            skillIcon.alt = skill.name;
+            skillIcon.style.width = '50px';
+            skillIcon.style.height = '50px';
+            skillIcon.style.marginRight = '5px';
+
+            skillButton.appendChild(skillIcon);
+
+            skillButton.addEventListener('click', () => {
+                showModal(skill.name, skill.icon, skill.description, skill.type);
+            });
+
+            const exportButtonRow = statsBox.querySelector('.button-row');
+            statsBox.insertBefore(skillButton, exportButtonRow);
+        });
+    }
+
+    // --- Subclass icon logic ---
+    // Remove any existing subclass icons
+    const existingSubclassIcons = statsBox.querySelectorAll('.subclass-icon, .subclass-skill-button');
+    existingSubclassIcons.forEach(el => el.remove());
+
+    const subclassName = document.getElementById('subclass')?.value;
+    if (subclassName && Array.isArray(cls.subclasses)) {
+        const sub = cls.subclasses.find(s => s.name === subclassName);
+        if (sub) {
+            // Subclass passives
+            let subPassives = [];
+            if (Array.isArray(sub.passives)) subPassives = sub.passives;
+            else if (sub.passive) subPassives = [sub.passive];
+
+            subPassives.forEach(passiveTrait => {
+                const passiveTraitButton = document.createElement('button');
+                passiveTraitButton.className = 'subclass-icon';
+                passiveTraitButton.style.display = 'inline-flex';
+                passiveTraitButton.style.alignItems = 'center';
+                passiveTraitButton.style.marginRight = '5px';
+                passiveTraitButton.style.background = 'none';
+                passiveTraitButton.style.border = 'none';
+                passiveTraitButton.style.cursor = 'pointer';
+
+                const passiveIcon = document.createElement('img');
+                passiveIcon.src = `icons/${passiveTrait.icon}`;
+                passiveIcon.alt = passiveTrait.name;
+                passiveIcon.style.width = '50px';
+                passiveIcon.style.height = '50px';
+
+                passiveTraitButton.appendChild(passiveIcon);
+
+                passiveTraitButton.addEventListener('click', () => {
+                    showModal(passiveTrait.name, passiveTrait.icon, passiveTrait.description, passiveTrait.type);
+                });
+
+                const exportButtonRow = statsBox.querySelector('.button-row');
+                statsBox.insertBefore(passiveTraitButton, exportButtonRow);
+            });
+
+            // Subclass skills
+            if (sub.skills) {
+                sub.skills.forEach(skill => {
+                    const skillButton = document.createElement('button');
+                    skillButton.className = 'subclass-skill-button';
+                    skillButton.style.display = 'inline-flex';
+                    skillButton.style.alignItems = 'center';
+                    skillButton.style.marginRight = '5px';
+                    skillButton.style.background = 'none';
+                    skillButton.style.border = 'none';
+                    skillButton.style.cursor = 'pointer';
+
+                    const skillIcon = document.createElement('img');
+                    skillIcon.src = `icons/${skill.icon}`;
+                    skillIcon.alt = skill.name;
+                    skillIcon.style.width = '50px';
+                    skillIcon.style.height = '50px';
+                    skillIcon.style.marginRight = '5px';
+
+                    skillButton.appendChild(skillIcon);
+
+                    skillButton.addEventListener('click', () => {
+                        showModal(skill.name, skill.icon, skill.description, skill.type);
+                    });
+
+                    const exportButtonRow = statsBox.querySelector('.button-row');
+                    statsBox.insertBefore(skillButton, exportButtonRow);
+                });
+            }
+        }
+    }
+
+    updateActionSlotH();
+}
+
+function updateActionSlotH() {
+    const className = document.getElementById('class').value;
+    const cls = window.D20_CAMPAIGN_DATA.classes.find(c => c.name === className);
+
+    // Get selected subclass if any
+    const subclassName = document.getElementById('subclass')?.value;
+    let sub = null;
+    if (cls && subclassName && Array.isArray(cls.subclasses)) {
+        sub = cls.subclasses.find(s => s.name === subclassName);
+    }
+
+    const actionSlots = document.querySelectorAll('.actions .action-slot');
+    if (actionSlots.length === 4) {
+        const hSlot = actionSlots[3];
+        let asLabel = null;
+
+        // Check subclass passive AS first
+        if (sub && sub.passive && sub.passive.AS) {
+            asLabel = sub.passive.AS;
+        } else if (cls && cls.passive && cls.passive.AS) {
+            asLabel = cls.passive.AS;
+        } else if (cls && cls.AS) {
+            asLabel = cls.AS;
+        } else if (cls && Array.isArray(cls.skills)) {
+            for (const skill of cls.skills) {
+                if (skill.AS) {
+                    asLabel = skill.AS;
+                    break;
+                }
+            }
+        }
+        if (asLabel) {
+            hSlot.style.display = 'flex';
+            hSlot.textContent = asLabel;
+        } else {
+            hSlot.style.display = 'none';
+            hSlot.textContent = 'H';
+            hSlot.style.backgroundImage = '';
+        }
+    }
+    updateBagTabVisibility();
+}
+
+function showModal(title, icon, description, type) {
+    const basePath = "https://raw.githubusercontent.com/scarethevoices/D20/main/pics/charicons/";
+    let subfolder = "";
+    switch (type) {
+        case "class-skill": subfolder = "class-skill/"; break;
+        case "race-skill": subfolder = "race-skill/"; break;
+        default: subfolder = ""; break;
+    }
+    const iconUrl = `icons/${icon}`;
+
+    // Create the modal container
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.position = 'fixed';
+    modal.style.top = '50%';
+    modal.style.left = '50%';
+    modal.style.transform = 'translate(-50%, -50%)';
+    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    modal.style.display = 'flex';
+    modal.style.flexDirection = 'column';
+    modal.style.alignItems = 'center';
+    modal.style.padding = '20px';
+    modal.style.borderRadius = '10px';
+    modal.style.zIndex = '2000';
+
+    // Create the modal content
+    const modalContent = document.createElement('div');
+    modalContent.style.background = '#2c2c2c';
+    modalContent.style.border = '2px solid #676767';
+    modalContent.style.borderRadius = '10px';
+    modalContent.style.padding = '20px';
+    modalContent.style.color = '#f0f0f0';
+    modalContent.style.textAlign = 'center';
+    modalContent.style.width = '400px';
+    modalContent.style.boxShadow = '0px 4px 12px rgba(0, 0, 0, 0.6)';
+
+    // Add the icon to the modal
+    const modalIcon = document.createElement('img');
+    modalIcon.src = iconUrl;
+    modalIcon.alt = title;
+    modalIcon.style.width = '100px';
+    modalIcon.style.height = '100px';
+    modalIcon.style.marginBottom = '10px';
+
+    // Add the title to the modal
+    const modalTitle = document.createElement('h3');
+    modalTitle.textContent = title;
+
+    // Add the description to the modal
+    const modalDescription = document.createElement('p');
+    modalDescription.textContent = description;
+
+    // Add a close button to the modal
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Close';
+    closeButton.style.marginTop = '10px';
+    closeButton.style.padding = '10px';
+    closeButton.style.background = '#533663';
+    closeButton.style.color = '#f0f0f0';
+    closeButton.style.border = 'none';
+    closeButton.style.borderRadius = '5px';
+    closeButton.style.cursor = 'pointer';
+
+    closeButton.addEventListener('click', () => {
+        modal.remove();
+    });
+
+    // Append all elements to the modal content
+    modalContent.appendChild(modalIcon);
+    modalContent.appendChild(modalTitle);
+    modalContent.appendChild(modalDescription);
+    modalContent.appendChild(closeButton);
+
+    // Append the modal content to the modal container
+    modal.appendChild(modalContent);
+
+    // Append the modal to the body
+    document.body.appendChild(modal);
+}
+
+let selectedSlot = null; // Variable to store the clicked action slot
+
+// Add event listeners to action slots
+document.querySelectorAll('.action-slot').forEach(slot => {
+    slot.addEventListener('click', (event) => {
+        selectedSlot = event.target; // Store the clicked action slot
+        const menu = document.getElementById('actionMenu');
+        menu.style.display = 'flex'; // Show the menu
+    });
+});
+
+        // Dynamically populate the menu with images
+        const menuContent = document.querySelector('.menu-content');
+        menuContent.innerHTML = ''; 
+
+        // Fetch icons from repository
+        fetch('https://api.github.com/repos/scarethevoices/D20/contents/pics/itemicons/equip')
+    .then(response => response.json())
+    .then(data => {
+        data.forEach(file => {  // Added missing parentheses
+            if(file.name.endsWith('.png')) {
+                const imgElement = document.createElement('img');
+                imgElement.src = `https://raw.githubusercontent.com/scarethevoices/D20/main/pics/itemicons/equip/${file.name}`;
+                imgElement.alt = file.name;
+                imgElement.className = 'menu-icon';
+                imgElement.onclick = () => selectIcon(file.name);
+                menuContent.appendChild(imgElement);
+            }
+        });
+    });
+   
+        // Function to handle icon selection
+        function selectIcon(iconName) {
+            if (selectedSlot) {
+                const iconUrl = `https://raw.githubusercontent.com/scarethevoices/D20/main/pics/itemicons/equip/${iconName}`;
+                applyActionIconToSlot(selectedSlot, iconUrl, '');
+                if (selectedSlot.classList.contains('bag-slot')) {
+                    saveBagSlotsFromDom();
+                }
+            }
+            const menu = document.getElementById('actionMenu');
+            menu.style.display = 'none'; // Hide the menu
+        }
+
+        // --- Add this code after your existing selectIcon function ---
+
+        // Allow uploading a custom icon for the selected action slot
+        function uploadCustomIcon(file) {
+            if (!selectedSlot || !file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                applyActionIconToSlot(selectedSlot, e.target.result, '');
+                if (selectedSlot.classList.contains('bag-slot')) {
+                    saveBagSlotsFromDom();
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Add a hidden file input for uploading custom icons
+        let customIconInput = document.getElementById('customIconInput');
+        if (!customIconInput) {
+            customIconInput = document.createElement('input');
+            customIconInput.type = 'file';
+            customIconInput.accept = 'image/*';
+            customIconInput.id = 'customIconInput';
+            customIconInput.style.display = 'none';
+            document.body.appendChild(customIconInput);
+
+            customIconInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    uploadCustomIcon(this.files[0]);
+                }
+                this.value = '';
+                document.getElementById('actionMenu').style.display = 'none';
+            });
+        }
+
+        // Add a button to the action menu for uploading custom icons
+        (function addCustomIconButton() {
+            const menu = document.getElementById('actionMenu');
+            if (!document.getElementById('uploadCustomIconBtn')) {
+                const btn = document.createElement('button');
+                btn.id = 'uploadCustomIconBtn';
+                btn.textContent = 'Upload Icon';
+                btn.style.marginTop = '10px';
+                btn.style.background = '#533663';
+                btn.style.color = '#fff';
+                btn.style.border = 'none';
+                btn.style.borderRadius = '5px';
+                btn.style.padding = '8px 12px';
+                btn.style.cursor = 'pointer';
+                btn.onclick = function() {
+                    customIconInput.click();
+                };
+                menu.appendChild(btn);
+            }
+        })();
+
+        // --- Paste image from clipboard into action slot ---
+        document.addEventListener('paste', function(e) {
+            if (!selectedSlot) return;
+            if (e.clipboardData && e.clipboardData.items) {
+                for (let i = 0; i < e.clipboardData.items.length; i++) {
+                   
+                    const item = e.clipboardData.items[i];
+                    if (item.type.indexOf('image') !== -1) {
+                        const file = item.getAsFile();
+                        uploadCustomIcon(file);
+                        document.getElementById('actionMenu').style.display = 'none';
+                        break;
+                    }
+                }
+            }
+        });
+
+        // Hide the menu when clicking outside
+        document.addEventListener('click', (event) => {
+            const menu = document.getElementById('actionMenu');
+            if (menu.style.display === 'flex' && !menu.contains(event.target) && !event.target.classList.contains('action-slot')) {
+                menu.style.display = 'none';
+            }
+        });
+
+        function filterMenu() {
+            const searchQuery = document.getElementById('searchBar').value.toLowerCase();
+            const menuIcons = document.querySelectorAll('.menu-icon');
+
+            menuIcons.forEach(icon => {
+                const altText = icon.alt.toLowerCase();
+                if (altText.includes(searchQuery)) {
+                    icon.style.display = 'block'; // Show matching icons
+                } else {
+                    icon.style.display = 'none'; // Hide non-matching icons
+                }
+            });
+        }
+
+        function clearSlot() {
+            if (selectedSlot) {
+                // Remove the background image from the selected action slot
+                selectedSlot.style.backgroundImage = '';
+
+                // Restore the label (text content) of the action slot
+                if (selectedSlot.classList.contains('action-slot')) {
+                    const slotIndex = Array.from(selectedSlot.parentElement.children).indexOf(selectedSlot) + 1;
+                    if (slotIndex === 4) {
+                        // For the last slot, use the correct AS label from class/subclass
+                        const className = document.getElementById('class').value;
+                        const cls = window.D20_CAMPAIGN_DATA.classes.find(c => c.name === className);
+                        const subclassName = document.getElementById('subclass')?.value;
+                        let sub = null;
+                        if (cls && subclassName && Array.isArray(cls.subclasses)) {
+                            sub = cls.subclasses.find(s => s.name === subclassName);
+                        }
+                        let asLabel = null;
+                        if (sub && sub.passive && sub.passive.AS) {
+                            asLabel = sub.passive.AS;
+                        } else if (cls && cls.passive && cls.passive.AS) {
+                            asLabel = cls.passive.AS;
+                        } else if (cls && cls.AS) {
+                            asLabel = cls.AS;
+                        } else if (cls && Array.isArray(cls.skills)) {
+                            for (const skill of cls.skills) {
+                                if (skill.AS) {
+                                    asLabel = skill.AS;
+                                    break;
+                                }
+                            }
+                        }
+                        selectedSlot.textContent = asLabel || 'H';
+                    } else {
+                        selectedSlot.textContent = slotIndex.toString();
+                    }
+                }
+                if (selectedSlot.classList.contains('bag-slot')) {
+                    saveBagSlotsFromDom();
+                }
+            }
+            updateBagTabVisibility();
+            const menu = document.getElementById('actionMenu');
+            menu.style.display = 'none'; // Hide the menu
+        }
+
+        function openRulebook() {
+            const rulebookModal = document.getElementById('rulebookModal');
+            rulebookModal.style.display = 'flex'; // Show the rulebook modal
+
+            // Play the rulebook sound
+            const rulebookSound = document.getElementById('rulebookSound');
+            rulebookSound.play();
+        }
+
+        function closeRulebook() {
+            const rulebookModal = document.getElementById('rulebookModal');
+            rulebookModal.style.display = 'none'; // Hide the rulebook modal
+        }
+
+        function openExtraPanel() {
+            updateStatusTabVisibility();
+            document.getElementById('extraPanel').style.display = 'flex';
+        }
+        function closeExtraPanel() {
+            document.getElementById('extraPanel').style.display = 'none';
+        }
+
+        // Affinity icon list (add more as needed)
+        const affinityList = [
+            "fire.png",
+            "water.png",
+            "earth.png",
+            "air.png",
+            "aether.png",
+            "void.png",
+            "none.png"
+        ];
+
+        // Add Affinity button to portrait (top right corner)
+
+        const portraitDiv = document.querySelector('.portrait');
+        const affinityBtn = document.getElementById('affinityBtn');
+        portraitDiv.style.position = 'relative';
+        portraitDiv.appendChild(affinityBtn);
+
+        // Handle Affinity checkbox toggle
+        document.getElementById('affinityCheckbox').addEventListener('change', function() {
+            affinityBtn.style.display = this.checked ? 'block' : 'none';
+        });
+
+        // Show affinity picker modal
+        affinityBtn.onclick = function() {
+            showAffinityPicker();
+        };
+
+        let selectedAffinity = null; // Track selected affinity
+
+        function updateAffinityBtn() {
+            const affinityIcon = document.getElementById('affinityIcon');
+            const affinityBtn = document.getElementById('affinityBtn');
+            if (!selectedAffinity || selectedAffinity === "none.png") {
+                affinityIcon.src = "https://raw.githubusercontent.com/scarethevoices/D20/main/pics/charicons/elemticon/none.png";
+                affinityIcon.style.background = "none";
+                affinityIcon.style.border = "0px solid #000000";
+                affinityIcon.style.width = "70px";
+                affinityIcon.style.height = "70px";
+                affinityBtn.style.background = "none";
+            } else {
+                affinityIcon.src = `https://raw.githubusercontent.com/scarethevoices/D20/main/pics/charicons/elemticon/${selectedAffinity}`;
+                affinityIcon.style.background = "none";
+                affinityIcon.style.border = "0px solid #000000";
+                affinityIcon.style.width = "70px";
+                affinityIcon.style.height = (selectedAffinity === "air.png") ? "108px" : "70px";
+                affinityBtn.style.background = "none";
+            }
+        }
+
+        function showAffinityPicker() {
+            const picker = document.getElementById('affinityPicker');
+            const iconsDiv = document.getElementById('affinityIcons');
+            iconsDiv.innerHTML = '';
+            affinityList.forEach(name => {
+                const img = document.createElement('img');
+                img.src = `https://raw.githubusercontent.com/scarethevoices/D20/main/pics/charicons/elemticon/${name}`;
+                img.alt = name.replace('.png','');
+                img.style.width = "70px";
+
+                img.style.height = (name === "air.png") ? "108px" : "70px";
+                img.style.borderRadius = "0%";
+                img.style.background = "none";
+                img.style.cursor = "pointer";
+                // Highlight if selected
+                if (selectedAffinity === name || (!selectedAffinity && name === "none.png")) {
+                    img.style.border = "3px solid #533663";
+                    img.style.boxShadow = "0 0 8px #533663";
+                } else {
+                    img.style.border = "0px solid #000000";
+                    img.style.boxShadow = "none";
+                }
+                img.onclick = function() {
+                    selectedAffinity = name;
+                    updateAffinityBtn();
+                    closeAffinityPicker();
+                };
+                iconsDiv.appendChild(img);
+            });
+            picker.style.display = 'flex';
+        }
+
+        // On load, ensure button is correct
+        updateAffinityBtn();
+
+        function closeAffinityPicker() {
+            document.getElementById('affinityPicker').style.display = 'none';
+        }
+
+        // Optional: Hide affinity picker if modal background is clicked
+        document.getElementById('affinityPicker').addEventListener('click', function(e) {
+            if (e.target === this) closeAffinityPicker();
+        });
+
+        // Handle Status Effect checkbox toggle
+        document.getElementById('statusEffectCheckbox').addEventListener('change', function() {
+            if (!hasCampaignStatusEffects()) {
+                this.checked = false;
+            }
+            document.getElementById('statusEffectNoteToolbar').style.display = (this.checked && activeNotepadTab === 'status') ? 'block' : 'none';
+            updateStatusEffectDisplay();
+        });
+
+        document.getElementById('statusEffectPicker').addEventListener('click', function(e) {
+            if (e.target === this) closeStatusEffectPicker();
+        });
+
+        function updateStatusEffectDisplay() {
+            const statsBox = document.querySelector('.stats-box');
+            const existing = statsBox.querySelectorAll('.status-effect-button');
+            existing.forEach(b => b.remove());
+            if (!hasCampaignStatusEffects()) return;
+            if (!document.getElementById('statusEffectCheckbox').checked) return;
+            const ta = document.getElementById('notepadArea');
+            const text = (activeNotepadTab === 'status' && ta)
+                ? ta.value
+                : (notepadSessions.status || '');
+            const effects = (window.D20_CAMPAIGN_DATA && window.D20_CAMPAIGN_DATA.statusEffects) || [];
+            const seen = new Set();
+            effects.forEach(effect => {
+                const escaped = effect.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp('^\\s*' + escaped + '\\s*$', 'im');
+                if (regex.test(text) && !seen.has(effect.name.toLowerCase())) {
+                    seen.add(effect.name.toLowerCase());
+                    const btn = document.createElement('button');
+                    btn.className = 'status-effect-button';
+                    btn.style.cssText = 'display:inline-flex;align-items:center;margin-right:5px;background:none;border:none;cursor:pointer;padding:0;';
+                    const img = document.createElement('img');
+                    img.src = `icons/${effect.icon}`;
+                    img.alt = effect.name;
+                    img.style.width = '50px';
+                    img.style.height = '50px';
+                    btn.appendChild(img);
+                    btn.addEventListener('click', () => {
+                        showModal(effect.name, effect.icon, effect.description, effect.type);
+                    });
+                    const exportButtonRow = statsBox.querySelector('.button-row');
+                    statsBox.insertBefore(btn, exportButtonRow);
+                }
+            });
+        }
+
+        function showStatusEffectPicker() {
+            if (!hasCampaignStatusEffects()) return;
+            const picker = document.getElementById('statusEffectPicker');
+            const iconsDiv = document.getElementById('statusEffectPickerIcons');
+            iconsDiv.innerHTML = '';
+            const effects = (window.D20_CAMPAIGN_DATA && window.D20_CAMPAIGN_DATA.statusEffects) || [];
+            const visibleEffects = effects.filter(effect => effect && effect.hide !== true);
+            if (visibleEffects.length === 0) {
+                iconsDiv.innerHTML = '<span style="color:#aaa;font-size:14px;">No status effects defined in data.js.</span>';
+            }
+            visibleEffects.forEach(effect => {
+                const item = document.createElement('div');
+                item.style.cssText = 'display:flex;flex-direction:column;align-items:center;cursor:pointer;gap:4px;';
+                const img = document.createElement('img');
+                img.src = `icons/${effect.icon}`;
+                img.alt = effect.name;
+                img.style.width = '50px';
+                img.style.height = '50px';
+                img.style.borderRadius = '4px';
+                const label = document.createElement('span');
+                label.textContent = effect.name;
+                label.style.cssText = 'font-size:11px;color:#f0f0f0;text-align:center;max-width:60px;word-break:break-word;';
+                item.appendChild(img);
+                item.appendChild(label);
+                item.onclick = function() {
+                    const ta = document.getElementById('notepadArea');
+                    const start = ta.selectionStart;
+                    const end = ta.selectionEnd;
+                    const beforeText = ta.value.substring(0, start);
+                    const afterText = ta.value.substring(end);
+                    const needsNewlineBefore = beforeText.length > 0 && !beforeText.endsWith('\n');
+                    const prefix = needsNewlineBefore ? '\n' : '';
+                    const insert = prefix + effect.name + '\n';
+                    ta.value = beforeText + insert + afterText;
+                    ta.selectionStart = ta.selectionEnd = start + insert.length;
+                    ta.focus();
+                    saveActiveNotepadTab();
+                    updateStatusEffectDisplay();
+                    closeStatusEffectPicker();
+                };
+                iconsDiv.appendChild(item);
+            });
+            picker.style.display = 'flex';
+        }
+
+        function closeStatusEffectPicker() {
+            document.getElementById('statusEffectPicker').style.display = 'none';
+        }
+
+        const notepadStorageKeys = {
+            notes: 'd20notepad',
+            bestiary: 'd20bestiary',
+            status: 'd20status',
+            bag: 'd20bag'
+        };
+        let activeNotepadTab = 'notes';
+
+        // Session memory for notepad content (not persisted to localStorage)
+        let notepadSessions = {
+            notes: '',
+            bestiary: '',
+            status: ''
+        };
+
+        // Session memory for bag state (not persisted to localStorage)
+        let bagSession = {
+            capacity: 0,
+            slots: []
+        };
+        let hadBackpackLastCheck = false;
+        let isApplyingCharacterImport = false;
+
+        // Session memory for bestiary (Pokédex state — revealed creature names only)
+        let bestiarySession = { revealed: [] };
+
+        function parseBagState() {
+            // Read from session memory, not localStorage
+            const capacity = bagSession.capacity || 0;
+            const slots = Array.isArray(bagSession.slots) ? bagSession.slots : [];
+            return { capacity, slots };
+        }
+
+        function saveBagState(state) {
+            const capacity = Math.max(0, Math.min(10, parseInt(state.capacity, 10) || 0));
+            const slots = Array.isArray(state.slots)
+                ? state.slots.slice(0, capacity).map(v => (typeof v === 'string' ? v : ''))
+                : [];
+            // Store to session memory, not localStorage
+            bagSession.capacity = capacity;
+            bagSession.slots = slots;
+        }
+
+        function resetBagSession() {
+            bagSession.capacity = 0;
+            bagSession.slots = [];
+        }
+
+        function renderBestiaryPanel() {
+            const creatures = (window.D20_CAMPAIGN_DATA && window.D20_CAMPAIGN_DATA.bestiary) || [];
+            const panel = document.getElementById('bestiaryTabPanel');
+            if (!panel) return;
+            const revealedSet = new Set(bestiarySession.revealed);
+            const revealedCount = creatures.filter(c => revealedSet.has(c.name)).length;
+
+            panel.style.display = 'flex';
+            panel.style.flexDirection = 'column';
+            panel.style.minHeight = '0';
+
+            panel.innerHTML = '';
+
+            const counter = document.createElement('div');
+            counter.style.cssText = 'font-size:0.82em; color:#cfcfcf; margin-bottom:8px; text-align:right;';
+            counter.textContent = `${revealedCount} / ${creatures.length} Discovered`;
+            panel.appendChild(counter);
+
+            const grid = document.createElement('div');
+            grid.className = 'hide-scrollbar';
+            grid.style.cssText = 'display:grid; grid-template-columns:repeat(4, 1fr); gap:5px; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden;';
+
+            creatures.forEach(creature => {
+                const isRevealed = revealedSet.has(creature.name);
+                const card = document.createElement('div');
+                card.style.cssText = [
+                    'border-radius:5px',
+                    'padding:6px 3px',
+                    'text-align:center',
+                    'cursor:pointer',
+                    'transition:transform 0.15s,border-color 0.15s,box-shadow 0.15s',
+                    'user-select:none',
+                    isRevealed ? 'background:#1a2e1a;border:1px solid #4a7a4a;' : 'background:#1a1a1a;border:1px solid #3a3a3a;'
+                ].join(';');
+
+                const iconWrap = document.createElement('div');
+                iconWrap.style.cssText = 'width:28px;height:28px;border-radius:3px;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;font-size:14px;';
+
+                if (isRevealed) {
+                    iconWrap.style.background = '#2c3e2c';
+                    if (creature.icon) {
+                        const img = document.createElement('img');
+                        img.src = `icons/${creature.icon}`;
+                        img.style.cssText = 'width:28px;height:28px;border-radius:3px;object-fit:cover;';
+                        img.onerror = function() { iconWrap.textContent = '?'; };
+                        iconWrap.appendChild(img);
+                    } else {
+                        iconWrap.textContent = '?';
+                    }
+                    const name = document.createElement('div');
+                    name.style.cssText = 'font-size:0.6em;color:#88d888;word-break:break-word;line-height:1.2;';
+                    name.textContent = creature.name;
+                    card.appendChild(iconWrap);
+                    card.appendChild(name);
+                    card.addEventListener('click', () => showBestiaryEntryModal(creature));
+                } else {
+                    iconWrap.style.background = '#282828';
+                    iconWrap.style.color = '#444';
+                    iconWrap.style.fontSize = '16px';
+                    iconWrap.textContent = '?';
+                    const unknown = document.createElement('div');
+                    unknown.style.cssText = 'font-size:0.6em;color:#444;';
+                    unknown.textContent = '???';
+                    card.appendChild(iconWrap);
+                    card.appendChild(unknown);
+                    card.addEventListener('click', () => toggleBestiaryReveal(creature.name));
+                }
+
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-2px)';
+                    card.style.boxShadow = '0 3px 10px rgba(0,0,0,0.35)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = 'none';
+                });
+                grid.appendChild(card);
+            });
+
+            panel.appendChild(grid);
+        }
+
+        function toggleBestiaryReveal(creatureName) {
+            const idx = bestiarySession.revealed.indexOf(creatureName);
+            if (idx === -1) {
+                bestiarySession.revealed.push(creatureName);
+            } else {
+                bestiarySession.revealed.splice(idx, 1);
+            }
+            renderBestiaryPanel();
+        }
+
+        function showBestiaryEntryModal(creature) {
+            const existing = document.getElementById('bestiaryEntryModal');
+            if (existing) existing.remove();
+
+            const overlay = document.createElement('div');
+            overlay.id = 'bestiaryEntryModal';
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:2000;';
+
+            const box = document.createElement('div');
+            box.style.cssText = 'background:#2c2c2c;border:2px solid #676767;border-radius:10px;padding:24px;width:300px;max-width:90%;color:#f0f0f0;text-align:center;position:relative;';
+
+            const closeBtn = document.createElement('span');
+            closeBtn.textContent = '×';
+            closeBtn.style.cssText = 'position:absolute;top:10px;right:14px;font-size:22px;cursor:pointer;color:#f0f0f0;font-weight:bold;line-height:1;';
+            closeBtn.addEventListener('click', () => overlay.remove());
+
+            const iconWrap = document.createElement('div');
+            iconWrap.style.cssText = 'width:56px;height:56px;background:#1e2e1e;border-radius:8px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:28px;';
+            if (creature.icon) {
+                const img = document.createElement('img');
+                img.src = `icons/${creature.icon}`;
+                img.style.cssText = 'width:52px;height:52px;border-radius:6px;object-fit:cover;';
+                img.onerror = function() { iconWrap.textContent = '?'; };
+                iconWrap.appendChild(img);
+            } else {
+                iconWrap.textContent = '?';
+            }
+
+            const title = document.createElement('h3');
+            title.textContent = creature.name;
+            title.style.cssText = 'margin:0 0 10px 0;font-size:1.2em;';
+
+            const desc = document.createElement('p');
+            desc.textContent = creature.description || 'No data available.';
+            desc.style.cssText = 'font-size:0.9em;color:#cfcfcf;line-height:1.5;margin:0 0 16px 0;';
+
+            const unrevealBtn = document.createElement('button');
+            unrevealBtn.textContent = 'Mark as Unknown';
+            unrevealBtn.style.cssText = 'background:#553333;color:#f0f0f0;border:none;border-radius:5px;padding:8px 16px;cursor:pointer;font-size:0.85em;';
+            unrevealBtn.addEventListener('click', () => {
+                toggleBestiaryReveal(creature.name);
+                overlay.remove();
+            });
+
+            box.appendChild(closeBtn);
+            box.appendChild(iconWrap);
+            box.appendChild(title);
+            box.appendChild(desc);
+            box.appendChild(unrevealBtn);
+            overlay.appendChild(box);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+            document.body.appendChild(overlay);
+        }
+
+        function hasValidBagCapacity() {
+            const cap = parseBagState().capacity;
+            return Number.isInteger(cap) && cap >= 1 && cap <= 10;
+        }
+
+        function closeBagCapacityModal() {
+            const modal = document.getElementById('bagCapacityModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function openBagCapacityModal() {
+            const modal = document.getElementById('bagCapacityModal');
+            const input = document.getElementById('bagCapacityInput');
+            if (!modal || !input) return;
+            const existing = parseBagState().capacity;
+            input.value = (existing >= 1 && existing <= 10) ? existing : 1;
+            modal.style.display = 'flex';
+        }
+
+        function setBagCapacity(capacityValue) {
+            const capacity = Math.max(1, Math.min(10, parseInt(capacityValue, 10) || 1));
+            const existing = parseBagState();
+            const nextSlots = Array.isArray(existing.slots) ? existing.slots.slice(0, capacity) : [];
+            while (nextSlots.length < capacity) {
+                nextSlots.push('');
+            }
+            saveBagState({ capacity, slots: nextSlots });
+        }
+
+        function saveBagSlotsFromDom() {
+            const state = parseBagState();
+            const capacity = state.capacity;
+            if (capacity < 1) return;
+            const slotEls = document.querySelectorAll('#bagSlotsGrid .bag-slot');
+            const slots = Array.from(slotEls).slice(0, capacity).map(slot => extractBackgroundImageUrl(slot.style.backgroundImage || ''));
+            saveBagState({ capacity, slots });
+        }
+
+        function renderBagSlots() {
+            const bagPanel = document.getElementById('bagTabPanel');
+            const label = document.getElementById('bagCapacityLabel');
+            const grid = document.getElementById('bagSlotsGrid');
+            if (!bagPanel || !label || !grid) return;
+
+            const state = parseBagState();
+            const capacity = state.capacity;
+            label.textContent = capacity > 0 ? `Bag Space: ${capacity}/10` : 'Bag Space: not set';
+            grid.innerHTML = '';
+
+            if (capacity < 1) return;
+
+            for (let i = 0; i < capacity; i++) {
+                const slot = document.createElement('button');
+                slot.type = 'button';
+                slot.className = 'action-slot bag-slot';
+                slot.style.margin = '0';
+                slot.style.width = '60px';
+                slot.style.height = '60px';
+                slot.style.fontSize = '16px';
+                slot.style.color = '#f0f0f0';
+                slot.addEventListener('click', function(event) {
+                    selectedSlot = event.currentTarget;
+                    const menu = document.getElementById('actionMenu');
+                    if (menu) menu.style.display = 'flex';
+                });
+                grid.appendChild(slot);
+                applyActionIconToSlot(slot, state.slots[i] || '', (i + 1).toString());
+            }
+        }
+
+        function hasBackpackInActionSlots() {
+            const actionSlots = document.querySelectorAll('.actions .action-slot');
+            return Array.from(actionSlots).some(slot => {
+                const bgUrl = extractBackgroundImageUrl(slot.style.backgroundImage || '');
+                return bgUrl.toLowerCase().includes('backpack.png');
+            });
+        }
+
+        function hasCampaignBestiary() {
+            const data = window.D20_CAMPAIGN_DATA;
+            return !!(data && Object.prototype.hasOwnProperty.call(data, 'bestiary'));
+        }
+
+        function hasCampaignStatusEffects() {
+            const data = window.D20_CAMPAIGN_DATA;
+            return !!(data && Object.prototype.hasOwnProperty.call(data, 'statusEffects'));
+        }
+
+        function updateBestiaryTabVisibility() {
+            const bestiaryTab = document.getElementById('notepadTabBestiary');
+            if (!bestiaryTab) return;
+            const shouldShow = hasCampaignBestiary();
+            bestiaryTab.style.display = shouldShow ? '' : 'none';
+            if (!shouldShow && activeNotepadTab === 'bestiary') {
+                switchNotepadTab('notes');
+            }
+            setNotepadTabButtonStyles();
+        }
+
+        function updateStatusTabVisibility() {
+            const statusTab = document.getElementById('notepadTabStatus');
+            if (!statusTab) return;
+            const shouldShow = hasCampaignStatusEffects();
+            statusTab.style.display = shouldShow ? '' : 'none';
+
+            const statusOptionRow = document.getElementById('statusEffectOptionRow');
+            if (statusOptionRow) {
+                statusOptionRow.style.display = shouldShow ? 'flex' : 'none';
+            }
+
+            if (!shouldShow) {
+                const statusCheckbox = document.getElementById('statusEffectCheckbox');
+                if (statusCheckbox) statusCheckbox.checked = false;
+                const toolbar = document.getElementById('statusEffectNoteToolbar');
+                if (toolbar) toolbar.style.display = 'none';
+                updateStatusEffectDisplay();
+            }
+
+            if (!shouldShow && activeNotepadTab === 'status') {
+                switchNotepadTab('notes');
+            }
+            setNotepadTabButtonStyles();
+        }
+
+        function updateBagTabVisibility() {
+            const bagTab = document.getElementById('notepadTabBag');
+            if (!bagTab) return;
+            const shouldShow = hasBackpackInActionSlots();
+            const wasVisible = bagTab.style.display !== 'none';
+
+            // Reset bag data only when a backpack is actually removed.
+            if (hadBackpackLastCheck && !shouldShow) {
+                resetBagSession();
+            }
+            hadBackpackLastCheck = shouldShow;
+
+            bagTab.style.display = shouldShow ? '' : 'none';
+            if (!shouldShow && activeNotepadTab === 'bag') {
+                switchNotepadTab('notes');
+            }
+
+            if (shouldShow && !wasVisible) {
+                if (!hasValidBagCapacity()) {
+                    if (!isApplyingCharacterImport) {
+                        openBagCapacityModal();
+                    }
+                } else {
+                    renderBagSlots();
+                }
+            }
+            setNotepadTabButtonStyles();
+        }
+
+        function setNotepadTabButtonStyles() {
+            const notesBtn = document.getElementById('notepadTabNotes');
+            const bestiaryBtn = document.getElementById('notepadTabBestiary');
+            const statusBtn = document.getElementById('notepadTabStatus');
+            const bagBtn = document.getElementById('notepadTabBag');
+            if (!notesBtn || !bestiaryBtn || !statusBtn || !bagBtn) return;
+
+            const tabs = [
+                { name: 'notes', el: notesBtn },
+                { name: 'bestiary', el: bestiaryBtn },
+                { name: 'status', el: statusBtn },
+                { name: 'bag', el: bagBtn }
+            ];
+
+            tabs.forEach(tab => {
+                const isActive = tab.name === activeNotepadTab;
+                tab.el.style.background = isActive ? '#2c2c2c' : '#3a2a4a';
+                tab.el.style.color = isActive ? '#f0f0f0' : '#aaa';
+                tab.el.style.borderBottom = isActive ? '2px solid #533663' : '2px solid transparent';
+            });
+        }
+
+        function saveActiveNotepadTab() {
+            if (activeNotepadTab === 'bag') {
+                saveBagSlotsFromDom();
+                return;
+            }
+            if (activeNotepadTab === 'bestiary') return; // bestiary state managed by bestiarySession
+            const ta = document.getElementById('notepadArea');
+            if (!ta) return;
+            if (notepadSessions.hasOwnProperty(activeNotepadTab)) {
+                notepadSessions[activeNotepadTab] = ta.value;
+            }
+        }
+
+        function switchNotepadTab(tabName) {
+            if (!notepadStorageKeys[tabName]) return;
+            if (tabName === 'bestiary' && !hasCampaignBestiary()) return;
+            if (tabName === 'status' && !hasCampaignStatusEffects()) return;
+            if (tabName === 'bag' && !hasBackpackInActionSlots()) return;
+            if (tabName === 'bag' && !hasValidBagCapacity()) {
+                openBagCapacityModal();
+                return;
+            }
+            saveActiveNotepadTab();
+            activeNotepadTab = tabName;
+
+            const ta = document.getElementById('notepadArea');
+            const bagPanel = document.getElementById('bagTabPanel');
+            const bestiaryPanel = document.getElementById('bestiaryTabPanel');
+
+            if (tabName === 'bag') {
+                if (ta) ta.style.display = 'none';
+                if (bagPanel) bagPanel.style.display = 'block';
+                if (bestiaryPanel) bestiaryPanel.style.display = 'none';
+                renderBagSlots();
+            } else if (tabName === 'bestiary') {
+                if (ta) ta.style.display = 'none';
+                if (bagPanel) bagPanel.style.display = 'none';
+                if (bestiaryPanel) bestiaryPanel.style.display = 'flex';
+                renderBestiaryPanel();
+            } else {
+                if (ta) ta.style.display = 'block';
+                if (bagPanel) bagPanel.style.display = 'none';
+                if (bestiaryPanel) bestiaryPanel.style.display = 'none';
+            }
+
+            if (ta && tabName !== 'bag' && tabName !== 'bestiary') {
+                ta.value = notepadSessions[tabName] || '';
+            }
+
+            const toolbar = document.getElementById('statusEffectNoteToolbar');
+            const statusEffectEnabled = document.getElementById('statusEffectCheckbox')?.checked;
+            if (toolbar) {
+                toolbar.style.display = (tabName === 'status' && statusEffectEnabled) ? 'block' : 'none';
+            }
+
+            setNotepadTabButtonStyles();
+            if (tabName === 'status') {
+                updateStatusEffectDisplay();
+            }
+        }
+
+        // Show modal when portrait is clicked
+        document.getElementById('portraitImage').onclick = function() {
+            openPortraitModal();
+        };
+        document.getElementById('portraitCameraFrame').onclick = function() {
+            openPortraitModal();
+        };
+        document.getElementById('portraitCameraFeed').onclick = function() {
+            openPortraitModal();
+        };
+
+        // Hide modal function
+        function closePortraitModal() {
+            document.getElementById('portraitModal').style.display = 'none';
+        }
+
+        // Optional: Hide modal if background is clicked
+        document.getElementById('portraitModal').addEventListener('click', function(e) {
+            if (e.target === this) closePortraitModal();
+        });
+
+        // Settings button logic
+       
+        document.getElementById('settingsBtn').onclick = function() {
+            document.getElementById('settingsPanel').style.display = 'flex';
+        };
+        function closeSettingsPanel() {
+            document.getElementById('settingsPanel').style.display = 'none';
+        }
+        // Optional: Hide settings panel if background is clicked
+        document.getElementById('settingsPanel').addEventListener('click', function(e) {
+            if (e.target === this) closeSettingsPanel();
+        });
+
+        // Handle card background upload
+        document.getElementById('cardBgUploader').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+           
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.querySelector('.character-card').style.backgroundImage = `url('${e.target.result}')`;
+                document.querySelector('.character-card').style.backgroundSize = 'cover';
+                document.querySelector('.character-card').style.backgroundPosition = 'center';
+                cardBgData = e.target.result; // Store the Data URL
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        function resetCardBackground() {
+            const card = document.querySelector('.character-card');
+            card.style.backgroundImage = '';
+            document.getElementById('bgFileName').textContent = '';
+            cardBgData = ""; // Reset the stored background
+        }
+
+        // Calculator logic
+        let calcValue = "";
+
+        document.getElementById('calculatorBtn').onclick = function() {
+            const calc = document.getElementById('calculatorModal');
+            calc.style.display = 'block';
+            document.getElementById('calcDisplay').value = calcValue;
+        };
+
+        function closeCalculator() {
+            document.getElementById('calculatorModal').style.display = 'none';
+        }
+
+        function calcInput(val) {
+            calcValue += val;
+            document.getElementById('calcDisplay').value = calcValue;
+        }
+
+        function calcEquals() {
+            try {
+                // Evaluate only safe math expressions
+                calcValue = eval(calcValue).toString();
+            } catch {
+                calcValue = "Error";
+            }
+            document.getElementById('calcDisplay').value = calcValue;
+        }
+
+        function calcClear() {
+            calcValue = "";
+            document.getElementById('calcDisplay').value = "";
+        }
+
+        // --- Draggable logic ---
+        (function() {
+            const calcModal = document.getElementById('calculatorModal');
+            const header = document.getElementById('calculatorHeader');
+            let offsetX = 0, offsetY = 0, isDragging = false;
+
+            header.onmousedown = function(e) {
+                isDragging = true;
+                // Get the current mouse position and modal position
+                const rect = calcModal.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                document.body.style.userSelect = "none";
+            };
+
+            document.onmousemove = function(e) {
+                if (isDragging) {
+                    calcModal.style.left = (e.clientX - offsetX) + "px";
+                    calcModal.style.top = (e.clientY - offsetY) + "px";
+                    calcModal.style.bottom = "auto";
+                }
+            };
+
+            document.onmouseup = function() {
+                isDragging = false;
+                document.body.style.userSelect = "";
+            };
+        })();
+
+        // Prevent accidental text selection while dragging
+        document.getElementById('calculatorModal').onselectstart = function() { return false; };
+
+        // Notepad button logic
+document.getElementById('notepadBtn').onclick = function() {
+    const modal = document.getElementById('notepadModal');
+    modal.style.display = 'block';
+    modal.style.left = '90px';
+    modal.style.top = '';
+    modal.style.bottom = '90px';
+    modal.style.right = '';
+    modal.style.position = 'fixed';
+    updateBestiaryTabVisibility();
+    updateStatusTabVisibility();
+    updateBagTabVisibility();
+    switchNotepadTab('notes');
+};
+function closeNotepad() {
+    document.getElementById('notepadModal').style.display = 'none';
+    saveActiveNotepadTab();
+}
+document.getElementById('notepadArea').addEventListener('input', function() {
+    saveActiveNotepadTab();
+    if (activeNotepadTab === 'status') {
+        updateStatusEffectDisplay();
+    }
+});
+
+document.getElementById('bagCapacityConfirmBtn').addEventListener('click', function() {
+    const input = document.getElementById('bagCapacityInput');
+    let capacity = parseInt(input.value, 10);
+    if (!Number.isInteger(capacity)) capacity = 1;
+    capacity = Math.max(1, Math.min(10, capacity));
+    input.value = capacity;
+
+    setBagCapacity(capacity);
+    closeBagCapacityModal();
+    renderBagSlots();
+
+    if (activeNotepadTab === 'bag') {
+        switchNotepadTab('bag');
+    }
+});
+
+document.getElementById('bagCapacityModal').addEventListener('click', function(e) {
+    if (e.target === this) closeBagCapacityModal();
+});
+// Prevent accidental text selection while dragging
+document.getElementById('notepadModal').onselectstart = function() { return false; };
+
+(function() {
+    const notepadModal = document.getElementById('notepadModal');
+    const header = document.getElementById('notepadHeader');
+    const resizeHandle = document.getElementById('notepadResizeHandle');
+    let offsetX = 0, offsetY = 0, isDragging = false;
+    let isResizing = false, startWidth = 0, startHeight = 0, startX = 0, startY = 0;
+    const minWidth = 320;
+    const minHeight = 260;
+
+    header.onmousedown = function(e) {
+        if (isResizing) return;
+        isDragging = true;
+        const rect = notepadModal.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+        document.body.style.userSelect = "none";
+    };
+
+    resizeHandle.onmousedown = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        isResizing = true;
+        const rect = notepadModal.getBoundingClientRect();
+        startWidth = rect.width;
+        startHeight = rect.height;
+        startX = e.clientX;
+        startY = e.clientY;
+        notepadModal.style.width = rect.width + 'px';
+        document.body.style.userSelect = "none";
+    };
+
+    document.addEventListener('mousemove', function(e) {
+        if (isDragging) {
+            notepadModal.style.left = (e.clientX - offsetX) + "px";
+            notepadModal.style.top = (e.clientY - offsetY) + "px";
+            notepadModal.style.right = "auto";
+            notepadModal.style.bottom = "auto";
+            notepadModal.style.position = "fixed";
+        }
+        if (isResizing) {
+            const nextWidth = Math.max(minWidth, startWidth + (e.clientX - startX));
+            const nextHeight = Math.max(minHeight, startHeight + (e.clientY - startY));
+            notepadModal.style.width = nextWidth + 'px';
+            const content = notepadModal.querySelector('.modal-content');
+            if (content) {
+                content.style.width = '100%';
+                content.style.height = Math.max(210, nextHeight - header.offsetHeight) + 'px';
+            }
+        }
+    });
+
+    document.addEventListener('mouseup', function() {
+        isDragging = false;
+        isResizing = false;
+        document.body.style.userSelect = "";
+    });
+})();
+
+// Stats Sheet button logic
+document.getElementById('statsSheetBtn').onclick = function() {
+    const modal = document.getElementById('statsSheetModal');
+    modal.style.display = 'block';
+    modal.style.left = '150px';
+    modal.style.top = '';
+    modal.style.bottom = '90px';
+    modal.style.right = '';
+    modal.style.position = 'fixed';
+    updateStatsSheetUI();
+};
+
+function closeStatsSheet() {
+    document.getElementById('statsSheetModal').style.display = 'none';
+}
+
+// Prevent accidental text selection while dragging
+document.getElementById('statsSheetModal').onselectstart = function() { return false; };
+
+(function() {
+    const statsModal = document.getElementById('statsSheetModal');
+    const header = document.getElementById('statsSheetHeader');
+    let offsetX = 0, offsetY = 0, isDragging = false;
+
+    header.onmousedown = function(e) {
+        isDragging = true;
+        const rect = statsModal.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+        document.body.style.userSelect = "none";
+    };
+
+    document.addEventListener('mousemove', function(e) {
+        if (isDragging) {
+            statsModal.style.left = (e.clientX - offsetX) + "px";
+            statsModal.style.top = (e.clientY - offsetY) + "px";
+            statsModal.style.right = "auto";
+            statsModal.style.bottom = "auto";
+            statsModal.style.position = "fixed";
+        }
+    });
+
+    document.addEventListener('mouseup', function() {
+        isDragging = false;
+        document.body.style.userSelect = "";
+    });
+})();
+
+const STATS_KEYS = ['Might', 'Vigor', 'Agility', 'Mind', 'Instinct'];
+let statsSheetLocked = false;
+let selectedRollStat = null;
+let lastRawRoll = null;
+let committedAllocations = {
+    might: 0,
+    vigor: 0,
+    agility: 0,
+    mind: 0,
+    instinct: 0
+};
+let pointsAtLastSubmission = 0;
+
+function formatModifier(value) {
+    return value >= 0 ? `+${value}` : `${value}`;
+}
+
+function isPrimeNumber(n) {
+    if (n < 2) return false;
+    for (let i = 2; i * i <= n; i++) {
+        if (n % i === 0) return false;
+    }
+    return true;
+}
+
+function getTotalPrimeSkillPoints(level) {
+    let primesSoFar = 0;
+    for (let i = 6; i <= level; i++) {
+        if (isPrimeNumber(i)) primesSoFar += 1;
+    }
+    return primesSoFar * 2;
+}
+
+function clearSelectedRollStat() {
+    selectedRollStat = null;
+    document.querySelectorAll('.stats-label').forEach(label => {
+        label.style.color = '#f0f0f0';
+    });
+}
+
+function selectRollStat(statName) {
+    selectedRollStat = statName;
+    document.querySelectorAll('.stats-label').forEach(label => {
+        const isSelected = label.dataset.stat === statName;
+        label.style.color = isSelected ? '#9FDF9F' : '#f0f0f0';
+    });
+}
+
+function getSelectedStatModifier() {
+    if (!selectedRollStat) return 0;
+    const modEl = document.getElementById(`modValue${selectedRollStat}`);
+    if (!modEl) return 0;
+    return parseInt(modEl.textContent, 10) || 0;
+}
+
+function updateStatRawRoll(statName, rawRoll) {
+    const rawRollEl = document.getElementById(`rawRoll${statName}`);
+    if (!rawRollEl) return;
+    rawRollEl.textContent = `(roll: ${rawRoll})`;
+}
+
+function safeGetLocalJSON(key, fallbackValue) {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallbackValue;
+    try {
+        return JSON.parse(raw);
+    } catch (err) {
+        console.warn(`Invalid localStorage JSON for ${key}, resetting.`, err);
+        localStorage.removeItem(key);
+        return fallbackValue;
+    }
+}
+
+function getStatsSheetState() {
+    const state = {
+        allocations: {},
+        locked: statsSheetLocked,
+        committedAllocations: { ...committedAllocations },
+        pointsAtLastSubmission
+    };
+    STATS_KEYS.forEach(key => {
+        const allocEl = document.getElementById(`alloc${key}`);
+        state.allocations[key.toLowerCase()] = Math.max(0, parseInt(allocEl?.value, 10) || 0);
+    });
+    return state;
+}
+
+function setStatsSheetState(state) {
+    if (!state || typeof state !== 'object') return;
+    const incomingAllocations = {};
+    STATS_KEYS.forEach(key => {
+        const allocEl = document.getElementById(`alloc${key}`);
+        const allocValue = state.allocations?.[key.toLowerCase()];
+        const normalized = Math.max(0, parseInt(allocValue, 10) || 0);
+        incomingAllocations[key.toLowerCase()] = normalized;
+        if (allocEl && typeof allocValue !== 'undefined') allocEl.value = normalized;
+    });
+    if (state.committedAllocations && typeof state.committedAllocations === 'object') {
+        const nextCommitted = { ...committedAllocations };
+        STATS_KEYS.forEach(key => {
+            nextCommitted[key.toLowerCase()] = Math.max(0, parseInt(state.committedAllocations[key.toLowerCase()], 10) || 0);
+        });
+        committedAllocations = nextCommitted;
+    } else if (state.locked) {
+        // Backward compatibility: if old saved state is locked but has no committed floor,
+        // use current allocations as the committed minimums.
+        committedAllocations = { ...incomingAllocations };
+    }
+    if (typeof state.pointsAtLastSubmission !== 'undefined') {
+        pointsAtLastSubmission = Math.max(0, parseInt(state.pointsAtLastSubmission, 10) || 0);
+    } else if (state.locked) {
+        pointsAtLastSubmission = getTotalPrimeSkillPoints(Math.max(1, parseInt(document.getElementById('level')?.value, 10) || 1));
+    }
+    if (typeof state.locked !== 'undefined') {
+        setStatsSheetLocked(Boolean(state.locked));
+    }
+}
+
+function setStatsSheetLocked(locked) {
+    statsSheetLocked = Boolean(locked);
+    STATS_KEYS.forEach(key => {
+        const allocEl = document.getElementById(`alloc${key}`);
+        if (allocEl) allocEl.disabled = statsSheetLocked;
+    });
+
+    const saveLockBtn = document.getElementById('statsSheetSaveLockBtn');
+    const lockState = document.getElementById('statsLockState');
+    const lockHelp = document.getElementById('statsLockHelp');
+    if (saveLockBtn) {
+        saveLockBtn.textContent = statsSheetLocked ? 'Submitted' : 'Save & Lock';
+        saveLockBtn.style.background = statsSheetLocked ? '#676767' : '#3c763d';
+        saveLockBtn.disabled = statsSheetLocked;
+        saveLockBtn.style.cursor = statsSheetLocked ? 'not-allowed' : 'pointer';
+        saveLockBtn.style.opacity = statsSheetLocked ? '0.8' : '1';
+    }
+    if (lockState) {
+        lockState.textContent = statsSheetLocked ? 'Submitted and Locked' : 'Unlocked';
+        lockState.style.color = statsSheetLocked ? '#ffd27a' : '#bdbdbd';
+    }
+    if (lockHelp) {
+        lockHelp.textContent = statsSheetLocked
+            ? 'Locked until you gain new prime-level bonus points from leveling.'
+            : 'You can assign available points and submit them once with Save & Lock.';
+    }
+}
+
+function clearLegacyStatsSheetStorage() {
+    // Stats sheet now lives in character save data (export/import), not shared localStorage.
+    if (localStorage.getItem('d20statssheet') !== null) {
+        localStorage.removeItem('d20statssheet');
+    }
+}
+
+function updateStatsSheetUI(changedAllocKey) {
+    const level = Math.max(1, parseInt(document.getElementById('level')?.value, 10) || 1);
+    const totalPoints = getTotalPrimeSkillPoints(level);
+
+    // Auto-unlock only when a new prime-point threshold has been reached after submission.
+    if (statsSheetLocked && totalPoints > pointsAtLastSubmission) {
+        setStatsSheetLocked(false);
+    }
+
+    let spentPoints = 0;
+    STATS_KEYS.forEach(key => {
+        const allocEl = document.getElementById(`alloc${key}`);
+        const current = Math.max(0, parseInt(allocEl?.value, 10) || 0);
+        spentPoints += current;
+    });
+
+    // Clamp the edited allocation so total spent cannot exceed available points.
+    if (changedAllocKey && spentPoints > totalPoints) {
+        const changedEl = document.getElementById(`alloc${changedAllocKey}`);
+        const changedCurrent = Math.max(0, parseInt(changedEl?.value, 10) || 0);
+        const overflow = spentPoints - totalPoints;
+        const corrected = Math.max(0, changedCurrent - overflow);
+        if (changedEl) changedEl.value = corrected;
+    }
+
+    spentPoints = 0;
+    STATS_KEYS.forEach(key => {
+        const allocEl = document.getElementById(`alloc${key}`);
+        const finalModEl = document.getElementById(`modValue${key}`);
+
+        const floor = Math.max(0, parseInt(committedAllocations[key.toLowerCase()], 10) || 0);
+        const alloc = Math.max(floor, parseInt(allocEl?.value, 10) || 0);
+        const finalMod = alloc;
+
+        if (allocEl) allocEl.value = alloc;
+        if (finalModEl) finalModEl.textContent = formatModifier(finalMod);
+
+        spentPoints += alloc;
+    });
+
+    const committedTotal = STATS_KEYS.reduce((sum, key) => {
+        return sum + Math.max(0, parseInt(committedAllocations[key.toLowerCase()], 10) || 0);
+    }, 0);
+    const spendableSinceSubmission = Math.max(0, totalPoints - committedTotal);
+    const usedSinceSubmission = Math.max(0, spentPoints - committedTotal);
+    const remainingPoints = Math.max(0, spendableSinceSubmission - usedSinceSubmission);
+
+    const availableEl = document.getElementById('availableSkillPoints');
+    const spentEl = document.getElementById('spentSkillPoints');
+    if (availableEl) availableEl.textContent = remainingPoints;
+    if (spentEl) {
+        spentEl.textContent = spentPoints;
+        spentEl.style.color = spentPoints > totalPoints ? '#ff8080' : '#f0f0f0';
+    }
+
+    // Stats sheet data is only saved through export/import, not auto-persisted to localStorage
+}
+
+function bindStatsSheetInputs() {
+    STATS_KEYS.forEach(key => {
+        const allocEl = document.getElementById(`alloc${key}`);
+
+        if (allocEl) {
+            allocEl.addEventListener('input', function() {
+                updateStatsSheetUI(key);
+                saveCharacterToLocal();
+            });
+        }
+    });
+
+    const saveLockBtn = document.getElementById('statsSheetSaveLockBtn');
+    if (saveLockBtn) {
+        saveLockBtn.addEventListener('click', function() {
+            // Submission is one-way at the current point threshold.
+            const snapshot = getStatsSheetState();
+            committedAllocations = { ...snapshot.allocations };
+            pointsAtLastSubmission = getTotalPrimeSkillPoints(Math.max(1, parseInt(document.getElementById('level')?.value, 10) || 1));
+            setStatsSheetLocked(true);
+        });
+    }
+
+    document.querySelectorAll('.stats-label').forEach(label => {
+        label.addEventListener('click', function() {
+            const statName = this.dataset.stat;
+            if (!statName) return;
+            if (selectedRollStat === statName) {
+                clearSelectedRollStat();
+            } else {
+                selectRollStat(statName);
+            }
+        });
+    });
+
+    setStatsSheetLocked(statsSheetLocked);
+}
+
+function populateDropdowns() {
+    // Populate Race
+    const raceSelect = document.getElementById('race');
+    raceSelect.innerHTML = '<option value="">Select Race</option>';
+    window.D20_CAMPAIGN_DATA.races.forEach(race => {
+        raceSelect.innerHTML += `<option value="${race.name}">${race.name}</option>`;
+    });
+
+    // Populate Class
+    const classSelect = document.getElementById('class');
+    classSelect.innerHTML = '<option value="">Select Class</option>';
+    window.D20_CAMPAIGN_DATA.classes.forEach(cls => {
+        classSelect.innerHTML += `<option value="${cls.name}">${cls.name}</option>`;
+    });
+}
+
+// Call this on page load
+populateDropdowns();
+
+// --- Skill Tree Tab Switching ---
+function switchStatsSheetTab(tab) {
+    const panels = ['stats', 'skilltree'];
+    panels.forEach(function(p) {
+        const panel = document.getElementById('statsSheetPanel-' + p);
+        const btn = document.getElementById('statsSheetTab-' + p);
+        if (panel) panel.style.display = (p === tab) ? '' : 'none';
+        if (btn) {
+            btn.style.background = (p === tab) ? '#2c2c2c' : '#3a2a4a';
+            btn.style.color = (p === tab) ? '#f0f0f0' : '#aaa';
+            btn.style.borderBottom = (p === tab) ? '2px solid #533663' : '2px solid transparent';
+        }
+    });
+    if (tab === 'skilltree') renderSkillTree();
+}
+
+// --- Skill Tree Rendering ---
+(function initSkillTreeState() {
+    window.skillTreeClaimedSkills = Array.isArray(window.skillTreeClaimedSkills) ? window.skillTreeClaimedSkills : [];
+    window.skillTreePendingSelection = Array.isArray(window.skillTreePendingSelection) ? window.skillTreePendingSelection : [];
+})();
+
+function findSkillTreeSkillByName(name) {
+    const data = window.D20_SKILL_TREE_DATA;
+    if (!Array.isArray(data)) return null;
+    return data.find(skill => skill && skill.name === name) || null;
+}
+
+function getSkillTreeSkillCost(skill) {
+    return Math.max(1, parseInt(skill?.cost, 10) || 1);
+}
+
+function getSkillTreeTotalPoints(levelValue) {
+    const level = Math.max(1, parseInt(levelValue, 10) || 1);
+    if (level < 5) return 0;
+    // Characters start at level 5 with 2 points, then gain +1 each level after 5.
+    return 2 + (level - 5);
+}
+
+function getSkillTreeSpentPoints() {
+    return skillTreeClaimedSkills.reduce(function(sum, name) {
+        const skill = findSkillTreeSkillByName(name);
+        return sum + getSkillTreeSkillCost(skill);
+    }, 0);
+}
+
+function getSkillTreePendingCost() {
+    return skillTreePendingSelection.reduce(function(sum, name) {
+        const skill = findSkillTreeSkillByName(name);
+        return sum + getSkillTreeSkillCost(skill);
+    }, 0);
+}
+
+function renderClaimedSkillTreeOnCard() {
+    const statsBox = document.querySelector('.stats-box');
+    if (!statsBox) return;
+
+    const existing = statsBox.querySelectorAll('.skill-tree-claimed-button');
+    existing.forEach(el => el.remove());
+
+    const exportButtonRow = statsBox.querySelector('.button-row');
+    if (!exportButtonRow) return;
+
+    skillTreeClaimedSkills.forEach(name => {
+        const skill = findSkillTreeSkillByName(name);
+        if (!skill) return;
+
+        const btn = document.createElement('button');
+        btn.className = 'skill-tree-claimed-button';
+        btn.style.display = 'inline-flex';
+        btn.style.alignItems = 'center';
+        btn.style.marginRight = '5px';
+        btn.style.background = 'none';
+        btn.style.border = 'none';
+        btn.style.cursor = 'pointer';
+
+        const icon = document.createElement('img');
+        icon.src = `icons/${skill.icon}`;
+        icon.alt = skill.name;
+        icon.style.width = '50px';
+        icon.style.height = '50px';
+        icon.onerror = function() { this.style.visibility = 'hidden'; };
+
+        btn.appendChild(icon);
+        btn.addEventListener('click', function() {
+            showModal(skill.name, skill.icon, skill.description, 'class-skill');
+        });
+        statsBox.insertBefore(btn, exportButtonRow);
+    });
+}
+
+(function createSkillTreeTooltip() {
+    const tip = document.createElement('div');
+    tip.id = 'skillTreeTooltip';
+    tip.style.cssText = [
+        'position:fixed',
+        'z-index:9999',
+        'display:none',
+        'background:#1e1e1e',
+        'border:2px solid #676767',
+        'border-radius:10px',
+        'padding:12px 14px',
+        'min-width:180px',
+        'max-width:260px',
+        'box-shadow:0 4px 16px rgba(0,0,0,0.7)',
+        'pointer-events:none',
+        'text-align:center',
+        'color:#f0f0f0',
+        'font-family:inherit'
+    ].join(';');
+    document.body.appendChild(tip);
+})();
+
+function showSkillTreeTooltip(e, skill) {
+    const tip = document.getElementById('skillTreeTooltip');
+    if (!tip) return;
+    const skillCost = getSkillTreeSkillCost(skill);
+    tip.innerHTML = `
+        <img src="icons/${skill.icon}" alt="${skill.name}"
+             style="width:52px;height:52px;display:block;margin:0 auto 6px;border-radius:6px;">
+        <div style="font-size:13px;font-weight:bold;margin-bottom:4px;">${skill.name}</div>
+        <div style="font-size:11px;color:#cfcfcf;line-height:1.4;">${skill.description}</div>
+        <div style="margin-top:6px;font-size:11px;color:#9fdf9f;">Cost: ${skillCost} SP</div>
+        <div style="margin-top:6px;font-size:10px;color:#aaa;">Levels ${skill.level[0]}–${skill.level[1]}</div>
+    `;
+    tip.style.display = 'block';
+    positionSkillTreeTooltip(e);
+}
+
+function positionSkillTreeTooltip(e) {
+    const tip = document.getElementById('skillTreeTooltip');
+    if (!tip) return;
+    const pad = 12;
+    let x = e.clientX + pad;
+    let y = e.clientY + pad;
+    const tw = tip.offsetWidth || 200;
+    const th = tip.offsetHeight || 120;
+    if (x + tw > window.innerWidth - pad) x = e.clientX - tw - pad;
+    if (y + th > window.innerHeight - pad) y = e.clientY - th - pad;
+    tip.style.left = x + 'px';
+    tip.style.top  = y + 'px';
+}
+
+function hideSkillTreeTooltip() {
+    const tip = document.getElementById('skillTreeTooltip');
+    if (tip) tip.style.display = 'none';
+}
+
+function renderSkillTree() {
+    const panel = document.getElementById('statsSheetPanel-skilltree');
+    if (!panel) return;
+
+    const data = window.D20_SKILL_TREE_DATA;
+    if (!data || !Array.isArray(data)) {
+        panel.innerHTML = '<p style="color:#aaa;font-size:13px;">No skill tree data found.</p>';
+        return;
+    }
+
+    const level = Math.max(1, parseInt(document.getElementById('level')?.value, 10) || 1);
+    const available = data.filter(s =>
+        Array.isArray(s.level) && s.level.length === 2 &&
+        level >= s.level[0] && level <= s.level[1]
+    );
+
+    const totalSkillPoints = getSkillTreeTotalPoints(level);
+    const spentSkillPoints = getSkillTreeSpentPoints();
+    const availableSkillPoints = Math.max(0, totalSkillPoints - spentSkillPoints);
+
+    // Remove pending selections that are no longer visible at current level.
+    const availableNames = new Set(available.map(skill => skill.name));
+    skillTreePendingSelection = skillTreePendingSelection.filter(name => {
+        return availableNames.has(name) && !skillTreeClaimedSkills.includes(name);
+    });
+
+    panel.innerHTML = '';
+
+    const lineupWrap = document.createElement('div');
+    lineupWrap.style.cssText = 'margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #676767;';
+
+    const lineupTitle = document.createElement('div');
+    lineupTitle.style.cssText = 'font-size:12px; color:#cfcfcf; margin-bottom:6px;';
+    lineupTitle.textContent = 'Current Skills';
+    lineupWrap.appendChild(lineupTitle);
+
+    const lineupList = document.createElement('div');
+    lineupList.style.cssText = 'display:flex; flex-wrap:wrap; gap:10px;';
+
+    if (skillTreeClaimedSkills.length === 0) {
+        const empty = document.createElement('span');
+        empty.style.cssText = 'font-size:11px; color:#888;';
+        empty.textContent = 'No unlocked skills yet.';
+        lineupList.appendChild(empty);
+    } else {
+        skillTreeClaimedSkills.forEach(name => {
+            const skill = findSkillTreeSkillByName(name);
+            const chip = document.createElement('span');
+            chip.style.cssText = 'display:inline-flex; align-items:center; justify-content:center;';
+
+            if (skill && skill.icon) {
+                const icon = document.createElement('img');
+                icon.src = `icons/${skill.icon}`;
+                icon.alt = name;
+                icon.style.cssText = 'width:50px; height:50px; object-fit:cover;';
+                icon.onerror = function() { this.style.display = 'none'; };
+                chip.appendChild(icon);
+            }
+            lineupList.appendChild(chip);
+        });
+    }
+
+    lineupWrap.appendChild(lineupList);
+    panel.appendChild(lineupWrap);
+
+    const pointsRow = document.createElement('div');
+    pointsRow.style.cssText = 'font-size:12px; color:#cfcfcf; margin-bottom:10px;';
+    pointsRow.textContent = `Skill Points: ${availableSkillPoints} available / ${totalSkillPoints} total`;
+    panel.appendChild(pointsRow);
+
+    if (available.length === 0) {
+        const empty = document.createElement('p');
+        empty.style.cssText = 'color:#aaa;font-size:13px;text-align:center;padding:20px 0;margin:0;';
+        empty.textContent = 'No skills available at your current level.';
+        panel.appendChild(empty);
+        return;
+    }
+
+    const pendingCount = skillTreePendingSelection.length;
+    const pendingCost = getSkillTreePendingCost();
+    const canAffordPending = pendingCost <= availableSkillPoints;
+    if (pendingCount > 0) {
+        const lockSaveBtn = document.createElement('button');
+        lockSaveBtn.type = 'button';
+        lockSaveBtn.textContent = `Lock & Save (${pendingCount} | ${pendingCost} SP)`;
+        lockSaveBtn.style.cssText = `margin:0 0 10px 0; padding:8px 12px; background:${canAffordPending ? '#2f8f4a' : '#6a3b3b'}; color:#fff; border:none; border-radius:6px; cursor:${canAffordPending ? 'pointer' : 'not-allowed'}; font-weight:bold;`;
+        lockSaveBtn.disabled = !canAffordPending;
+        lockSaveBtn.addEventListener('click', function() {
+            if (getSkillTreePendingCost() > Math.max(0, getSkillTreeTotalPoints(level) - getSkillTreeSpentPoints())) {
+                alert('Not enough Skill Points for selected skills.');
+                return;
+            }
+            const merged = new Set(skillTreeClaimedSkills);
+            skillTreePendingSelection.forEach(name => merged.add(name));
+            skillTreeClaimedSkills = Array.from(merged);
+            skillTreePendingSelection = [];
+            renderClaimedSkillTreeOnCard();
+            renderSkillTree();
+        });
+        panel.appendChild(lockSaveBtn);
+
+        if (!canAffordPending) {
+            const notEnough = document.createElement('div');
+            notEnough.style.cssText = 'font-size:11px; color:#ff9f9f; margin:0 0 10px 0;';
+            notEnough.textContent = `Need ${pendingCost - availableSkillPoints} more SP to lock selected skills.`;
+            panel.appendChild(notEnough);
+        }
+    }
+
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:flex;flex-wrap:wrap;gap:10px;padding:4px 0;';
+
+    available.forEach(function(skill) {
+        const btn = document.createElement('button');
+        const isClaimed = skillTreeClaimedSkills.includes(skill.name);
+        const isSelected = skillTreePendingSelection.includes(skill.name);
+        btn.style.cssText = [
+            'display:flex',
+            'flex-direction:column',
+            'align-items:center',
+            'justify-content:center',
+            `background:${isClaimed ? '#243224' : (isSelected ? '#2c2c2c' : '#1e1e1e')}`,
+            `border:2px solid ${isSelected ? '#9fdf9f' : (isClaimed ? '#5ea65e' : '#676767')}`,
+            'border-radius:8px',
+            'padding:8px',
+            'cursor:pointer',
+            'width:72px',
+            'min-height:72px',
+            'position:relative',
+            'transition:border-color 0.2s,background 0.2s'
+        ].join(';');
+
+        const img = document.createElement('img');
+        img.src = `icons/${skill.icon}`;
+        img.alt = skill.name;
+        img.style.cssText = 'width:44px;height:44px;display:block;pointer-events:none;';
+        img.onerror = function() { this.style.visibility = 'hidden'; };
+
+        const label = document.createElement('span');
+        label.textContent = skill.name;
+        label.style.cssText = 'font-size:8px;color:#cfcfcf;text-align:center;margin-top:4px;line-height:1.2;max-width:66px;word-break:break-word;pointer-events:none;';
+
+        btn.appendChild(img);
+        btn.appendChild(label);
+
+        btn.addEventListener('mouseenter', function(e) {
+            btn.style.borderColor = '#9fdf9f';
+            btn.style.background = '#2c2c2c';
+            showSkillTreeTooltip(e, skill);
+        });
+        btn.addEventListener('mousemove', positionSkillTreeTooltip);
+        btn.addEventListener('mouseleave', function() {
+            const nowSelected = skillTreePendingSelection.includes(skill.name);
+            const nowClaimed = skillTreeClaimedSkills.includes(skill.name);
+            btn.style.borderColor = nowSelected ? '#9fdf9f' : (nowClaimed ? '#5ea65e' : '#676767');
+            btn.style.background = nowClaimed ? '#243224' : (nowSelected ? '#2c2c2c' : '#1e1e1e');
+            hideSkillTreeTooltip();
+        });
+        btn.addEventListener('click', function() {
+            if (skillTreeClaimedSkills.includes(skill.name)) {
+                showModal(skill.name, skill.icon, skill.description, 'class-skill');
+                return;
+            }
+            if (skillTreePendingSelection.includes(skill.name)) {
+                skillTreePendingSelection = skillTreePendingSelection.filter(name => name !== skill.name);
+            } else {
+                skillTreePendingSelection.push(skill.name);
+            }
+            renderSkillTree();
+        });
+
+        grid.appendChild(btn);
+    });
+
+    const header = document.createElement('div');
+    header.style.cssText = 'font-size:12px;color:#aaa;margin-bottom:8px;';
+    header.textContent = `Showing ${available.length} skill${available.length !== 1 ? 's' : ''} available at level ${level}`;
+    panel.appendChild(header);
+    panel.appendChild(grid);
+}
+
+// --- SkillTree flag initialization ---
+function applySkillTreeFlag() {
+    if (window.D20_CAMPAIGN_DATA && window.D20_CAMPAIGN_DATA.SkillTree === true) {
+        // Hide class and subclass dropdowns
+        const classContainer = document.getElementById('classContainer');
+        const subclassContainer = document.getElementById('subclassContainer');
+        if (classContainer) classContainer.style.display = 'none';
+        if (subclassContainer) subclassContainer.style.display = 'none';
+
+        // Show the Skill Tree tab button
+        const skillTreeTabBtn = document.getElementById('statsSheetTab-skilltree');
+        if (skillTreeTabBtn) skillTreeTabBtn.style.display = '';
+        renderClaimedSkillTreeOnCard();
+    }
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+    try {
+        clearLegacyStatsSheetStorage();
+        populateDropdowns();
+        updateBestiaryTabVisibility();
+        updateStatusTabVisibility();
+        bindStatsSheetInputs();
+        updateStatsSheetUI();
+        updateSubclassDropdown();
+        applySkillTreeFlag();
+    } catch (err) {
+        console.error('Initialization error:', err);
+    } finally {
+        setTimeout(function() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 500);
+            }
+        }, 2000);
+    }
+});
+
+function saveCharacterToLocal() {
+    // Data is now only saved through export/import mechanism, not auto-persisted to localStorage
+}
+
+function loadCharacterFromLocal() {
+    const data = safeGetLocalJSON('d20character', {});
+    if (!data || !Object.keys(data).length) return;
+    
+    if (typeof data.characterName !== 'undefined') document.getElementById('characterName').value = data.characterName;
+    if (typeof data.level !== 'undefined') document.getElementById('level').value = data.level;
+    if (typeof data.race !== 'undefined') {
+        document.getElementById('race').value = data.race;
+        updateRace();
+    }
+    if (typeof data.className !== 'undefined') {
+        document.getElementById('class').value = data.className;
+        updateClass();
+    }
+    if (typeof data.currency !== 'undefined') document.getElementById('currency').value = data.currency;
+    if (typeof data.affinityChecked !== 'undefined') {
+        document.getElementById('affinityCheckbox').checked = data.affinityChecked;
+        affinityBtn.style.display = data.affinityChecked ? 'block' : 'none';
+    }
+    if (typeof data.statusEffectChecked !== 'undefined') {
+        document.getElementById('statusEffectCheckbox').checked = data.statusEffectChecked;
+        document.getElementById('statusEffectNoteToolbar').style.display = (data.statusEffectChecked && activeNotepadTab === 'status') ? 'block' : 'none';
+        updateStatusEffectDisplay();
+    }
+    if (typeof data.selectedAffinity !== 'undefined') {
+        window.selectedAffinity = data.selectedAffinity;
+        updateAffinityBtn();
+    }
+    if (typeof data.portraitImage !== 'undefined' && data.portraitImage.startsWith('data:image')) {
+        document.getElementById('portraitImage').src = data.portraitImage;
+        document.getElementById('modalPortraitImage').src = data.portraitImage;
+    }
+    if (typeof data.cardBgData !== 'undefined' && data.cardBgData.startsWith('data:image')) {
+        document.querySelector('.character-card').style.backgroundImage = `url('${data.cardBgData}')`;
+        document.querySelector('.character-card').style.backgroundSize = 'cover';
+        document.querySelector('.character-card').style.backgroundPosition = 'center';
+        window.cardBgData = data.cardBgData;
+    }
+    if (Array.isArray(data.actionIcons)) {
+        const actionSlots = document.querySelectorAll('.actions .action-slot');
+        actionSlots.forEach((slot, i) => {
+            const icon = data.actionIcons[i];
+            applyActionIconToSlot(slot, icon, i === 3 ? 'H' : (i + 1).toString());
+        });
+    }
+    if (typeof data.statsSheet !== 'undefined') {
+        if (typeof data.statsSheet === 'object' && data.statsSheet !== null) {
+            setStatsSheetState(data.statsSheet);
+        } else if (typeof data.statsSheet === 'string') {
+            // Backward compatibility: skip if old text-only format
+        }
+    }
+    updateStatsSheetUI();
+    // Load health
+    if (typeof data.health !== 'undefined') {
+        currentHP = data.health;
+        updateHealthBar(false);
+    }
+
+    updateName();
+    updateStats();
+}
+
+// --- Subclass Dropdown Logic ---
+
+function updateSubclassDropdown() {
+    const className = document.getElementById('class').value;
+    const level = parseInt(document.getElementById('level').value, 10) || 0;
+    const cls = window.D20_CAMPAIGN_DATA.classes.find(c => c.name === className);
+    const subclassContainer = document.getElementById('subclassContainer');
+    const subclassSelect = document.getElementById('subclass');
+    const selectedBefore = subclassSelect.value;
+
+    if (window.D20_CAMPAIGN_DATA && window.D20_CAMPAIGN_DATA.SkillTree === true) {
+        subclassSelect.innerHTML = '<option value="">Select Subclass</option>';
+        subclassContainer.style.display = 'none';
+        return;
+    }
+
+    const isEligible = Boolean(
+        cls &&
+        Array.isArray(cls.subclasses) &&
+        cls.subclasses.length > 0 &&
+        typeof cls.subclasslevel === 'number' &&
+        level >= cls.subclasslevel
+    );
+
+    if (!isEligible) {
+        subclassSelect.innerHTML = '<option value="">Select Subclass</option>';
+        subclassContainer.style.display = 'none';
+        return;
+    }
+
+    const options = cls.subclasses.map(sub => sub.name);
+
+    // If dropdown already matches the needed class options, keep it and preserve current choice.
+    const existingOptions = Array.from(subclassSelect.options).map(o => o.value).filter(Boolean);
+    const sameOptions = existingOptions.length === options.length && existingOptions.every((name, idx) => name === options[idx]);
+    if (sameOptions) {
+        subclassContainer.style.display = '';
+        if (selectedBefore && options.includes(selectedBefore)) {
+            subclassSelect.value = selectedBefore;
+        }
+        return;
+    }
+
+    subclassSelect.innerHTML = '<option value="">Select Subclass</option>';
+    options.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        subclassSelect.appendChild(opt);
+    });
+
+    if (selectedBefore && options.includes(selectedBefore)) {
+        subclassSelect.value = selectedBefore;
+    }
+    subclassContainer.style.display = '';
+}
+
+// Call this whenever class or level changes
+document.getElementById('class').addEventListener('change', updateSubclassDropdown);
+document.getElementById('level').addEventListener('input', updateSubclassDropdown);
+document.getElementById('level').addEventListener('input', updateStatsSheetUI);
+// Re-render skill tree when level changes (only if panel is visible)
+document.getElementById('level').addEventListener('input', function() {
+    const panel = document.getElementById('statsSheetPanel-skilltree');
+    if (panel && panel.style.display !== 'none') renderSkillTree();
+});
+
+// Optional: handle subclass selection (for future use)
+function updateSubclass() {
+    // Refresh class display to show subclass icons and skills
+    updateClass();
+}
+
+// --- END Subclass Dropdown Logic ---
+
+const volumeSlider = document.getElementById('volumeSlider');
+const volumeValue = document.getElementById('volumeValue');
+const readableFontCheckbox = document.getElementById('readableFontCheckbox');
+const cameraPortraitSettingCheckbox = document.getElementById('cameraPortraitSettingCheckbox');
+const portraitUseCameraCheckbox = document.getElementById('portraitUseCameraCheckbox');
+const cameraEditButton = document.getElementById('cameraEditButton');
+const cameraEditDoneButton = document.getElementById('cameraEditDoneButton');
+const cameraEditPanel = document.getElementById('cameraEditPanel');
+const cameraScaleSlider = document.getElementById('cameraScaleSlider');
+const cameraOffsetXSlider = document.getElementById('cameraOffsetXSlider');
+const cameraOffsetYSlider = document.getElementById('cameraOffsetYSlider');
+const cameraTransparentCheckbox = document.getElementById('cameraTransparentCheckbox');
+const allAudio = [
+    document.getElementById('diceSound'),
+    document.getElementById('rulebookSound')
+    // Add more audio elements here if needed
+];
+
+function setReadableFontMode(enabled) {
+    document.body.classList.toggle('readable-font', Boolean(enabled));
+}
+
+if (readableFontCheckbox) {
+    readableFontCheckbox.addEventListener('change', function() {
+        const enabled = this.checked;
+        setReadableFontMode(enabled);
+        localStorage.setItem('d20_readable_font', enabled ? '1' : '0');
+    });
+
+    const savedReadableFont = localStorage.getItem('d20_readable_font');
+    const shouldEnableReadable = savedReadableFont === '1';
+    readableFontCheckbox.checked = shouldEnableReadable;
+    setReadableFontMode(shouldEnableReadable);
+}
+
+if (cameraPortraitSettingCheckbox) {
+    cameraPortraitSettingCheckbox.addEventListener('change', function() {
+        const enabled = this.checked;
+        localStorage.setItem('d20_camera_portrait', enabled ? '1' : '0');
+        applyCameraPortraitSettingUI();
+    });
+
+    const savedCameraPortrait = localStorage.getItem('d20_camera_portrait');
+    cameraPortraitSettingCheckbox.checked = savedCameraPortrait === '1';
+    applyCameraPortraitSettingUI();
+}
+
+if (portraitUseCameraCheckbox) {
+    portraitUseCameraCheckbox.addEventListener('change', function() {
+        handlePortraitUseCameraToggle();
+    });
+}
+
+if (cameraEditButton && cameraEditPanel) {
+    cameraEditButton.addEventListener('click', function() {
+        const isOpen = cameraEditPanel.style.display === 'block';
+        cameraEditPanel.style.display = isOpen ? 'none' : 'block';
+        cameraEditButton.textContent = isOpen ? 'Edit Camera View' : 'Editing...';
+    });
+}
+
+if (cameraEditDoneButton && cameraEditPanel && cameraEditButton) {
+    cameraEditDoneButton.addEventListener('click', function() {
+        cameraEditPanel.style.display = 'none';
+        cameraEditButton.textContent = 'Edit Camera View';
+    });
+}
+
+if (cameraScaleSlider) {
+    cameraScaleSlider.addEventListener('input', function() {
+        cameraFrameState.scale = Number(this.value) || 1;
+        applyCameraFrameTransform();
+    });
+}
+
+if (cameraOffsetXSlider) {
+    cameraOffsetXSlider.addEventListener('input', function() {
+        cameraFrameState.offsetX = Number(this.value) || 0;
+        applyCameraFrameTransform();
+    });
+}
+
+if (cameraOffsetYSlider) {
+    cameraOffsetYSlider.addEventListener('input', function() {
+        cameraFrameState.offsetY = Number(this.value) || 0;
+        applyCameraFrameTransform();
+    });
+}
+
+if (cameraTransparentCheckbox) {
+    cameraTransparentCheckbox.addEventListener('change', function() {
+        cameraFrameState.transparent = Boolean(this.checked);
+        updateCameraTransparencyUI();
+    });
+}
+
+function setAllAudioVolume(vol) {
+    allAudio.forEach(audio => {
+        if (audio) audio.volume = vol;
+    });
+}
+
+if (volumeSlider) {
+    volumeSlider.addEventListener('input', function() {
+        setAllAudioVolume(this.value);
+        volumeValue.textContent = Math.round(this.value * 100) + "%";
+        localStorage.setItem('d20_volume', this.value);
+    });
+    // Load saved volume
+    const savedVol = localStorage.getItem('d20_volume');
+    if (savedVol !== null) {
+        volumeSlider.value = savedVol;
+        setAllAudioVolume(savedVol);
+        volumeValue.textContent = Math.round(savedVol * 100) + "%";
+    } else {
+        setAllAudioVolume(1);
+    }
+}
+
+// --- Dynamic Health Bar ---
+let currentHP = 100;
+let maxHP = 100;
+let lastMaxHP = 100; // Add this to track the previous maxHP
+
+function updateHealthBar(maintainPercent = true) {
+    const level = Math.max(1, parseInt(document.getElementById("level").value) || 1);
+    const newMaxHP = level * 20;
+
+    // Calculate and maintain the percentage when maxHP changes
+    if (newMaxHP !== maxHP) {
+        if (maintainPercent) {
+            const currentPercent = maxHP > 0 ? (currentHP / maxHP) : 1;
+            maxHP = newMaxHP;
+            currentHP = Math.round(currentPercent * maxHP);
+        } else {
+            maxHP = newMaxHP;
+        }
+    }
+
+    // Clamp HP
+    if (currentHP > maxHP) currentHP = maxHP;
+    if (currentHP < 0) currentHP = 0;
+
+    const percent = (currentHP / maxHP) * 100;
+    const bar = document.getElementById("healthBar");
+    const text = document.getElementById("healthText");
+
+    // Dynamic color
+    let color;
+    if (percent >= 70) {
+        color = "linear-gradient(to right, #33ff66, #66ff99)"; // Green
+    } else if (percent >= 30) {
+        color = "linear-gradient(to right, #ffcc33, #ff9933)"; // Yellow/Orange
+    } else {
+        color = "linear-gradient(to right, #ff3333, #ff6666)"; // Red
+    }
+
+    bar.style.width = `${percent}%`;
+    bar.style.background = color;
+    text.textContent = `${currentHP}/${maxHP}`;
+    
+    // Update lastMaxHP
+    lastMaxHP = maxHP;
+}
+
+// Handle manual typing inside the bar
+function handleHealthEdit(e) {
+    let text = e.target.textContent.trim();
+    const level = parseInt(document.getElementById("level").value) || 1;
+    maxHP = level * 20;
+
+    // Accept either "75" or "75/100"
+    let value = text.includes("/") ? text.split("/")[0] : text;
+    value = parseInt(value);
+
+    if (!isNaN(value)) {
+        currentHP = Math.min(Math.max(0, value), maxHP);
+    }
+
+    updateHealthBar();
+}
+
+// Make healthText editable on click
+const healthText = document.getElementById("healthText");
+healthText.addEventListener("click", function() {
+    healthText.contentEditable = "true";
+    healthText.focus();
+});
+healthText.addEventListener("blur", function() {
+    healthText.contentEditable = "false";
+    handleHealthEdit({ target: healthText });
+});
+healthText.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault(); // prevent new lines
+        healthText.blur(); // trigger update
+    }
+});
+
+// Update when Level changes
+document.getElementById("level").addEventListener("input", updateHealthBar);
+
+// Initialize
+window.addEventListener("load", updateHealthBar);
+
+
+    </script>
+</body>
+</html>
