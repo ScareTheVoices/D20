@@ -1,5 +1,4 @@
 window.D20_CAMPAIGN_DATA = {
-    SkillTree: true,
     races: [
         {
             name: "Human",
