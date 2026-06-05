@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>D20 Live Loader</title>
+  <link rel="icon" href="https://raw.githubusercontent.com/Kiderobin/D20/main/pics/d20.png" />
+</head>
+<body>
+  <h2>Loading latest D20 build...</h2>
+
+  <script>
+    // URL of your live D20.html file on GitHub
+    const remoteURL = "https://raw.githubusercontent.com/Kiderobin/D20/main/D20.html";
+
+    fetch(remoteURL)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch latest D20.html");
+        }
+        return response.text();
+      })
+      .then(html => {
+        // Extract favicon link from the fetched HTML if it exists
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const icon = doc.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
+        if (icon) {
+          let existing = document.querySelector('link[rel="icon"]');
+          if (existing) existing.remove(); // Remove placeholder icon
+          document.head.appendChild(icon.cloneNode(true)); // Copy the icon from remote HTML
+        }
+
+        // Replace the page content with fetched HTML
+        document.open();
+        document.write(html);
+        document.close();
+      })
+      .catch(error => {
+        document.body.innerHTML = `<p style="color:red;">Error loading D20.html: ${error.message}</p>`;
+      });
+  </script>
+</body>
+</html>
