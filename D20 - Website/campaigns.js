@@ -6,32 +6,40 @@ const campaignRegistry = [
         color: "#fe9776",
         folder: "BaronOfFlame",
         description: "The Origins Of Embres' Hero.",
-        banner: "https://raw.githubusercontent.com/Kiderobin/D20/refs/heads/main/D20-Official%20Campaigns/BaronOfFlame/banner.png",
-        infoUrl: "https://raw.githubusercontent.com/Kiderobin/D20/refs/heads/main/D20-Official%20Campaigns/BaronOfFlame/info.js"
+        banner: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/BaronOfFlame/banner.png",
+        infoUrl: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/BaronOfFlame/info.js"
     },
      {
         name: "Remember The Peace",
         color: "#E0C089",
         folder: "RememberThePeace",
         description: "The Second installment of The Baron Of Flame Story",
-        banner: "https://raw.githubusercontent.com/Kiderobin/D20/refs/heads/main/D20-Official%20Campaigns/RememberThePeace/banner.png",
-        infoUrl: "https://raw.githubusercontent.com/Kiderobin/D20/refs/heads/main/D20-Official%20Campaigns/RememberThePeace/info.js"
+        banner: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/RememberThePeace/banner.png",
+        infoUrl: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/RememberThePeace/info.js"
     },
     {
         name: "Ashes Of War",
         color: "#da120b",
         folder: "AshesOfWar",
         description: "The Third installment of The Baron Of Flame Story",
-        banner: "https://raw.githubusercontent.com/Kiderobin/D20/refs/heads/main/D20-Official%20Campaigns/AshesOfWar/banner.png",
-        infoUrl: "https://raw.githubusercontent.com/Kiderobin/D20/refs/heads/main/D20-Official%20Campaigns/AshesOfWar/info.js"
+        banner: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/AshesOfWar/banner.png",
+        infoUrl: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/AshesOfWar/info.js"
+    },
+     {
+        name: "Authority Over All",
+        color: "#d2b576",
+        folder: "AuthorityOverAll",
+        description: "Break Away From Embres And See What Awaits You",
+        banner: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/AuthorityOverAll/banner.png",
+        infoUrl: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/AuthorityOverAll/info.js"
     },
      {
         name: "Starlight Symphony",
         color: "#8a2be2",
         folder: "Starlight Symphony",
         description: "A Criminaly Epic Adventure Across The Universe",
-        banner: "https://raw.githubusercontent.com/Kiderobin/D20/refs/heads/main/D20-Official%20Campaigns/Starlight%20Symphony/banner.png",
-        infoUrl: "https://raw.githubusercontent.com/Kiderobin/D20/refs/heads/main/D20-Official%20Campaigns/Starlight%20Symphony/info.js"
+        banner: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/Starlight%20Symphony/banner.png",
+        infoUrl: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/Starlight%20Symphony/info.js"
     },
     {
         name: "Anchors Away",
