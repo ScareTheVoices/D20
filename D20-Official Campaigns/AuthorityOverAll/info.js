@@ -31,7 +31,10 @@ const campaignInfo = {
     
     // Campaign structure
     chapters: [
-       "Tidas",
+       {
+            title: "Book I: Lapis Wave",
+            description: "Heroes Travel with Captain Seraia to venture to the archipelego, Tidas."
+        }
     ],
     
     // Resources and downloads
