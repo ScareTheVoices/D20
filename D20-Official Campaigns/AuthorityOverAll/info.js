@@ -33,7 +33,7 @@ const campaignInfo = {
     chapters: [
        {
             title: "Book I: Lapis Wave",
-            description: "Heroes Travel with Captain Seraia to venture to the archipelego, Tidas."
+            description: "Heroes travel with Captain Seraia to venture to set up trade with the archipelego, 'Tidas'."
         }
     ],
     
