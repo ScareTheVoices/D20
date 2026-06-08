@@ -1460,7 +1460,9 @@
                 /^https?:\/\//i.test(normalized) ||
                 /^data:image\//i.test(normalized) ||
                 /^blob:/i.test(normalized) ||
-                /^file:/i.test(normalized)
+                /^file:/i.test(normalized) ||
+                /^icons\//i.test(normalized) ||
+                /\.(png|jpe?g|gif|webp|svg)$/i.test(normalized)
             );
         }
 
@@ -1476,6 +1478,8 @@
                 slot.textContent = normalizedIcon || fallbackLabel;
             }
             updateBagTabVisibility();
+            updateActionSlotH();
+            updateActionEquipSkills();
         }
 
         function exportCode() {
@@ -1691,6 +1695,7 @@ function pasteCode() {
                     document.getElementById('notepadArea').value = note;
                 }
             }
+            updatePlayerCreatedSkills();
         }
 
         if (typeof data['Bestiary'] !== 'undefined') {
@@ -1754,6 +1759,7 @@ function pasteCode() {
 
         isApplyingCharacterImport = false;
         updateBagTabVisibility();
+        updateActionEquipSkills();
 
         updateName();
         updateStats();
@@ -2041,6 +2047,9 @@ function updateActionSlotH() {
                 }
             }
         }
+        if (!asLabel) {
+            asLabel = getActionEquipSkillASLabel();
+        }
         if (asLabel) {
             hSlot.style.display = 'flex';
             hSlot.textContent = asLabel;
@@ -2061,7 +2070,7 @@ function showModal(title, icon, description, type) {
         case "race-skill": subfolder = "race-skill/"; break;
         default: subfolder = ""; break;
     }
-    const iconUrl = `icons/${icon}`;
+    const iconUrl = resolveSkillIconPath(icon);
 
     // Create the modal container
     const modal = document.createElement('div');
@@ -2091,7 +2100,7 @@ function showModal(title, icon, description, type) {
 
     // Add the icon to the modal
     const modalIcon = document.createElement('img');
-    modalIcon.src = iconUrl;
+    setImageWithFallback(modalIcon, iconUrl || icon);
     modalIcon.alt = title;
     modalIcon.style.width = '100px';
     modalIcon.style.height = '100px';
@@ -2146,31 +2155,86 @@ document.querySelectorAll('.action-slot').forEach(slot => {
 
         // Dynamically populate the menu with images
         const menuContent = document.querySelector('.menu-content');
-        menuContent.innerHTML = ''; 
+        menuContent.innerHTML = '';
 
-        // Fetch icons from repository
-        fetch('https://api.github.com/repos/scarethevoices/D20/contents/pics/itemicons/equip')
-    .then(response => response.json())
-    .then(data => {
-        data.forEach(file => {  // Added missing parentheses
-            if(file.name.endsWith('.png')) {
-                const imgElement = document.createElement('img');
-                imgElement.src = `https://raw.githubusercontent.com/scarethevoices/D20/main/pics/itemicons/equip/${file.name}`;
-                imgElement.alt = file.name;
-                imgElement.className = 'menu-icon';
-                imgElement.onclick = () => selectIcon(file.name);
-                menuContent.appendChild(imgElement);
-            }
+        function getCampaignActionMenuIcons() {
+            const data = window.D20_CAMPAIGN_DATA || {};
+            const source = Array.isArray(data.Items) ? data.Items : [];
+            const icons = [];
+
+            source.forEach(entry => {
+                if (typeof entry === 'string') {
+                    icons.push(entry);
+                    return;
+                }
+
+                if (!entry || typeof entry !== 'object') return;
+
+                if (typeof entry.icon === 'string') icons.push(entry.icon);
+                if (typeof entry.file === 'string') icons.push(entry.file);
+                if (typeof entry.item === 'string') icons.push(entry.item);
+                if (Array.isArray(entry.item)) {
+                    entry.item.forEach(v => {
+                        if (typeof v === 'string') icons.push(v);
+                    });
+                }
+            });
+
+            return icons;
+        }
+
+        function normalizeMenuIconFileName(value) {
+            if (typeof value !== 'string') return '';
+            const trimmed = value.trim().replace(/^['"]+/, '').replace(/['"]+$/, '');
+            if (!trimmed) return '';
+            const noQuery = trimmed.split('?')[0].split('#')[0];
+            const parts = noQuery.split('/');
+            return (parts[parts.length - 1] || '').trim();
+        }
+
+        const actionMenuSeen = new Set();
+
+        function appendActionMenuIcon(iconName, iconUrl) {
+            const normalizedName = normalizeMenuIconFileName(iconName || iconUrl).toLowerCase();
+            if (!normalizedName || actionMenuSeen.has(normalizedName)) return;
+            actionMenuSeen.add(normalizedName);
+
+            const imgElement = document.createElement('img');
+            imgElement.src = iconUrl;
+            imgElement.alt = normalizedName;
+            imgElement.className = 'menu-icon';
+            imgElement.onclick = () => selectIcon(normalizedName, iconUrl);
+            menuContent.appendChild(imgElement);
+        }
+
+        // Add campaign-local icons first (from ./icons folder).
+        const campaignIcons = getCampaignActionMenuIcons();
+        campaignIcons.forEach(icon => {
+            const fileName = normalizeMenuIconFileName(icon);
+            if (!fileName) return;
+            appendActionMenuIcon(fileName, `icons/${fileName}`);
         });
-    });
+
+        // Fetch shared repository icons.
+        fetch('https://api.github.com/repos/scarethevoices/D20/contents/pics/itemicons/equip')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(file => {
+                    if (file.name.endsWith('.png')) {
+                        const remoteUrl = `https://raw.githubusercontent.com/scarethevoices/D20/main/pics/itemicons/equip/${file.name}`;
+                        appendActionMenuIcon(file.name, remoteUrl);
+                    }
+                });
+            });
    
         // Function to handle icon selection
-        function selectIcon(iconName) {
+        function selectIcon(iconName, explicitUrl) {
             if (selectedSlot) {
-                const iconUrl = `https://raw.githubusercontent.com/scarethevoices/D20/main/pics/itemicons/equip/${iconName}`;
+                const iconUrl = explicitUrl || `https://raw.githubusercontent.com/scarethevoices/D20/main/pics/itemicons/equip/${iconName}`;
                 applyActionIconToSlot(selectedSlot, iconUrl, '');
                 if (selectedSlot.classList.contains('bag-slot')) {
                     saveBagSlotsFromDom();
+                    updateActionEquipSkills();
                 }
             }
             const menu = document.getElementById('actionMenu');
@@ -2187,6 +2251,7 @@ document.querySelectorAll('.action-slot').forEach(slot => {
                 applyActionIconToSlot(selectedSlot, e.target.result, '');
                 if (selectedSlot.classList.contains('bag-slot')) {
                     saveBagSlotsFromDom();
+                    updateActionEquipSkills();
                 }
             };
             reader.readAsDataURL(file);
@@ -2313,6 +2378,7 @@ document.querySelectorAll('.action-slot').forEach(slot => {
                 }
             }
             updateBagTabVisibility();
+            updateActionEquipSkills();
             const menu = document.getElementById('actionMenu');
             menu.style.display = 'none'; // Hide the menu
         }
@@ -2544,6 +2610,366 @@ document.querySelectorAll('.action-slot').forEach(slot => {
             bestiary: '',
             status: ''
         };
+        let playerSkillRefreshTimer = null;
+
+        function getPlayerSkillCreateConfig() {
+            const data = (window.D20_CAMPAIGN_DATA && window.D20_CAMPAIGN_DATA.PlayerSkillCreate) || null;
+            if (!data) return { enabled: false, labels: [], limit: Infinity };
+            if (data === true) return { enabled: true, labels: [], limit: Infinity };
+
+            if (typeof data === 'string') {
+                const label = data.trim();
+                return { enabled: true, labels: label ? [label.toLowerCase()] : [], limit: Infinity };
+            }
+
+            if (Array.isArray(data)) {
+                const labels = data.map(v => String(v || '').trim().toLowerCase()).filter(Boolean);
+                return { enabled: true, labels, limit: Infinity };
+            }
+
+            if (typeof data === 'object') {
+                const enabled = (typeof data.enabled === 'boolean') ? data.enabled : true;
+                const rawLabels = Array.isArray(data.sections) ? data.sections
+                    : Array.isArray(data.labels) ? data.labels
+                    : Array.isArray(data.keys) ? data.keys
+                    : typeof data.section === 'string' ? [data.section]
+                    : typeof data.label === 'string' ? [data.label]
+                    : [];
+                const labels = rawLabels.map(v => String(v || '').trim().toLowerCase()).filter(Boolean);
+                const hasLimitKey = Object.prototype.hasOwnProperty.call(data, 'Limit')
+                    || Object.prototype.hasOwnProperty.call(data, 'limit');
+                const rawLimit = Object.prototype.hasOwnProperty.call(data, 'Limit') ? data.Limit : data.limit;
+                const parsedLimit = parseInt(rawLimit, 10);
+                const limit = (hasLimitKey && Number.isInteger(parsedLimit) && parsedLimit > 0) ? parsedLimit : Infinity;
+                return { enabled, labels, limit };
+            }
+
+            return { enabled: false, labels: [], limit: Infinity };
+        }
+
+        function readBalancedBlock(source, startIndex, openChar, closeChar) {
+            if (!source || source[startIndex] !== openChar) return '';
+            let depth = 0;
+            let quote = '';
+            let escaping = false;
+
+            for (let i = startIndex; i < source.length; i++) {
+                const ch = source[i];
+
+                if (quote) {
+                    if (escaping) {
+                        escaping = false;
+                        continue;
+                    }
+                    if (ch === '\\') {
+                        escaping = true;
+                        continue;
+                    }
+                    if (ch === quote) {
+                        quote = '';
+                    }
+                    continue;
+                }
+
+                if (ch === '"' || ch === "'") {
+                    quote = ch;
+                    continue;
+                }
+
+                if (ch === openChar) depth += 1;
+                if (ch === closeChar) {
+                    depth -= 1;
+                    if (depth === 0) {
+                        return source.slice(startIndex, i + 1);
+                    }
+                }
+            }
+
+            return '';
+        }
+
+        function extractObjectLiteralsFromArray(arrayText) {
+            if (!arrayText || arrayText[0] !== '[') return [];
+            const objects = [];
+            for (let i = 0; i < arrayText.length; i++) {
+                if (arrayText[i] !== '{') continue;
+                const block = readBalancedBlock(arrayText, i, '{', '}');
+                if (block) {
+                    objects.push(block);
+                    i += block.length - 1;
+                }
+            }
+            return objects;
+        }
+
+        function readObjectStringField(objectText, fieldName) {
+            const quotedRegex = new RegExp(fieldName + "\\s*:\\s*([\"'])([\\s\\S]*?)\\1", 'i');
+            const quotedMatch = objectText.match(quotedRegex);
+            if (quotedMatch) return quotedMatch[2].trim();
+
+            const plainRegex = new RegExp(fieldName + "\\s*:\\s*([^,\\n\\r}]+)", 'i');
+            const plainMatch = objectText.match(plainRegex);
+            if (!plainMatch) return '';
+
+            return plainMatch[1]
+                .trim()
+                .replace(/^['"]+/, '')
+                .replace(/['"]+$/, '');
+        }
+
+        function getPlayerCreatedSkillsFromNotes(noteText) {
+            const config = getPlayerSkillCreateConfig();
+            if (!config.enabled || !noteText) return [];
+
+            const labelSet = new Set(config.labels);
+            const results = [];
+            const seen = new Set();
+            const sectionRegex = /([A-Za-z][A-Za-z0-9 _-]{0,59})\s*:\s*\[/g;
+            let match;
+
+            while ((match = sectionRegex.exec(noteText)) !== null) {
+                if (results.length >= config.limit) break;
+                const rawLabel = (match[1] || '').trim();
+                const normalizedLabel = rawLabel.toLowerCase();
+                if (labelSet.size > 0 && !labelSet.has(normalizedLabel)) continue;
+
+                const bracketIndex = sectionRegex.lastIndex - 1;
+                const skillArrayText = readBalancedBlock(noteText, bracketIndex, '[', ']');
+                if (!skillArrayText) continue;
+                sectionRegex.lastIndex = bracketIndex + skillArrayText.length;
+
+                const objects = extractObjectLiteralsFromArray(skillArrayText);
+                objects.forEach(objectText => {
+                    if (results.length >= config.limit) return;
+                    const name = readObjectStringField(objectText, 'name');
+                    const icon = readObjectStringField(objectText, 'icon');
+                    const description = readObjectStringField(objectText, 'description');
+                    const type = readObjectStringField(objectText, 'type') || 'player-skill';
+                    if (!name || !description) return;
+                    const dedupeKey = `${name.toLowerCase()}|${icon.toLowerCase()}|${description.toLowerCase()}`;
+                    if (seen.has(dedupeKey)) return;
+                    seen.add(dedupeKey);
+                    results.push({
+                        name,
+                        icon,
+                        description,
+                        type,
+                        sourceLabel: rawLabel
+                    });
+                });
+            }
+
+            return results;
+        }
+
+        function resolveSkillIconPath(icon) {
+            if (!icon) return '';
+            if (/^https?:\/\//i.test(icon)) return icon;
+            if (/^data:image\//i.test(icon)) return icon;
+            if (icon.startsWith('icons/')) return icon;
+            return `icons/${icon}`;
+        }
+
+        function getSkillIconCandidates(icon) {
+            if (!icon) return [];
+            if (/^https?:\/\//i.test(icon) || /^data:image\//i.test(icon)) {
+                return [icon];
+            }
+
+            const fileName = icon.replace(/^icons\//i, '');
+            return [
+                `icons/${fileName}`,
+                `https://raw.githubusercontent.com/scarethevoices/D20/main/pics/itemicons/equip/${fileName}`
+            ];
+        }
+
+        function setImageWithFallback(imgEl, icon) {
+            const candidates = getSkillIconCandidates(icon);
+            if (!imgEl || !candidates.length) return;
+
+            let idx = 0;
+            imgEl.src = candidates[idx];
+            imgEl.onerror = function() {
+                idx += 1;
+                if (idx < candidates.length) {
+                    imgEl.src = candidates[idx];
+                }
+            };
+        }
+
+        function updatePlayerCreatedSkills() {
+            const statsBox = document.querySelector('.stats-box');
+            if (!statsBox) return;
+
+            const existing = statsBox.querySelectorAll('.player-created-skill-button');
+            existing.forEach(btn => btn.remove());
+
+            const noteText = notepadSessions.notes || '';
+            const skills = getPlayerCreatedSkillsFromNotes(noteText);
+            if (!skills.length) return;
+
+            const exportButtonRow = statsBox.querySelector('.button-row');
+            if (!exportButtonRow) return;
+
+            skills.forEach(skill => {
+                const skillButton = document.createElement('button');
+                skillButton.className = 'player-created-skill-button';
+                skillButton.style.display = 'inline-flex';
+                skillButton.style.alignItems = 'center';
+                skillButton.style.marginRight = '5px';
+                skillButton.style.background = 'none';
+                skillButton.style.border = 'none';
+                skillButton.style.cursor = 'pointer';
+
+                const iconPath = resolveSkillIconPath(skill.icon);
+                if (iconPath) {
+                    const skillIcon = document.createElement('img');
+                    setImageWithFallback(skillIcon, skill.icon);
+                    skillIcon.alt = skill.name;
+                    skillIcon.style.width = '50px';
+                    skillIcon.style.height = '50px';
+                    skillButton.appendChild(skillIcon);
+                } else {
+                    skillButton.textContent = skill.name.slice(0, 1).toUpperCase();
+                    skillButton.style.width = '50px';
+                    skillButton.style.height = '50px';
+                    skillButton.style.color = '#f0f0f0';
+                    skillButton.style.border = '1px solid #676767';
+                    skillButton.style.borderRadius = '6px';
+                    skillButton.title = skill.name;
+                }
+
+                skillButton.addEventListener('click', () => {
+                    showModal(skill.name, skill.icon, skill.description, skill.type);
+                });
+
+                statsBox.insertBefore(skillButton, exportButtonRow);
+            });
+        }
+
+        function getActionEquipSkillConfig() {
+            const data = window.D20_CAMPAIGN_DATA || {};
+            const hasItemsSection = Array.isArray(data.ItemsCreateSkills) && data.ItemsCreateSkills.length > 0;
+            return { enabled: hasItemsSection };
+        }
+
+        function getIconFileName(value) {
+            const normalized = normalizeActionIconValue(value || '');
+            if (!normalized) return '';
+            const withoutQuery = normalized.split('?')[0].split('#')[0];
+            const parts = withoutQuery.split('/');
+            return (parts[parts.length - 1] || '').trim().toLowerCase();
+        }
+
+        function getEquippedActionItemFileNames() {
+            const slots = document.querySelectorAll('.actions .action-slot');
+            const equipped = new Set();
+
+            slots.forEach(slot => {
+                const bgUrl = extractBackgroundImageUrl(slot.style.backgroundImage || '');
+                const fileName = getIconFileName(bgUrl);
+                if (!fileName || fileName === 'backpack.png') return;
+                equipped.add(fileName);
+            });
+
+            // Also include persisted bag slot icons, even if the bag tab is not currently open.
+            const bagState = parseBagState();
+            const bagSlots = Array.isArray(bagState.slots) ? bagState.slots : [];
+            bagSlots.forEach(slotIcon => {
+                const fileName = getIconFileName(slotIcon);
+                if (!fileName || fileName === 'backpack.png') return;
+                equipped.add(fileName);
+            });
+
+            return equipped;
+        }
+
+        function normalizeItemIconList(itemValue) {
+            if (Array.isArray(itemValue)) return itemValue;
+            if (typeof itemValue === 'string') return [itemValue];
+            return [];
+        }
+
+        function getActionEquipSkillASLabel() {
+            const equippedFileNames = getEquippedActionItemFileNames();
+            if (!equippedFileNames.size) return null;
+
+            const items = (window.D20_CAMPAIGN_DATA && window.D20_CAMPAIGN_DATA.ItemsCreateSkills) || [];
+            for (const itemEntry of items) {
+                const itemIcons = normalizeItemIconList(itemEntry && itemEntry.item);
+                const matchedIcon = itemIcons.find(iconName => equippedFileNames.has(getIconFileName(iconName)));
+                if (!matchedIcon) continue;
+
+                const asRaw = itemEntry && (itemEntry.AS ?? itemEntry.as);
+                if (typeof asRaw === 'undefined' || asRaw === null) continue;
+                const asLabel = String(asRaw).trim();
+                if (asLabel) return asLabel;
+            }
+
+            return null;
+        }
+
+        function updateActionEquipSkills() {
+            const statsBox = document.querySelector('.stats-box');
+            if (!statsBox) return;
+
+            const existing = statsBox.querySelectorAll('.action-equip-skill-button');
+            existing.forEach(btn => btn.remove());
+
+            const config = getActionEquipSkillConfig();
+            if (!config.enabled) return;
+
+            const equippedFileNames = getEquippedActionItemFileNames();
+            if (!equippedFileNames.size) return;
+
+            const items = (window.D20_CAMPAIGN_DATA && window.D20_CAMPAIGN_DATA.ItemsCreateSkills) || [];
+            const exportButtonRow = statsBox.querySelector('.button-row');
+            if (!exportButtonRow) return;
+
+            items.forEach(itemEntry => {
+                const itemIcons = normalizeItemIconList(itemEntry && itemEntry.item);
+                const matchedIcon = itemIcons.find(iconName => equippedFileNames.has(getIconFileName(iconName)));
+                if (!matchedIcon) return;
+                const iconOverride = (itemEntry && typeof itemEntry.icon === 'string') ? itemEntry.icon.trim() : '';
+                const displayIcon = iconOverride || matchedIcon;
+
+                const itemName = (itemEntry && itemEntry.name) ? String(itemEntry.name).trim() : '';
+                const itemDescription = (itemEntry && itemEntry.description) ? String(itemEntry.description).trim() : '';
+                if (!itemName) return;
+
+                const skillButton = document.createElement('button');
+                skillButton.className = 'action-equip-skill-button';
+                skillButton.style.display = 'inline-flex';
+                skillButton.style.alignItems = 'center';
+                skillButton.style.marginRight = '5px';
+                skillButton.style.background = 'none';
+                skillButton.style.border = 'none';
+                skillButton.style.cursor = 'pointer';
+
+                const skillIcon = document.createElement('img');
+                setImageWithFallback(skillIcon, displayIcon);
+                skillIcon.alt = itemName;
+                skillIcon.style.width = '50px';
+                skillIcon.style.height = '50px';
+                skillButton.appendChild(skillIcon);
+
+                skillButton.addEventListener('click', () => {
+                    showModal(itemName, displayIcon, itemDescription, 'item-skill');
+                });
+
+                statsBox.insertBefore(skillButton, exportButtonRow);
+            });
+        }
+
+        function schedulePlayerCreatedSkillsUpdate() {
+            if (playerSkillRefreshTimer) {
+                clearTimeout(playerSkillRefreshTimer);
+            }
+            playerSkillRefreshTimer = setTimeout(() => {
+                playerSkillRefreshTimer = null;
+                updatePlayerCreatedSkills();
+            }, 450);
+        }
 
         // Session memory for bag state (not persisted to localStorage)
         let bagSession = {
@@ -2956,6 +3382,8 @@ document.querySelectorAll('.action-slot').forEach(slot => {
             setNotepadTabButtonStyles();
             if (tabName === 'status') {
                 updateStatusEffectDisplay();
+            } else if (tabName === 'notes') {
+                updatePlayerCreatedSkills();
             }
         }
 
@@ -3098,11 +3526,20 @@ document.getElementById('notepadBtn').onclick = function() {
 function closeNotepad() {
     document.getElementById('notepadModal').style.display = 'none';
     saveActiveNotepadTab();
+    if (activeNotepadTab === 'notes') {
+        updatePlayerCreatedSkills();
+    }
 }
 document.getElementById('notepadArea').addEventListener('input', function() {
     saveActiveNotepadTab();
     if (activeNotepadTab === 'status') {
         updateStatusEffectDisplay();
+    }
+});
+
+document.getElementById('notepadArea').addEventListener('blur', function() {
+    if (activeNotepadTab === 'notes') {
+        updatePlayerCreatedSkills();
     }
 });
 
@@ -3511,6 +3948,8 @@ window.addEventListener('DOMContentLoaded', function() {
         bindStatsSheetInputs();
         updateStatsSheetUI();
         updateSubclassDropdown();
+        updatePlayerCreatedSkills();
+        updateActionEquipSkills();
     } catch (err) {
         console.error('Initialization error:', err);
     } finally {
