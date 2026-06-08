@@ -114,7 +114,7 @@ window.D20_CAMPAIGN_DATA = {
         {
             name: "Shahz",
             type: "NPC",
-            icon: "shahzicon.png",
+            icon: "Shahzicon.png",
             description: "An NPC designed to support players by offering a Shop with gear/ammo"
         }
     ],
