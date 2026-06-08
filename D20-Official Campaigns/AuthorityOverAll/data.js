@@ -1,7 +1,7 @@
 window.D20_CAMPAIGN_DATA = {
 PlayerSkillCreate: {
         enabled: true,
-        sections: ["Fundamental", "Unfamiliar"]
+        sections: ["Fundamental", "Unfamiliar", "Aoa"]
     },
 
     ItemsCreateSkills: [
