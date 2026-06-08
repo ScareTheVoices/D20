@@ -1,4 +1,19 @@
 window.D20_CAMPAIGN_DATA = {
+PlayerSkillCreate: {
+        enabled: true,
+        sections: ["Fundamental", "Unfamiliar"]
+    },
+
+    ItemsCreateSkills: [
+        {
+            name: "Scale Mask Of The Leviathan",
+            item: ["leviathan-mask.png"],
+            icon: "leviathan-mask.png",
+            description: "'Whilst you wear the Scale Mask Of The Leviathan; beware of having hope for that will be what is left in your stead.'"
+        }
+    ],
+Items: ["leviathan-mask.png"],
+    
     races: [
         {
             name: "Human",
@@ -1001,7 +1016,16 @@ window.D20_CAMPAIGN_DATA = {
                     ]
                 },
                 {
-                     name: "Unfamiliar Pact",
+                     name: "Fundamental Pact",
+                    passive: {
+                        name: "Familiar Deal",
+                        icon: "holy-oak.png",
+                        type: "class-sub-passive",
+                        description: "Throughout The Campaign; You may form a single pack with beings known as the 14 Fundamentals. Each may give unique gifts or curses to you or those around you."
+                    }
+                },
+                {
+                     name: "Curious Pact",
                     passive: {
                         name: "Curiosity Deal",
                         icon: "twirly-flower.png",
