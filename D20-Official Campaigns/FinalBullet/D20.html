@@ -5,78 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>D20 Live Loader</title>
   <link rel="icon" href="https://raw.githubusercontent.com/Kiderobin/D20/main/pics/d20.png" />
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background: radial-gradient(circle at top, #2b1f14, #0f0b08 60%);
-      color: #f5e6c8;
-      font-family: "Georgia", "Times New Roman", serif;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-    }
-    h2 {
-      padding: 1rem 2rem;
-      border: 2px solid #caa472;
-      border-radius: 12px;
-      background: rgba(0, 0, 0, 0.35);
-      letter-spacing: 0.08rem;
-    }
-    header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      padding: 0.75rem 1.25rem;
-      background: rgba(15, 11, 8, 0.9);
-      border-bottom: 1px solid rgba(202, 164, 114, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 5;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      color: #f5e6c8;
-      font-weight: 700;
-      letter-spacing: 0.08rem;
-      text-transform: uppercase;
-    }
-    .brand img { width: 28px; height: 28px; }
-    .catalog-btn {
-      padding: 0.5rem 1.1rem;
-      border-radius: 999px;
-      background: #caa472;
-      color: #0f0b08;
-      text-decoration: none;
-      font-weight: 700;
-    }
-    main {
-      margin-top: 64px;
-      width: 100%;
-      display: grid;
-      place-items: center;
-    }
-  </style>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <img src="https://raw.githubusercontent.com/Kiderobin/D20/main/pics/d20.png" alt="D20" />
-      D20
-    </div>
-    <a class="catalog-btn" href="#catalog">Catalog</a>
-  </header>
-
-  <main>
-    <h2>Loading D20: Starlight Symphony...</h2>
-  </main>
+  <h2>Loading latest D20 build...</h2>
 
   <script>
     // URL of your live D20.html file on GitHub
-    const remoteURL = "https://raw.githubusercontent.com/ScareTheVoices/D20/main/D20.html";
+    const remoteURL = "https://raw.githubusercontent.com/Kiderobin/D20/main/D20.html";
 
     fetch(remoteURL)
       .then(response => {
