@@ -60,14 +60,14 @@ window.D20_CAMPAIGN_DATA = {
 				name: "Starless Resilience",
 				icon: "voidborn.png",
 				type: "race-passive",
-				description: "Voidborn resist certain psychic effects and gain benefits near void anomalies."
+				description: "Voidborns gain +2 towards Vigor when defending against Starlight/Requiem attacks."
 			},
 			skills: [
 				{
 					name: "Null Pulse",
 					icon: "nullpulse.png",
 					type: "race-skill",
-					description: "Emit a short pulse that disrupts simple electronics and weaker blessings."
+					description: "Once per battle, you can roll 1d20 + Mind. Every other entity in the battle (including allies) must roll a Vigor check. If an entity's result is lower than your roll, they lose their Symphony/Requiem for 2 Rotations."
 				}
 			]
 		},
@@ -77,14 +77,14 @@ window.D20_CAMPAIGN_DATA = {
 				name: "Nebula Cloak",
 				icon: "nebulon.png",
 				type: "race-passive",
-				description: "Nebulons blend with interstellar gas and stealth systems more effectively."
+				description: "Nebulons blend with interstellar gas, gain +2 Towards Agility when performing a Stealth check."
 			},
 			skills: [
 				{
 					name: "Gasform",
 					icon: "gasform.png",
 					type: "race-skill",
-					description: "Temporarily reduce physical presence to slip past sensors and guards."
+					description: "For 2 turns/scenes, take on a 'Gas Form', preventing you from taking damage involving Might, but you can not perform attack rolls. (Cooldown 2 turns/scenes)"
 				}
 			]
 		},
@@ -114,7 +114,7 @@ window.D20_CAMPAIGN_DATA = {
 				name: "Machine Maintenance",
 				icon: "maintenance.png",
 				type: "class-passive",
-				description: "Be able to work at a workbench and run maintenance on ships or machinery."
+				description: "Be able to work at a workbench and run maintenance on ships or machinery. Gain +2 Mind when working on a Workbench/Tool Bag"
 			},
 			skills: [
 				{
@@ -132,7 +132,7 @@ window.D20_CAMPAIGN_DATA = {
 							name: "Mother's Gift",
 							icon: "mothersgift.png",
 							type: "subclass-skill",
-							description: "when you use your gift you hear your Symphony to call upon your Starlight Blade This weapon doesn't take an Inventory slot."
+							description: "When you use your gift. you hear your Symphony to call upon your Starlight Blade. This weapon doesn't take an Inventory slot."
 						}
 					],
 					passive: {
@@ -149,7 +149,7 @@ window.D20_CAMPAIGN_DATA = {
 							name: "Brother's Gift",
 							icon: "brothersgift.png",
 							type: "subclass-skill",
-							description: "when you use your gift you hear your Requiem to call upon your Oblivion Blade This weapon doesn't take an Inventory slot."
+							description: "When you use your gift you hear your Requiem to call upon your Oblivion Blade. This weapon doesn't take an Inventory slot."
 						}
 					],
 					passive: {
@@ -176,7 +176,7 @@ window.D20_CAMPAIGN_DATA = {
 					name: "Lock On",
 					icon: "locked on.png",
 					type: "class-skill",
-					description: "Increase your accuracy or precision by one multiplied by skill level."
+					description: "Once per turn, when you make an Accuracy check (Agility), you may roll an additional unmodified 1d20 and add the result to your total."
 				}
 			],
 			subclasses: [
