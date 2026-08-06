@@ -1,4 +1,28 @@
 window.D20_CAMPAIGN_DATA = {
+	PlayerSkillCreate: {
+        enabled: true,
+        sections: ["Equipment", "Symphony", "Requiem"]
+    },
+	
+	ItemsCreateSkills: [
+        {
+            name: "Starlight Rider",
+            item: ["KarmaBelt.png"],
+            icon: "KarmaBelt.png",
+            description: "Whilst you wear Starlight Rider Belt; Once per turn: You may equip one of your suits as an additional action."
+        },
+		{
+            name: "Harp String",
+            item: ["String.png"],
+            icon: "String.png",
+            description: "Whilst you have a Harp String; Once per battle: You may add +2 to one of your modified rolls."
+        }
+    ],
+	
+	
+	Items: ["KarmaBelt.png", "String.png"],
+	
+	
 	races: [
 		{
 			name: "Human",
