@@ -1,15 +1,15 @@
 const campaignInfo = {
     // Basic information
     title: "Shattered Tales",
-    subtitle: "",
-    description: "",
+    subtitle: "Heroes from another realm wake up in a mysterious lake and is greeted by a strange woman that tells them that they are the chosen heroes that will help save Britonus, a magical realm where fairy tale story characters exist, but they are not what they seem. As for this is the your typical Fairy Tale story. These are Britonus' Shattered Tales.",
+    description: "Heroes from another realm wake up in a mysterious lake and is greeted by a strange woman that tells them that they are the chosen heroes that will help save Britonus, a magical realm where fairy tale story characters exist, but they are not what they seem. As for this is the your typical Fairy Tale story. These are Britonus' Shattered Tales.",
     
     // Campaign metadata
     players: "1-4",
     difficulty: "Easy",
     
     // Banner image URL
-    banner: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/ImSorryILoveYou/banner.png",
+    banner: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/ShatteredTales/banner.png",
     
     // Story section (can include HTML)
     story: `
@@ -20,8 +20,8 @@ const campaignInfo = {
     
     // Key features
     features: [
-        "Fairy tale-inspired narrative",
-        "Stat Modifier included in the campaign's Data file.",
+        "A Twitsed Fairy Tale Inspired Narrative",
+        "Simple Class and Race System.",
     ],
     
     // Campaign structure
