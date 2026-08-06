@@ -67,7 +67,7 @@ const campaignRegistry = [
     },
      {
         name: "Shattered Tales",
-        color: "#8a2be2",
+        color: "#9279aa",
         folder: "ShatteredTales",
         description: "Take A Look Inside Ihe Book Where Fairytales Aren't What They Seem...",
         banner: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/ShatteredTales/banner.png",
