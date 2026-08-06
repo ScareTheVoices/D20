@@ -1,7 +1,7 @@
 window.D20_CAMPAIGN_DATA = {
 	PlayerSkillCreate: {
         enabled: true,
-        sections: ["Equipment", "Symphony", "Requiem"]
+        sections: ["Equipment", "Symphony", "Requiem", "SS"]
     },
 	
 	ItemsCreateSkills: [
@@ -514,14 +514,14 @@ window.D20_CAMPAIGN_DATA = {
 				name: "Arcane Attunement",
 				icon: "arcane.png",
 				type: "class-passive",
-				description: "Mystics have an easier time channeling starlight and other arcana."
+				description: "You gain a +2 bonus to Knowledge (Mind) checks related to Symphony/Requiem."
 			},
 			skills: [
 				{
-					name: "Channel",
+					name: "Meditation",
 					icon: "channel.png",
 					type: "class-skill",
-					description: "Focus starlight energy into a ranged or area effect. Potency determined by a d20 roll."
+					description: "Once per turn, if you are passive, you may roll an Instinct check. If the result is higher than 13, you may Astral Travel."
 				}
 			],
 			subclasses: [
