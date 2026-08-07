@@ -64,15 +64,15 @@ const campaignRegistry = [
         description: "At least one of your classmates were up to something last night",
         banner: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/ImSorryILoveYou/banner.png",
         infoUrl: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/ImSorryILoveYou/info.js"
+    },
+     {
+        name: "Shattered Tales",
+        color: "#9279aa",
+        folder: "ShatteredTales",
+        description: "Take A Look Inside Ihe Book Where Fairytales Aren't What They Seem...",
+        banner: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/ShatteredTales/banner.png",
+        infoUrl: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/ShatteredTales/info.js"
     }
-    //  {
-    //     name: "Shattered Tales",
-    //     color: "#9279aa",
-    //     folder: "ShatteredTales",
-    //     description: "Take A Look Inside Ihe Book Where Fairytales Aren't What They Seem...",
-    //     banner: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/ShatteredTales/banner.png",
-    //     infoUrl: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/ShatteredTales/info.js"
-    // },
     
 ];
 
