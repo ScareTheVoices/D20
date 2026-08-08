@@ -143,6 +143,7 @@
 
         /* Card Frame - Fresh original professional design */
         .card {
+            --card-base-image: url('pics/D20TCGCardBase.png');
             width: 320px;
             height: 450px;
             position: relative;
@@ -158,7 +159,7 @@
                     rgba(var(--color-rgb), 0.32) 48%,
                     rgba(10, 15, 31, 0.92) 100%
                 ),
-                url('D20TCGCardBase.png') center / 100% auto no-repeat,
+                var(--card-base-image) center / 100% auto no-repeat,
                 #0a0f1f;
             border: 1px solid rgba(255, 255, 255, 0.16);
             border-radius: 0;
@@ -366,23 +367,6 @@
             flex: 0 0 96px;
             overflow: hidden;
             display: flex;
-            position: relative;
-        }
-
-        .rules-box::after {
-            content: 'D20';
-            position: absolute;
-            right: 18px;
-            bottom: -6px;
-            font-family: "Cinzel", "Georgia", serif;
-            font-size: 98px;
-            font-weight: 700;
-            line-height: 1;
-            letter-spacing: 1px;
-            color: rgba(255, 235, 235, 0.25);
-            transform: rotate(-8deg);
-            pointer-events: none;
-            z-index: 1;
         }
 
         .rules-title {
@@ -397,8 +381,6 @@
             line-height: 1.35;
             color: #edf2ff;
             overflow-y: auto;
-            position: relative;
-            z-index: 2;
         }
 
         .card-footer {
@@ -643,6 +625,11 @@
             void: 'void'
         };
 
+        const baseFramePaths = [
+            'pics/D20TCGCardBase.png',
+            'D20TCGCardBase.png'
+        ];
+
         const affinityIconMap = {
             fire: ['pics/charicons/elemticon/fire.png', 'icons/fire.png'],
             water: ['pics/charicons/elemticon/water.png', 'icons/water.png'],
@@ -677,6 +664,32 @@
 
                 imageEl.onerror = tryNext;
                 imageEl.src = nextPath;
+            };
+
+            tryNext();
+        }
+
+        function resolveCardBaseImage() {
+            const card = document.getElementById('cardPreview');
+            if (!card) {
+                return;
+            }
+
+            let index = 0;
+            const probe = new Image();
+
+            const tryNext = () => {
+                if (index >= baseFramePaths.length) {
+                    return;
+                }
+
+                const path = baseFramePaths[index];
+                index += 1;
+                probe.onload = () => {
+                    card.style.setProperty('--card-base-image', `url('${path}')`);
+                };
+                probe.onerror = tryNext;
+                probe.src = path;
             };
 
             tryNext();
@@ -930,6 +943,7 @@
             this.style.display = 'none';
         };
 
+        resolveCardBaseImage();
         updatePreview();
     </script>
 </body>
