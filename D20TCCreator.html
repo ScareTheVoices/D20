@@ -831,13 +831,39 @@
                 const ratioX = canvas.width / cardRect.width;
                 const ratioY = canvas.height / cardRect.height;
 
-                const clearX = (artRect.left - cardRect.left) * ratioX;
-                const clearY = (artRect.top - cardRect.top) * ratioY;
-                const clearW = artRect.width * ratioX;
-                const clearH = artRect.height * ratioY;
+                const clearX = Math.floor((artRect.left - cardRect.left) * ratioX);
+                const clearY = Math.floor((artRect.top - cardRect.top) * ratioY);
+                const clearW = Math.ceil(artRect.width * ratioX);
+                const clearH = Math.ceil(artRect.height * ratioY);
 
                 const ctx = canvas.getContext('2d');
-                ctx.clearRect(clearX, clearY, clearW, clearH);
+                ctx.save();
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.fillRect(clearX, clearY, clearW, clearH);
+                ctx.restore();
+            }
+
+            function redrawAffinityIcon(canvas) {
+                const affinityIcon = document.getElementById('previewAffinityIcon');
+                if (!affinityIcon || !affinityIcon.src || affinityIcon.style.display === 'none' || !affinityIcon.complete) {
+                    return;
+                }
+
+                const cardRect = card.getBoundingClientRect();
+                const iconRect = affinityIcon.getBoundingClientRect();
+                const ratioX = canvas.width / cardRect.width;
+                const ratioY = canvas.height / cardRect.height;
+
+                const drawX = (iconRect.left - cardRect.left) * ratioX;
+                const drawY = (iconRect.top - cardRect.top) * ratioY;
+                const drawW = iconRect.width * ratioX;
+                const drawH = iconRect.height * ratioY;
+
+                const ctx = canvas.getContext('2d');
+                ctx.save();
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.drawImage(affinityIcon, drawX, drawY, drawW, drawH);
+                ctx.restore();
             }
 
             function downloadCanvas(canvas, fileName) {
@@ -904,6 +930,7 @@
                     logging: false
                 });
                 clearArtWindow(canvas);
+                redrawAffinityIcon(canvas);
 
                 if (!canvasLooksValid(canvas)) {
                     throw new Error('Rendered output appears blank or corrupted.');
