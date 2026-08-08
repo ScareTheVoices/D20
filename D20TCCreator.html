@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D20 Card Frame Designer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100vh;
+        }
+
+        /* Left Panel - Form */
+        .form-panel {
+            background: #0d1117;
+            border-right: 2px solid #9d4edd;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .header {
+            border-bottom: 1px solid rgba(157, 78, 221, 0.3);
+            padding-bottom: 12px;
+            margin-bottom: 8px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #9d4edd, #3a86ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-section-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #7b68ee;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        label {
+            font-size: 12px;
+            color: #9d4edd;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select, textarea {
+            background: rgba(58, 134, 255, 0.08);
+            border: 1px solid #3a86ff;
+            color: #e0e0e0;
+            padding: 8px 10px;
+            border-radius: 3px;
+            font-size: 13px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #9d4edd;
+            background: rgba(157, 78, 221, 0.1);
+        }
+
+        input[type="number"] {
+            width: 60px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+            font-size: 12px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .slider-readout {
+            font-size: 11px;
+            color: #9ca3af;
+            text-align: right;
+        }
+
+        button {
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #3a86ff, #9d4edd);
+            border: none;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(157, 78, 221, 0.3);
+        }
+
+        /* Right Panel - Preview */
+        .preview-panel {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3f 50%, #0f0f2e 100%);
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+        }
+
+        /* Card Frame - Fresh original professional design */
+        .card {
+            width: 320px;
+            height: 450px;
+            position: relative;
+            background:
+                linear-gradient(
+                    180deg,
+                    transparent 45%,
+                    rgba(139, 0, 0, 0.15) 100%
+                ),
+                linear-gradient(
+                    165deg,
+                    rgba(var(--color-rgb), 0.62) 0%,
+                    rgba(var(--color-rgb), 0.32) 48%,
+                    rgba(10, 15, 31, 0.92) 100%
+                ),
+                url('D20TCGCardBase.png') center / 100% auto no-repeat,
+                #0a0f1f;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 0;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65);
+            overflow: hidden;
+            font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.11), transparent 42%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .card-content-wrapper {
+            position: absolute;
+            inset: 10px;
+            border-radius: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(
+                180deg,
+                rgba(var(--color-rgb), 0.18) 0%,
+                rgba(var(--color-rgb), 0.08) 56%,
+                rgba(5, 8, 16, 0.62) 100%
+            );
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 2;
+        }
+
+        .card-top {
+            min-height: 54px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(125deg, var(--color-1), var(--color-2) 52%, #111827 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+            position: relative;
+            color: #ffffff;
+        }
+
+        .card-name {
+            font-family: "Matrix Bold", "Cinzel", "Georgia", serif;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            line-height: 1.2;
+            flex: 1 1 auto;
+            min-width: 0;
+            margin-right: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-transform: uppercase;
+            text-shadow: 0 2px 2px rgba(0, 0, 0, 0.45);
+        }
+
+        .card-type {
+            display: none;
+        }
+
+        .mach-badge {
+            margin-left: auto;
+            width: 34px;
+            height: 34px;
+            min-width: 34px;
+            min-height: 34px;
+            flex: 0 0 34px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            background: rgba(12, 18, 30, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            top: -2px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .mach-label {
+            display: none;
+        }
+
+        #previewMachBadge {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1;
+        }
+
+        .art-frame {
+            margin: 8px 12px 0;
+            border-radius: 0;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: #cfd4de;
+            flex: 0 0 165px;
+            position: relative;
+            overflow: visible;
+        }
+
+        .card-art {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            text-align: center;
+            background:
+                repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.18) 0 8px, rgba(255, 255, 255, 0.08) 8px 16px),
+                repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.1) 0 8px, rgba(0, 0, 0, 0.04) 8px 16px),
+                rgba(210, 220, 236, 0.55);
+        }
+
+        .art-window-hint {
+            color: rgba(15, 23, 42, 0.66);
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+
+            .art-affinity-icon {
+                position: absolute;
+                right: -14px;
+                bottom: -12px;
+                width: 64px;
+                height: 64px;
+                filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+                display: none;
+                z-index: 4;
+                pointer-events: none;
+            }
+
+        .stat-strip {
+            margin: 8px 8px 0;
+            border-radius: 0;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: linear-gradient(180deg, #202a40, #141b2b);
+            padding: 6px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 6px;
+        }
+
+        .stat-icon {
+            display: none;
+        }
+
+        .pill {
+            border-radius: 0;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            min-height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #ffffff;
+            padding: 0 6px;
+            margin: 0;
+        }
+
+        .pill.atk {
+            background: linear-gradient(180deg, #ef4444, #b91c1c);
+        }
+
+        .pill.hth {
+            background: linear-gradient(180deg, #22c55e, #15803d);
+        }
+
+        .pill.mch {
+            background: linear-gradient(180deg, #0ea5e9, #1d4ed8);
+        }
+
+        .seal {
+            display: none;
+        }
+
+        .subtype-bar {
+            margin: 7px 8px 0;
+            border-radius: 0;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.06);
+            font-size: 11px;
+            color: #d6deef;
+            text-align: left;
+            padding: 5px 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rules-box {
+            margin: 7px 8px 0;
+            border-radius: 0;
+            border: 1px solid rgba(255, 255, 255, 0.17);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
+            flex: 0 0 96px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .rules-title {
+            display: none;
+        }
+
+        .effect-box {
+            margin: 0;
+            padding: 10px;
+            width: 100%;
+            font-size: 11px;
+            line-height: 1.35;
+            color: #edf2ff;
+            overflow-y: auto;
+        }
+
+        .card-footer {
+            margin: auto 8px 8px;
+            border-radius: 0;
+            border: 1px solid rgba(255, 255, 255, 0.17);
+            background: linear-gradient(180deg, rgba(4, 8, 16, 0.92), rgba(1, 3, 8, 0.96));
+            color: #dce4f5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 10px;
+            padding: 5px 8px;
+            position: relative;
+        }
+
+        .footer-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1px 12px;
+            border-radius: 0;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(59, 130, 246, 0.2);
+            color: #ffffff;
+            font-family: "Cinzel", serif;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        .affinity-badge {
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-size: 9px;
+            color: #f8fafc;
+            padding: 2px 6px;
+            border-radius: 0;
+            background: rgba(var(--color-rgb), 0.2);
+            border: 1px solid rgba(var(--color-rgb), 0.55);
+        }
+
+        .card-corner,
+        .stat-row,
+        .stat,
+        .stat-label,
+        .stat-value,
+        #previewTypeInfo,
+        #previewMachSection {
+            display: none;
+        }
+
+        /* Affinity Colors with RGB for effects */
+        .card.fire {
+            --color-1: #dc2626;
+            --color-2: #991b1b;
+            --color-rgb: 220, 38, 38;
+        }
+
+        .card.water {
+            --color-1: #0ea5e9;
+            --color-2: #0369a1;
+            --color-rgb: 14, 165, 233;
+        }
+
+        .card.earth {
+            --color-1: #65a30d;
+            --color-2: #3f6212;
+            --color-rgb: 101, 163, 13;
+        }
+
+        .card.air {
+            --color-1: #f3f4f6;
+            --color-2: #9ca3af;
+            --color-rgb: 243, 244, 246;
+        }
+
+        .card.aether {
+            --color-1: #facc15;
+            --color-2: #ca8a04;
+            --color-rgb: 250, 204, 21;
+        }
+
+        .card.void {
+            --color-1: #1f2937;
+            --color-2: #6b7280;
+            --color-rgb: 31, 41, 55;
+        }
+
+        .card.skill {
+            --color-1: #14b8a6;
+            --color-2: #2dd4bf;
+            --color-rgb: 20, 184, 166;
+        }
+
+        .card.item {
+            --color-1: #9d4edd;
+            --color-2: #7c3aed;
+            --color-rgb: 157, 78, 221;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .form-panel {
+                border-right: none;
+                border-bottom: 2px solid #9d4edd;
+                max-height: 40vh;
+            }
+
+            .preview-panel {
+                max-height: 60vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Form Panel -->
+        <div class="form-panel">
+            <div class="header">
+                <h1>Card Frame Designer</h1>
+            </div>
+
+            <div class="form-section">
+                <label>Card Type</label>
+                <select id="cardType" onchange="updatePreview()">
+                    <option value="hero">Hero Card</option>
+                    <option value="character">Supporting Character</option>
+                    <option value="skill">Skill Card</option>
+                    <option value="item">Item Card</option>
+                </select>
+            </div>
+
+            <div class="form-section">
+                <label>Card Name</label>
+                <input type="text" id="cardName" placeholder="Enter card name" onchange="updatePreview()" value="Custom Card">
+            </div>
+
+            <div id="affinitySection" class="form-section">
+                <label>Affinity</label>
+                <select id="affinity" onchange="updatePreview()">
+                    <option value="fire">Fire</option>
+                    <option value="water">Water</option>
+                    <option value="earth">Earth</option>
+                    <option value="air">Air</option>
+                    <option value="aether">Aether</option>
+                    <option value="void">Void</option>
+                </select>
+            </div>
+
+            <div id="typeSection" class="form-section">
+                <div class="form-row">
+                    <div>
+                        <label>Species</label>
+                        <input type="text" id="species" placeholder="Human" onchange="updatePreview()">
+                    </div>
+                    <div>
+                        <label>Class</label>
+                        <input type="text" id="class" placeholder="Knight" onchange="updatePreview()">
+                    </div>
+                </div>
+            </div>
+
+            <div id="statsSection" class="form-section">
+                <label>Health</label>
+                <input type="number" id="health" min="1" value="20" onchange="updatePreview()">
+                
+                <label>Attack</label>
+                <input type="number" id="attack" min="0" value="5" onchange="updatePreview()">
+
+                <div id="machFieldWrap">
+                    <label>Mach Stage</label>
+                    <input type="number" id="mach" min="1" max="5" value="1" onchange="updatePreview()">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label>Effect / Description</label>
+                <textarea id="effect" onchange="updatePreview()" placeholder="Enter card effect or description...">When this hero enters the field, gain +1 to all attack rolls this turn.</textarea>
+            </div>
+
+            <div class="form-section">
+                <label>Frame Export</label>
+                <div class="slider-readout" style="text-align: left;">Exports a high-resolution PNG with a transparent center art window.</div>
+            </div>
+
+            <div class="form-section" style="margin-top: auto; gap: 8px;">
+                <button onclick="exportFrameImage()">Export Frame PNG</button>
+                <button onclick="resetForm()" style="background: linear-gradient(135deg, #7f8c8d, #95a5a6);">Reset</button>
+            </div>
+        </div>
+
+        <!-- Preview Panel -->
+        <div class="preview-panel">
+            <div class="card fire" id="cardPreview">
+                <div class="card-content-wrapper">
+                    <div class="card-top">
+                        <div class="card-name" id="previewName">Custom Card</div>
+                        <div class="card-type" id="previewType">Hero Card</div>
+                        <div class="mach-badge">
+                            <div id="previewMachBadge">1</div>
+                        </div>
+                    </div>
+
+                    <div class="art-frame">
+                        <div class="card-art">
+                            <span class="art-window-hint non-export">Art Window</span>
+                        </div>
+                        <img id="previewAffinityIcon" class="art-affinity-icon" alt="Affinity icon">
+                    </div>
+
+                    <div class="subtype-bar" id="previewSubtype">[Hero] Human / Knight</div>
+
+                    <div class="rules-box">
+                        <div class="rules-title">Rules</div>
+                        <div class="effect-box" id="previewEffect">
+                            When this hero enters the field, gain +1 to all attack rolls this turn.
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <span id="previewAffinity" class="affinity-badge">Fire</span>
+                        <span class="footer-center">D20</span>
+                        <span id="previewFooterStats">Atk: 5 / LFE: 20</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script>
+        const affinityColors = {
+            fire: 'fire',
+            water: 'water',
+            earth: 'earth',
+            air: 'air',
+            aether: 'aether',
+            void: 'void'
+        };
+
+        const affinityIconMap = {
+            fire: 'icons/fire.png',
+            water: 'icons/water.png',
+            earth: 'icons/earth.png',
+            air: 'icons/air.png',
+            aether: 'icons/aether.png',
+            void: 'icons/void.png'
+        };
+
+        function fitCardName() {
+            const nameEl = document.getElementById('previewName');
+            const maxSize = 22;
+            const minSize = 10;
+
+            // Start at normal size, then shrink only if needed.
+            let currentSize = maxSize;
+            nameEl.style.fontSize = `${currentSize}px`;
+
+            while (nameEl.scrollWidth > nameEl.clientWidth && currentSize > minSize) {
+                currentSize -= 1;
+                nameEl.style.fontSize = `${currentSize}px`;
+            }
+        }
+
+        function fitAffinityIcon() {
+            const affinityIcon = document.getElementById('previewAffinityIcon');
+            if (!affinityIcon || !affinityIcon.src) {
+                return;
+            }
+
+            const maxSize = 64;
+            const nw = affinityIcon.naturalWidth || maxSize;
+            const nh = affinityIcon.naturalHeight || maxSize;
+            const scale = Math.min(maxSize / nw, maxSize / nh);
+            const width = Math.round(nw * scale);
+            const height = Math.round(nh * scale);
+
+            affinityIcon.style.width = `${width}px`;
+            affinityIcon.style.height = `${height}px`;
+        }
+
+        function updatePreview() {
+            const cardType = document.getElementById('cardType').value;
+            const cardName = document.getElementById('cardName').value;
+            const affinity = document.getElementById('affinity').value;
+            const species = document.getElementById('species').value;
+            const cardClass = document.getElementById('class').value;
+            const health = document.getElementById('health').value;
+            const attack = document.getElementById('attack').value;
+            const mach = document.getElementById('mach').value;
+            const effect = document.getElementById('effect').value;
+
+            const card = document.getElementById('cardPreview');
+            const affinityIcon = document.getElementById('previewAffinityIcon');
+
+            // Update card type styling
+            card.className = 'card ' + (cardType === 'skill' ? 'skill' : cardType === 'item' ? 'item' : affinityColors[affinity]);
+
+            // Update name and type
+            const typeLabel = cardType === 'hero' ? 'Hero Card' :
+                              cardType === 'character' ? 'Supporting Character' :
+                              cardType === 'skill' ? 'Skill Card' : 'Item Card';
+
+            document.getElementById('previewName').textContent = cardName || 'Custom Card';
+            document.getElementById('previewType').textContent = typeLabel;
+            document.getElementById('previewMachBadge').textContent = mach;
+
+            // Show Mach badge only for Hero cards
+            const machBadge = document.querySelector('.mach-badge');
+            const machFieldWrap = document.getElementById('machFieldWrap');
+            if (cardType === 'hero') {
+                machBadge.style.display = 'flex';
+                machFieldWrap.style.display = 'block';
+            } else {
+                machBadge.style.display = 'none';
+                machFieldWrap.style.display = 'none';
+            }
+
+            fitCardName();
+
+            let subtypeText = '[Skill]';
+            if (cardType === 'hero') {
+                subtypeText = `[Hero / ${species || 'Species'} / ${cardClass || 'Class'}]`;
+            } else if (cardType === 'character') {
+                subtypeText = `[Support / ${species || 'Species'} / ${cardClass || 'Class'}]`;
+            } else if (cardType === 'item') {
+                subtypeText = '[Item]';
+            }
+            document.getElementById('previewSubtype').textContent = subtypeText;
+
+            // Update stats
+            document.getElementById('previewAffinity').textContent = cardType === 'skill' ? 'Skill' :
+                                                                     cardType === 'item' ? 'Item' :
+                                                                     affinity.charAt(0).toUpperCase() + affinity.slice(1);
+            const previewFooterStats = document.getElementById('previewFooterStats');
+            if (cardType === 'hero' || cardType === 'character') {
+                previewFooterStats.textContent = `Atk: ${attack} / LFE: ${health}`;
+                previewFooterStats.style.visibility = 'visible';
+            } else {
+                previewFooterStats.textContent = '';
+                previewFooterStats.style.visibility = 'hidden';
+            }
+            document.getElementById('previewEffect').textContent = effect;
+
+            if (cardType === 'hero' || cardType === 'character') {
+                const iconPath = affinityIconMap[affinity];
+                if (iconPath) {
+                    affinityIcon.onload = fitAffinityIcon;
+                    affinityIcon.src = iconPath;
+                    affinityIcon.style.display = 'block';
+                    if (affinityIcon.complete) {
+                        fitAffinityIcon();
+                    }
+                } else {
+                    affinityIcon.style.display = 'none';
+                }
+            } else {
+                affinityIcon.style.display = 'none';
+            }
+        }
+
+        async function exportFrameImage() {
+            const cardType = document.getElementById('cardType').value;
+            const cardName = document.getElementById('cardName').value.trim();
+            const card = document.getElementById('cardPreview');
+            const artWindow = card.querySelector('.card-art');
+            const nonExportEls = card.querySelectorAll('.non-export');
+            const outputName = `${(cardName || `${cardType}_frame`).replace(/\s+/g, '_')}_frame.png`;
+
+            if (typeof html2canvas !== 'function') {
+                alert('Frame export library failed to load. Check your internet connection and reload the page.');
+                return;
+            }
+
+            function clearArtWindow(canvas) {
+                const cardRect = card.getBoundingClientRect();
+                const artRect = artWindow.getBoundingClientRect();
+                const ratioX = canvas.width / cardRect.width;
+                const ratioY = canvas.height / cardRect.height;
+
+                const clearX = (artRect.left - cardRect.left) * ratioX;
+                const clearY = (artRect.top - cardRect.top) * ratioY;
+                const clearW = artRect.width * ratioX;
+                const clearH = artRect.height * ratioY;
+
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(clearX, clearY, clearW, clearH);
+            }
+
+            function downloadCanvas(canvas, fileName) {
+                return new Promise((resolve, reject) => {
+                    try {
+                        canvas.toBlob((blob) => {
+                            if (!blob) {
+                                reject(new Error('Unable to export frame image.'));
+                                return;
+                            }
+
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = fileName;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                            resolve();
+                        }, 'image/png');
+                    } catch (err) {
+                        reject(err);
+                    }
+                });
+            }
+
+            function canvasLooksValid(canvas) {
+                try {
+                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                    const w = canvas.width;
+                    const h = canvas.height;
+                    const samples = 36;
+                    let colorfulPixels = 0;
+
+                    for (let i = 0; i < samples; i += 1) {
+                        const x = Math.floor((i % 6 + 0.5) * (w / 6));
+                        const y = Math.floor((Math.floor(i / 6) + 0.5) * (h / 6));
+                        const p = ctx.getImageData(x, y, 1, 1).data;
+                        const r = p[0];
+                        const g = p[1];
+                        const b = p[2];
+                        const a = p[3];
+
+                        if (a > 0 && (r > 12 || g > 12 || b > 12)) {
+                            colorfulPixels += 1;
+                        }
+                    }
+
+                    return colorfulPixels >= 4;
+                } catch (err) {
+                    return false;
+                }
+            }
+
+            nonExportEls.forEach((el) => {
+                el.dataset.previousDisplay = el.style.display;
+                el.style.display = 'none';
+            });
+
+            try {
+                const canvas = await html2canvas(card, {
+                    scale: 3,
+                    backgroundColor: null,
+                    useCORS: true,
+                    logging: false
+                });
+                clearArtWindow(canvas);
+
+                if (!canvasLooksValid(canvas)) {
+                    throw new Error('Rendered output appears blank or corrupted.');
+                }
+
+                await downloadCanvas(canvas, outputName);
+                alert(`Frame exported as ${outputName}`);
+            } catch (err) {
+                if (window.location.protocol === 'file:') {
+                    alert('Exact export was blocked by browser security for local files. Open this page through a local server (http://localhost) and export again to preserve all artwork, watermark, and icons.');
+                } else {
+                    alert(`Failed to export frame: ${err.message}`);
+                }
+            } finally {
+                nonExportEls.forEach((el) => {
+                    el.style.display = el.dataset.previousDisplay || '';
+                    delete el.dataset.previousDisplay;
+                });
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('cardType').value = 'hero';
+            document.getElementById('cardName').value = 'Custom Card';
+            document.getElementById('affinity').value = 'fire';
+            document.getElementById('species').value = 'Human';
+            document.getElementById('class').value = 'Knight';
+            document.getElementById('health').value = '20';
+            document.getElementById('attack').value = '5';
+            document.getElementById('mach').value = '1';
+            document.getElementById('effect').value = 'When this hero enters the field, gain +1 to all attack rolls this turn.';
+            updatePreview();
+        }
+
+        // Initial preview
+        document.getElementById('previewAffinityIcon').onerror = function () {
+            this.style.display = 'none';
+        };
+
+        updatePreview();
+    </script>
+</body>
+</html>
