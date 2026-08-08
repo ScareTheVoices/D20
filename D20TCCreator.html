@@ -281,9 +281,10 @@
             position: absolute;
             left: 50%;
             top: 50%;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
+            width: auto;
+            height: auto;
+            max-width: none;
+            max-height: none;
             transform: translate(-50%, -50%) scale(1);
             display: none;
             z-index: 1;
@@ -760,6 +761,37 @@
             artImage.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${scale})`;
         }
 
+        function fitUploadedArtToWindow() {
+            const artImage = document.getElementById('previewArtImage');
+            const artWindow = document.querySelector('.card-art');
+            if (!artImage || !artWindow || !artImage.naturalWidth || !artImage.naturalHeight) {
+                return;
+            }
+
+            const frameW = artWindow.clientWidth;
+            const frameH = artWindow.clientHeight;
+            if (!frameW || !frameH) {
+                return;
+            }
+
+            const imageRatio = artImage.naturalWidth / artImage.naturalHeight;
+            const frameRatio = frameW / frameH;
+
+            let drawW;
+            let drawH;
+
+            if (imageRatio > frameRatio) {
+                drawW = frameW;
+                drawH = frameW / imageRatio;
+            } else {
+                drawH = frameH;
+                drawW = frameH * imageRatio;
+            }
+
+            artImage.style.width = `${Math.round(drawW)}px`;
+            artImage.style.height = `${Math.round(drawH)}px`;
+        }
+
         function handleArtUpload(event) {
             const file = event.target.files && event.target.files[0];
             if (!file) {
@@ -770,10 +802,13 @@
             reader.onload = function (e) {
                 const artImage = document.getElementById('previewArtImage');
                 const hint = document.querySelector('.art-window-hint');
+                artImage.onload = function () {
+                    fitUploadedArtToWindow();
+                    resetArtTransform();
+                };
                 artImage.src = e.target.result;
                 artImage.style.display = 'block';
                 hint.style.display = 'none';
-                updateArtTransform();
             };
             reader.readAsDataURL(file);
         }
@@ -785,6 +820,8 @@
 
             artImage.removeAttribute('src');
             artImage.style.display = 'none';
+            artImage.style.width = 'auto';
+            artImage.style.height = 'auto';
             artImage.style.transform = 'translate(-50%, -50%) scale(1)';
             hint.style.display = 'inline';
             uploadInput.value = '';
@@ -1034,6 +1071,11 @@
             this.style.display = 'none';
             document.querySelector('.art-window-hint').style.display = 'inline';
         };
+
+        window.addEventListener('resize', function () {
+            fitUploadedArtToWindow();
+            updateArtTransform();
+        });
 
         resolveCardBaseImage();
         resetArtTransform();
