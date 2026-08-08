@@ -277,12 +277,26 @@
                 rgba(210, 220, 236, 0.55);
         }
 
+        .card-art-image {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: translate(-50%, -50%) scale(1);
+            display: none;
+            z-index: 1;
+            pointer-events: none;
+        }
+
         .art-window-hint {
             color: rgba(15, 23, 42, 0.66);
             font-size: 11px;
             letter-spacing: 1.5px;
             text-transform: uppercase;
             pointer-events: none;
+            z-index: 2;
         }
 
             .art-affinity-icon {
@@ -566,8 +580,40 @@
             </div>
 
             <div class="form-section">
+                <label>Card Art Upload</label>
+                <input type="file" id="cardArtUpload" accept="image/*" onchange="handleArtUpload(event)">
+
+                <div class="form-row">
+                    <div>
+                        <label>Zoom</label>
+                        <input type="range" id="artZoom" min="50" max="250" value="100" oninput="updateArtTransform()">
+                    </div>
+                    <div class="slider-readout" id="zoomValue">100%</div>
+                </div>
+
+                <div class="form-row">
+                    <div>
+                        <label>Horizontal</label>
+                        <input type="range" id="artX" min="-120" max="120" value="0" oninput="updateArtTransform()">
+                    </div>
+                    <div class="slider-readout" id="xValue">0px</div>
+                </div>
+
+                <div class="form-row">
+                    <div>
+                        <label>Vertical</label>
+                        <input type="range" id="artY" min="-120" max="120" value="0" oninput="updateArtTransform()">
+                    </div>
+                    <div class="slider-readout" id="yValue">0px</div>
+                </div>
+
+                <button type="button" onclick="resetArtTransform()" style="background: linear-gradient(135deg, #475569, #64748b);">Reset Art Position</button>
+                <button type="button" onclick="clearUploadedArt()" style="background: linear-gradient(135deg, #374151, #4b5563);">Clear Uploaded Art</button>
+            </div>
+
+            <div class="form-section">
                 <label>Frame Export</label>
-                <div class="slider-readout" style="text-align: left;">Exports a high-resolution PNG with a transparent center art window.</div>
+                <div class="slider-readout" style="text-align: left;">Exports exactly what you see in the card preview, including uploaded art.</div>
             </div>
 
             <div class="form-section" style="margin-top: auto; gap: 8px;">
@@ -590,6 +636,7 @@
 
                     <div class="art-frame">
                         <div class="card-art">
+                            <img id="previewArtImage" class="card-art-image" alt="Card art">
                             <span class="art-window-hint non-export">Art Window</span>
                         </div>
                         <img id="previewAffinityIcon" class="art-affinity-icon" alt="Affinity icon">
@@ -693,6 +740,62 @@
             };
 
             tryNext();
+        }
+
+        function updateArtTransform() {
+            const artImage = document.getElementById('previewArtImage');
+            const zoom = parseInt(document.getElementById('artZoom').value, 10);
+            const x = parseInt(document.getElementById('artX').value, 10);
+            const y = parseInt(document.getElementById('artY').value, 10);
+            const scale = zoom / 100;
+
+            document.getElementById('zoomValue').textContent = `${zoom}%`;
+            document.getElementById('xValue').textContent = `${x}px`;
+            document.getElementById('yValue').textContent = `${y}px`;
+
+            if (!artImage || !artImage.src || artImage.style.display === 'none') {
+                return;
+            }
+
+            artImage.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${scale})`;
+        }
+
+        function handleArtUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const artImage = document.getElementById('previewArtImage');
+                const hint = document.querySelector('.art-window-hint');
+                artImage.src = e.target.result;
+                artImage.style.display = 'block';
+                hint.style.display = 'none';
+                updateArtTransform();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearUploadedArt() {
+            const artImage = document.getElementById('previewArtImage');
+            const hint = document.querySelector('.art-window-hint');
+            const uploadInput = document.getElementById('cardArtUpload');
+
+            artImage.removeAttribute('src');
+            artImage.style.display = 'none';
+            artImage.style.transform = 'translate(-50%, -50%) scale(1)';
+            hint.style.display = 'inline';
+            uploadInput.value = '';
+            resetArtTransform();
+        }
+
+        function resetArtTransform() {
+            document.getElementById('artZoom').value = '100';
+            document.getElementById('artX').value = '0';
+            document.getElementById('artY').value = '0';
+            updateArtTransform();
         }
 
         function fitCardName() {
@@ -816,54 +919,12 @@
             const cardType = document.getElementById('cardType').value;
             const cardName = document.getElementById('cardName').value.trim();
             const card = document.getElementById('cardPreview');
-            const artWindow = card.querySelector('.card-art');
             const nonExportEls = card.querySelectorAll('.non-export');
             const outputName = `${(cardName || `${cardType}_frame`).replace(/\s+/g, '_')}_frame.png`;
 
             if (typeof html2canvas !== 'function') {
                 alert('Frame export library failed to load. Check your internet connection and reload the page.');
                 return;
-            }
-
-            function clearArtWindow(canvas) {
-                const cardRect = card.getBoundingClientRect();
-                const artRect = artWindow.getBoundingClientRect();
-                const ratioX = canvas.width / cardRect.width;
-                const ratioY = canvas.height / cardRect.height;
-
-                const clearX = Math.floor((artRect.left - cardRect.left) * ratioX);
-                const clearY = Math.floor((artRect.top - cardRect.top) * ratioY);
-                const clearW = Math.ceil(artRect.width * ratioX);
-                const clearH = Math.ceil(artRect.height * ratioY);
-
-                const ctx = canvas.getContext('2d');
-                ctx.save();
-                ctx.globalCompositeOperation = 'destination-out';
-                ctx.fillRect(clearX, clearY, clearW, clearH);
-                ctx.restore();
-            }
-
-            function redrawAffinityIcon(canvas) {
-                const affinityIcon = document.getElementById('previewAffinityIcon');
-                if (!affinityIcon || !affinityIcon.src || affinityIcon.style.display === 'none' || !affinityIcon.complete) {
-                    return;
-                }
-
-                const cardRect = card.getBoundingClientRect();
-                const iconRect = affinityIcon.getBoundingClientRect();
-                const ratioX = canvas.width / cardRect.width;
-                const ratioY = canvas.height / cardRect.height;
-
-                const drawX = (iconRect.left - cardRect.left) * ratioX;
-                const drawY = (iconRect.top - cardRect.top) * ratioY;
-                const drawW = iconRect.width * ratioX;
-                const drawH = iconRect.height * ratioY;
-
-                const ctx = canvas.getContext('2d');
-                ctx.save();
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.drawImage(affinityIcon, drawX, drawY, drawW, drawH);
-                ctx.restore();
             }
 
             function downloadCanvas(canvas, fileName) {
@@ -929,8 +990,6 @@
                     useCORS: true,
                     logging: false
                 });
-                clearArtWindow(canvas);
-                redrawAffinityIcon(canvas);
 
                 if (!canvasLooksValid(canvas)) {
                     throw new Error('Rendered output appears blank or corrupted.');
@@ -962,6 +1021,7 @@
             document.getElementById('attack').value = '5';
             document.getElementById('mach').value = '1';
             document.getElementById('effect').value = 'When this hero enters the field, gain +1 to all attack rolls this turn.';
+            clearUploadedArt();
             updatePreview();
         }
 
@@ -970,7 +1030,13 @@
             this.style.display = 'none';
         };
 
+        document.getElementById('previewArtImage').onerror = function () {
+            this.style.display = 'none';
+            document.querySelector('.art-window-hint').style.display = 'inline';
+        };
+
         resolveCardBaseImage();
+        resetArtTransform();
         updatePreview();
     </script>
 </body>
