@@ -562,8 +562,8 @@
             </div>
 
             <div id="statsSection" class="form-section">
-                <label>Health</label>
-                <input type="number" id="health" min="1" value="20" onchange="updatePreview()">
+                <label>Defense</label>
+                <input type="number" id="defense" min="1" value="20" onchange="updatePreview()">
                 
                 <label>Attack</label>
                 <input type="number" id="attack" min="0" value="5" onchange="updatePreview()">
@@ -654,7 +654,7 @@
                     <div class="card-footer">
                         <span id="previewAffinity" class="affinity-badge">Fire</span>
                         <span class="footer-center">D20</span>
-                        <span id="previewFooterStats">Atk: 5 / LFE: 20</span>
+                        <span id="previewFooterStats">ATK: 5 / DEF: 20</span>
                     </div>
                 </div>
             </div>
@@ -836,7 +836,7 @@
             const affinity = document.getElementById('affinity').value;
             const species = document.getElementById('species').value;
             const cardClass = document.getElementById('class').value;
-            const health = document.getElementById('health').value;
+            const defense = document.getElementById('defense').value;
             const attack = document.getElementById('attack').value;
             const mach = document.getElementById('mach').value;
             const effect = document.getElementById('effect').value;
@@ -885,7 +885,7 @@
                                                                      affinity.charAt(0).toUpperCase() + affinity.slice(1);
             const previewFooterStats = document.getElementById('previewFooterStats');
             if (cardType === 'hero' || cardType === 'character') {
-                previewFooterStats.textContent = `Atk: ${attack} / LFE: ${health}`;
+                previewFooterStats.textContent = `ATK: ${attack} / DEF: ${defense}`;
                 previewFooterStats.style.visibility = 'visible';
             } else {
                 previewFooterStats.textContent = '';
@@ -1017,7 +1017,7 @@
             document.getElementById('affinity').value = 'fire';
             document.getElementById('species').value = 'Human';
             document.getElementById('class').value = 'Knight';
-            document.getElementById('health').value = '20';
+            document.getElementById('defense').value = '20';
             document.getElementById('attack').value = '5';
             document.getElementById('mach').value = '1';
             document.getElementById('effect').value = 'When this hero enters the field, gain +1 to all attack rolls this turn.';
