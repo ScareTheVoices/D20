@@ -366,6 +366,23 @@
             flex: 0 0 96px;
             overflow: hidden;
             display: flex;
+            position: relative;
+        }
+
+        .rules-box::after {
+            content: 'D20';
+            position: absolute;
+            right: 18px;
+            bottom: -6px;
+            font-family: "Cinzel", "Georgia", serif;
+            font-size: 98px;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: 1px;
+            color: rgba(255, 235, 235, 0.25);
+            transform: rotate(-8deg);
+            pointer-events: none;
+            z-index: 1;
         }
 
         .rules-title {
@@ -380,6 +397,8 @@
             line-height: 1.35;
             color: #edf2ff;
             overflow-y: auto;
+            position: relative;
+            z-index: 2;
         }
 
         .card-footer {
@@ -625,13 +644,43 @@
         };
 
         const affinityIconMap = {
-            fire: 'icons/fire.png',
-            water: 'icons/water.png',
-            earth: 'icons/earth.png',
-            air: 'icons/air.png',
-            aether: 'icons/aether.png',
-            void: 'icons/void.png'
+            fire: ['pics/charicons/elemticon/fire.png', 'icons/fire.png'],
+            water: ['pics/charicons/elemticon/water.png', 'icons/water.png'],
+            earth: ['pics/charicons/elemticon/earth.png', 'icons/earth.png'],
+            air: ['pics/charicons/elemticon/air.png', 'icons/air.png'],
+            aether: ['pics/charicons/elemticon/aether.png', 'icons/aether.png'],
+            void: ['pics/charicons/elemticon/void.png', 'icons/void.png']
         };
+
+        function loadFirstImagePath(imageEl, paths, onSuccess, onFailure) {
+            if (!Array.isArray(paths) || paths.length === 0) {
+                onFailure();
+                return;
+            }
+
+            let index = 0;
+            const tryNext = () => {
+                if (index >= paths.length) {
+                    imageEl.onerror = null;
+                    onFailure();
+                    return;
+                }
+
+                const nextPath = paths[index];
+                index += 1;
+
+                imageEl.onload = () => {
+                    imageEl.onload = null;
+                    imageEl.onerror = null;
+                    onSuccess();
+                };
+
+                imageEl.onerror = tryNext;
+                imageEl.src = nextPath;
+            };
+
+            tryNext();
+        }
 
         function fitCardName() {
             const nameEl = document.getElementById('previewName');
@@ -729,14 +778,19 @@
             document.getElementById('previewEffect').textContent = effect;
 
             if (cardType === 'hero' || cardType === 'character') {
-                const iconPath = affinityIconMap[affinity];
-                if (iconPath) {
-                    affinityIcon.onload = fitAffinityIcon;
-                    affinityIcon.src = iconPath;
-                    affinityIcon.style.display = 'block';
-                    if (affinityIcon.complete) {
-                        fitAffinityIcon();
-                    }
+                const iconPaths = affinityIconMap[affinity];
+                if (iconPaths) {
+                    loadFirstImagePath(
+                        affinityIcon,
+                        iconPaths,
+                        () => {
+                            fitAffinityIcon();
+                            affinityIcon.style.display = 'block';
+                        },
+                        () => {
+                            affinityIcon.style.display = 'none';
+                        }
+                    );
                 } else {
                     affinityIcon.style.display = 'none';
                 }
