@@ -919,6 +919,7 @@
             const cardType = document.getElementById('cardType').value;
             const cardName = document.getElementById('cardName').value.trim();
             const card = document.getElementById('cardPreview');
+            const artWindow = card.querySelector('.card-art');
             const nonExportEls = card.querySelectorAll('.non-export');
             const outputName = `${(cardName || `${cardType}_frame`).replace(/\s+/g, '_')}_frame.png`;
 
@@ -978,6 +979,45 @@
                 }
             }
 
+            function redrawUploadedArt(canvas) {
+                const artImage = document.getElementById('previewArtImage');
+                if (!artImage || artImage.style.display === 'none' || !artImage.src || !artImage.naturalWidth || !artImage.naturalHeight) {
+                    return;
+                }
+
+                const cardRect = card.getBoundingClientRect();
+                const artRect = artWindow.getBoundingClientRect();
+                const ratioX = canvas.width / cardRect.width;
+                const ratioY = canvas.height / cardRect.height;
+                const zoom = parseInt(document.getElementById('artZoom').value, 10) / 100;
+                const shiftX = parseInt(document.getElementById('artX').value, 10);
+                const shiftY = parseInt(document.getElementById('artY').value, 10);
+
+                const fitScale = Math.min(artRect.width / artImage.naturalWidth, artRect.height / artImage.naturalHeight);
+                const baseW = artImage.naturalWidth * fitScale;
+                const baseH = artImage.naturalHeight * fitScale;
+                const drawW = baseW * zoom * ratioX;
+                const drawH = baseH * zoom * ratioY;
+
+                const clipX = (artRect.left - cardRect.left) * ratioX;
+                const clipY = (artRect.top - cardRect.top) * ratioY;
+                const clipW = artRect.width * ratioX;
+                const clipH = artRect.height * ratioY;
+                const centerX = clipX + clipW / 2;
+                const centerY = clipY + clipH / 2;
+                const drawX = centerX - drawW / 2 + shiftX * ratioX;
+                const drawY = centerY - drawH / 2 + shiftY * ratioY;
+
+                const ctx = canvas.getContext('2d');
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(clipX, clipY, clipW, clipH);
+                ctx.clip();
+                ctx.clearRect(clipX, clipY, clipW, clipH);
+                ctx.drawImage(artImage, drawX, drawY, drawW, drawH);
+                ctx.restore();
+            }
+
             nonExportEls.forEach((el) => {
                 el.dataset.previousDisplay = el.style.display;
                 el.style.display = 'none';
@@ -990,6 +1030,8 @@
                     useCORS: true,
                     logging: false
                 });
+
+                redrawUploadedArt(canvas);
 
                 if (!canvasLooksValid(canvas)) {
                     throw new Error('Rendered output appears blank or corrupted.');
