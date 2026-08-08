@@ -283,7 +283,7 @@
             top: 50%;
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
             transform: translate(-50%, -50%) scale(1);
             display: none;
             z-index: 1;
@@ -586,7 +586,7 @@
                 <div class="form-row">
                     <div>
                         <label>Zoom</label>
-                        <input type="range" id="artZoom" min="50" max="400" value="100" oninput="updateArtTransform()">
+                        <input type="range" id="artZoom" min="50" max="250" value="100" oninput="updateArtTransform()">
                     </div>
                     <div class="slider-readout" id="zoomValue">100%</div>
                 </div>
@@ -760,33 +760,6 @@
             artImage.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${scale})`;
         }
 
-        function autoFitArtToFrameWidth() {
-            const artImage = document.getElementById('previewArtImage');
-            const artWindow = document.querySelector('.card-art');
-            const zoomInput = document.getElementById('artZoom');
-
-            if (!artImage || !artWindow || !artImage.naturalWidth || !artImage.naturalHeight) {
-                return;
-            }
-
-            const frameWidth = artWindow.clientWidth;
-            const frameHeight = artWindow.clientHeight;
-            const imageWidth = artImage.naturalWidth;
-            const imageHeight = artImage.naturalHeight;
-
-            const containScale = Math.min(frameWidth / imageWidth, frameHeight / imageHeight);
-            const widthFillScale = frameWidth / (imageWidth * containScale);
-            const zoomPercent = Math.round(widthFillScale * 100);
-            const minZoom = parseInt(zoomInput.min, 10);
-            const maxZoom = parseInt(zoomInput.max, 10);
-            const clampedZoom = Math.min(maxZoom, Math.max(minZoom, zoomPercent));
-
-            zoomInput.value = String(clampedZoom);
-            document.getElementById('artX').value = '0';
-            document.getElementById('artY').value = '0';
-            updateArtTransform();
-        }
-
         function handleArtUpload(event) {
             const file = event.target.files && event.target.files[0];
             if (!file) {
@@ -797,12 +770,10 @@
             reader.onload = function (e) {
                 const artImage = document.getElementById('previewArtImage');
                 const hint = document.querySelector('.art-window-hint');
-                artImage.onload = function () {
-                    autoFitArtToFrameWidth();
-                };
                 artImage.src = e.target.result;
                 artImage.style.display = 'block';
                 hint.style.display = 'none';
+                updateArtTransform();
             };
             reader.readAsDataURL(file);
         }
