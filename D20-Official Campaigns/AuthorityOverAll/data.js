@@ -268,7 +268,7 @@ Items: ["leviathan-mask.png"],
             skills: [
                 {
                     name: "Blood Drain",
-                    icon: "blood-drop.png",
+                    icon: "heart-drop.png",
                     type: "race-skill",
                     description: "Once per scene (or once per combat turn per target), you can attempt to siphon life from a living target. Roll 1d20 + Might against the target’s 1d20 + Vigor. On a success, you drain the target's health and heal yourself for the same amount. This skill has no effect on Undead."
                 }
@@ -295,7 +295,7 @@ Items: ["leviathan-mask.png"],
             name: "Ashborn",
             passive: {
                 name: "Ember Heart",
-                icon: "hidden.png",
+                icon: "heartburn",
                 type: "race-passive",
                 description: "Gain +2 to fire-based damage and +1 resistance to all fire effects."
             },
