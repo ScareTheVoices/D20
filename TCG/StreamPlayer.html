@@ -1796,7 +1796,11 @@ const POPOUT_DOCUMENT_HTML = `<!DOCTYPE html>
     margin:0; min-height:100vh; font-family:'Trebuchet MS',sans-serif; color:#e2e2e8;
     background:radial-gradient(ellipse at 50% 0%, var(--bg-700), var(--bg-900));
     padding:24px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
   }
+  .stage{width:100%; max-width:1100px;}
   h2{font-family:Georgia,serif; color:var(--parchment); text-align:center; margin-top:0;}
   .grid{display:grid; grid-template-columns:1fr 1fr 1.25fr 1fr 1fr; gap:14px; align-items:end; max-width:1100px; margin:0 auto 26px;}
   .slot{display:flex; flex-direction:column; align-items:center; gap:8px;}
@@ -1838,10 +1842,12 @@ const POPOUT_DOCUMENT_HTML = `<!DOCTYPE html>
 </style>
 </head>
 <body>
-  <div class="grid" id="grid"></div>
-  <div class="piles">
-    <div class="pile deck"><div class="pile-label">Main Deck</div><div class="stack" id="deckStack"></div></div>
-    <div class="pile veil"><div class="pile-label">The Veil</div><div class="stack" id="veilStack"></div></div>
+  <div class="stage">
+    <div class="grid" id="grid"></div>
+    <div class="piles">
+      <div class="pile deck"><div class="pile-label">Main Deck</div><div class="stack" id="deckStack"></div></div>
+      <div class="pile veil"><div class="pile-label">The Veil</div><div class="stack" id="veilStack"></div></div>
+    </div>
   </div>
   <div class="skill-cast-overlay" id="skillOverlay">
     <div class="skill-card" id="skillCard">
