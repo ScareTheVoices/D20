@@ -237,6 +237,16 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
   border:1px solid var(--line); border-radius:18px; padding:26px; box-shadow:var(--shadow);
 }
 
+.battle-main-grid{
+  display:grid; grid-template-columns:minmax(620px, 1fr) 320px; gap:18px; align-items:start;
+}
+
+.battle-side{display:flex; flex-direction:column; gap:14px;}
+
+@media (max-width:1180px){
+  .battle-main-grid{grid-template-columns:1fr;}
+}
+
 .battlefield-grid{
   display:grid;
   grid-template-columns: 1fr 1fr 1.25fr 1fr 1fr;
@@ -265,10 +275,6 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
   cursor:grab; box-shadow:0 4px 14px rgba(0,0,0,0.55);
 }
 .field-card img{width:100%; height:100%; object-fit:cover; display:block; background:var(--bg-700);}
-.field-card .card-name-tag{
-  position:absolute; left:0; right:0; bottom:0; background:linear-gradient(0deg, rgba(0,0,0,0.88), transparent);
-  color:var(--parchment); font-size:0.68rem; padding:14px 6px 4px; text-align:center; pointer-events:none;
-}
 
 /* Life tracker overlay (top-right) */
 .life-tracker{
@@ -296,7 +302,7 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
 
 .slot-empty-icon{color:var(--line); font-size:1.6rem;}
 
-.piles-row{display:flex; gap:24px; justify-content:center; margin-bottom:24px; flex-wrap:wrap;}
+.piles-row{display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
 .pile{display:flex; flex-direction:column; align-items:center; gap:8px;}
 .pile-label{font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;}
 .pile.deck .pile-label{color:var(--blue-deck);}
@@ -317,16 +323,44 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
 .pile-count{position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,0.7); color:#fff; font-size:0.72rem; font-weight:700; padding:2px 7px; border-radius:999px;}
 .pile-hint{font-size:0.68rem; color:var(--ink-dim); max-width:150px; text-align:center;}
 
-.hand-tray{border-top:2px solid var(--gold-dim); margin-top:6px; padding-top:16px;}
-.hand-tray-header{display:flex; align-items:center; justify-content:space-between; max-width:1400px; margin:0 auto 8px;}
+.hand-tray{border:1px solid var(--line); border-radius:12px; background:rgba(0,0,0,0.2); padding:12px;}
+.hand-tray-header{display:flex; align-items:center; justify-content:space-between; margin:0 0 8px;}
 .hand-tray-header h3{margin:0; font-size:0.9rem; color:var(--parchment);}
-.hand-tray-header .lock-note{font-size:0.7rem; color:var(--purple-veil); font-weight:700;}
 .hand-strip{
-  display:flex; gap:10px; overflow-x:auto; padding:6px 10px 14px; min-height:calc(var(--card-h) + 10px);
+  display:flex; gap:8px; overflow-x:auto; padding:8px; min-height:calc(var(--card-h) + 16px);
   border:2px dashed var(--line); border-radius:var(--radius); background:rgba(0,0,0,0.18);
 }
 .hand-strip.drag-over{border-color:var(--gold);}
 .hand-empty{margin:auto; color:var(--ink-dim); font-size:0.85rem;}
+
+.hand-card{width:var(--card-w); height:var(--card-h); flex-shrink:0;}
+
+.overlay{
+  position:fixed; inset:0; background:rgba(8,8,12,0.82); z-index:30;
+  display:none; align-items:center; justify-content:center; padding:24px;
+}
+.overlay.open{display:flex;}
+
+.preview-shell{
+  width:min(430px, 92vw); border:1px solid var(--line); border-radius:12px; padding:12px;
+  background:linear-gradient(180deg, var(--panel-raised), var(--panel)); box-shadow:var(--shadow);
+}
+.preview-shell img{
+  width:100%; height:auto; aspect-ratio:135/190; object-fit:cover; border-radius:8px; display:block;
+}
+
+.spread-shell{
+  width:min(1000px, 95vw); max-height:85vh; overflow:auto;
+  border:1px solid var(--line); border-radius:12px; padding:16px;
+  background:linear-gradient(180deg, var(--panel-raised), var(--panel)); box-shadow:var(--shadow);
+}
+.spread-title{font-size:0.95rem; color:var(--parchment); font-weight:700; margin-bottom:12px;}
+.spread-row{display:flex; gap:10px; flex-wrap:wrap;}
+.spread-card{
+  width:112px; height:158px; border-radius:8px; overflow:hidden; border:2px solid var(--line); cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,0.45);
+}
+.spread-card img{width:100%; height:100%; object-fit:cover; display:block;}
 
 .status-line{max-width:1400px; margin:14px auto 0; font-size:0.78rem; color:var(--ink-dim); text-align:center;}
 </style>
@@ -373,9 +407,11 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
         <div class="deck-total">Total cards: <b id="deckTotalNum">0</b></div>
         <div style="display:flex; gap:10px;">
           <button class="btn btn-outline" onclick="clearDeck()">Clear Deck</button>
+          <button class="btn btn-outline" onclick="triggerDeckImport()">Import Deck (JSON)</button>
           <button class="btn btn-gold" onclick="exportDeckJSON()">⬇ Export Deck (JSON)</button>
         </div>
       </div>
+      <input type="file" id="deckImportInput" accept="application/json,.json" style="display:none;" onchange="importDeckJSON(event)">
     </div>
 
   </div>
@@ -389,6 +425,7 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
   <div class="battle-toolbar">
     <div class="left-tools">
       <button class="btn btn-gold" onclick="loadDeckIntoBattle()">↺ Load Deck From Editor</button>
+      <button class="btn btn-gold" onclick="startBattle()">Start</button>
       <button class="btn btn-outline" onclick="drawCard()">Draw Card</button>
     </div>
     <div class="right-tools">
@@ -397,32 +434,47 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
   </div>
 
   <div class="battle-table">
-    <div class="battlefield-grid" id="battlefieldGrid"></div>
+    <div class="battle-main-grid">
+      <div class="battlefield-grid" id="battlefieldGrid"></div>
 
-    <div class="piles-row">
-      <div class="pile deck">
-        <div class="pile-label">Main Deck</div>
-        <div class="pile-stack" id="mainDeckPile" onclick="drawCard()" title="Click to draw a card"></div>
-        <div class="pile-hint">Click pile to draw</div>
-        <button class="btn btn-blue" onclick="shuffleDeck()">🔀 Shuffle</button>
-      </div>
-      <div class="pile veil" id="veilDropzone">
-        <div class="pile-label">The Veil</div>
-        <div class="pile-stack" id="veilPile"></div>
-        <div class="pile-hint">Discard pile — drag cards here</div>
+      <div class="battle-side">
+        <div class="piles-row">
+          <div class="pile deck">
+            <div class="pile-label">Main Deck</div>
+            <div class="pile-stack" id="mainDeckPile" onclick="drawCard()" title="Click to draw a card. Right-click to shuffle."></div>
+            <div class="pile-hint">Click: draw. Right-click: shuffle.</div>
+          </div>
+          <div class="pile veil" id="veilDropzone">
+            <div class="pile-label">The Veil</div>
+            <div class="pile-stack" id="veilPile"></div>
+            <div class="pile-hint">Discard pile — drag cards here</div>
+          </div>
+        </div>
+
+        <div class="hand-tray">
+          <div class="hand-tray-header">
+            <h3>Your Hand (Private)</h3>
+          </div>
+          <div class="hand-strip" id="handStrip"></div>
+        </div>
       </div>
     </div>
-  </div>
-
-  <div class="hand-tray">
-    <div class="hand-tray-header">
-      <h3>Your Hand (Private)</h3>
-      <span class="lock-note">🔒 hidden from pop-out</span>
-    </div>
-    <div class="hand-strip" id="handStrip"></div>
   </div>
 
   <div class="status-line" id="battleStatus">Load a deck from the editor to begin.</div>
+</div>
+
+<div class="overlay" id="cardPreviewOverlay" onclick="closeCardPreview()">
+  <div class="preview-shell" onclick="event.stopPropagation()">
+    <img id="cardPreviewImg" src="" alt="Card preview">
+  </div>
+</div>
+
+<div class="overlay" id="pileSpreadOverlay" onclick="closePileSpread()">
+  <div class="spread-shell" onclick="event.stopPropagation()">
+    <div class="spread-title" id="pileSpreadTitle">Pile</div>
+    <div class="spread-row" id="pileSpreadRow"></div>
+  </div>
 </div>
 
 <script>
@@ -608,7 +660,7 @@ function renderDatabaseList(){
 
   list.innerHTML = filtered.map(card => {
     const qty = deckState[card.name] || 0;
-    const maxed = qty >= 4;
+    const maxed = qty >= 3;
     const dot = card.affinity ? `<span class="affinity-dot ${affinityClass(card.affinity)}"></span>` : '';
     return `
       <div class="db-row">
@@ -622,7 +674,7 @@ function renderDatabaseList(){
           </div>
           ${cardMetaHTML(card)}
         </div>
-        <span class="qty-badge">${qty}/4</span>
+        <span class="qty-badge">${qty}/3</span>
         <button class="add-btn" ${maxed ? 'disabled' : ''} onclick="addToDeck('${card.name.replace(/'/g, "\\'")}')" title="Add to deck">+</button>
       </div>`;
   }).join('');
@@ -637,13 +689,13 @@ function findCardByName(name){
 
 function addToDeck(name){
   const current = deckState[name] || 0;
-  if(current >= 4) return;
+  if(current >= 3) return;
   deckState[name] = current + 1;
   renderDeckEditor();
 }
 
 function setQty(name, qty){
-  qty = Math.max(0, Math.min(4, qty));
+  qty = Math.max(0, Math.min(3, qty));
   if(qty === 0){ delete deckState[name]; }
   else { deckState[name] = qty; }
   renderDeckEditor();
@@ -692,7 +744,7 @@ function renderDeckEditor(){
       <div class="stepper">
         <button onclick="setQty('${card.name.replace(/'/g, "\\'")}', ${qty - 1})">−</button>
         <span class="qty-num">${qty}</span>
-        <button ${qty >= 4 ? 'disabled' : ''} onclick="setQty('${card.name.replace(/'/g, "\\'")}', ${qty + 1})">+</button>
+        <button ${qty >= 3 ? 'disabled' : ''} onclick="setQty('${card.name.replace(/'/g, "\\'")}', ${qty + 1})">+</button>
       </div>
     </div>`;
   }).join('');
@@ -731,28 +783,121 @@ function exportDeckJSON(){
   URL.revokeObjectURL(url);
 }
 
+function triggerDeckImport(){
+  const input = document.getElementById('deckImportInput');
+  input.value = '';
+  input.click();
+}
+
+function importDeckJSON(event){
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const raw = JSON.parse(String(reader.result || '{}'));
+      const list = Array.isArray(raw) ? raw : (Array.isArray(raw.cards) ? raw.cards : null);
+      if(!list){
+        throw new Error('JSON must be an array of cards or an object with a cards array.');
+      }
+
+      const nextDeck = {};
+      const missing = [];
+
+      list.forEach(entry => {
+        const name = entry && typeof entry.name === 'string' ? entry.name.trim() : '';
+        const qty = Number(entry && entry.quantity);
+        if(!name || !Number.isFinite(qty) || qty <= 0) return;
+        const card = findCardByName(name);
+        if(!card){
+          missing.push(name);
+          return;
+        }
+        nextDeck[name] = Math.min(3, (nextDeck[name] || 0) + Math.floor(qty));
+      });
+
+      const importedCount = Object.values(nextDeck).reduce((sum, n) => sum + n, 0);
+      if(importedCount === 0){
+        alert('No valid cards were imported from that deck file.');
+        return;
+      }
+
+      deckState = nextDeck;
+      renderDeckEditor();
+
+      if(missing.length){
+        alert('Deck imported with missing cards skipped: ' + missing.slice(0, 8).join(', ') + (missing.length > 8 ? '...' : ''));
+      } else {
+        alert('Deck imported successfully.');
+      }
+    }catch(err){
+      alert('Could not import deck JSON: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
 
 /* ============================================================================
    5. BATTLE SCREEN SETUP
    ============================================================================ */
-function loadDeckIntoBattle(){
+function makeBattleDeckFromEditor(){
   const names = [];
   Object.keys(deckState).forEach(name => {
     for(let i = 0; i < deckState[name]; i++) names.push(name);
   });
+  return names.map(name => makeCardInstance(findCardByName(name))).filter(Boolean);
+}
 
-  if(names.length === 0){
+function loadDeckIntoBattle(){
+  const nextDeck = makeBattleDeckFromEditor();
+  if(nextDeck.length === 0){
     alert('Your active deck is empty — add cards in the Deck Editor first.');
     return;
   }
 
-  battle.mainDeck = names.map(name => makeCardInstance(findCardByName(name))).filter(Boolean);
+  battle.mainDeck = nextDeck;
   battle.hand = [];
   battle.veil = [];
   battle.field = { ls2: null, ls1: null, hero: null, rs1: null, rs2: null };
 
   shuffleArray(battle.mainDeck);
   document.getElementById('battleStatus').textContent = 'Deck loaded: ' + battle.mainDeck.length + ' cards shuffled into the Main Deck.';
+  renderBattle();
+  syncPopout();
+}
+
+function startBattle(){
+  const nextDeck = makeBattleDeckFromEditor();
+  if(nextDeck.length === 0){
+    alert('Your active deck is empty — add cards in the Deck Editor first.');
+    return;
+  }
+
+  const heroIndex = nextDeck.findIndex(card =>
+    card.card_type === 'Hero' && Number(card.mach) === 1
+  );
+
+  if(heroIndex === -1){
+    alert('Start requires at least one Mach 1 Hero in your active deck.');
+    return;
+  }
+
+  const starterHero = nextDeck.splice(heroIndex, 1)[0];
+
+  battle.mainDeck = nextDeck;
+  battle.hand = [];
+  battle.veil = [];
+  battle.field = { ls2: null, ls1: null, hero: starterHero, rs1: null, rs2: null };
+
+  shuffleArray(battle.mainDeck);
+  for(let i = 0; i < 5 && battle.mainDeck.length > 0; i++){
+    battle.hand.push(battle.mainDeck.pop());
+  }
+
+  document.getElementById('battleStatus').textContent =
+    'Start complete: "' + starterHero.name + '" entered Hero Zone, deck shuffled, and ' + battle.hand.length + ' cards drawn.';
   renderBattle();
   syncPopout();
 }
@@ -890,6 +1035,67 @@ function onVeilDragStart(e){
   e.dataTransfer.effectAllowed = 'move';
 }
 
+function openCardPreview(card){
+  if(!card) return;
+  const img = document.getElementById('cardPreviewImg');
+  img.src = card.image_path;
+  img.alt = card.name;
+  document.getElementById('cardPreviewOverlay').classList.add('open');
+}
+
+function closeCardPreview(){
+  document.getElementById('cardPreviewOverlay').classList.remove('open');
+}
+
+function openPileSpread(cards, title){
+  if(!cards || cards.length <= 1) return;
+  document.getElementById('pileSpreadTitle').textContent = title + ' (' + cards.length + ')';
+  const row = document.getElementById('pileSpreadRow');
+  row.innerHTML = cards.map(card =>
+    `<div class="spread-card" onclick="openCardById('${card.instanceId.replace(/'/g, "\\'")}')" title="${card.name}">` +
+    `<img src="${card.image_path}" alt="${card.name}" onerror="this.style.opacity=0.15;">` +
+    '</div>'
+  ).join('');
+  document.getElementById('pileSpreadOverlay').classList.add('open');
+}
+
+function closePileSpread(){
+  document.getElementById('pileSpreadOverlay').classList.remove('open');
+}
+
+function findCardByInstanceId(instanceId){
+  for(const card of battle.hand){ if(card.instanceId === instanceId) return card; }
+  for(const card of battle.veil){ if(card.instanceId === instanceId) return card; }
+  for(const key of Object.keys(battle.field)){
+    const card = battle.field[key];
+    if(!card) continue;
+    if(card.instanceId === instanceId) return card;
+    for(const item of card.items){ if(item.instanceId === instanceId) return item; }
+  }
+  return null;
+}
+
+function openCardById(instanceId){
+  const card = findCardByInstanceId(instanceId);
+  if(card) openCardPreview(card);
+}
+
+function onFieldSlotContextMenu(e, slotKey){
+  const slotCard = battle.field[slotKey];
+  if(!slotCard) return;
+  const stack = [slotCard, ...slotCard.items];
+  if(stack.length <= 1) return;
+  e.preventDefault();
+  const slot = FIELD_SLOTS.find(s => s.key === slotKey);
+  openPileSpread(stack, slot ? slot.label : 'Zone Stack');
+}
+
+function onVeilContextMenu(e){
+  if(battle.veil.length <= 1) return;
+  e.preventDefault();
+  openPileSpread([...battle.veil].reverse(), 'The Veil');
+}
+
 
 /* ============================================================================
    7. LIFE TRACKER (Hero / Support cards only — Skill/Item have no life stat)
@@ -930,12 +1136,12 @@ function fieldCardHTML(card, slotKey){
   return `
     <div class="field-card accent" style="--accent-color:${accentColorFor(card)}"
          draggable="true"
-         ondragstart="onCardDragStart(event,'field','${slotKey}')">
+         ondragstart="onCardDragStart(event,'field','${slotKey}')"
+         onclick="openCardById('${card.instanceId}')">
       <img src="${card.image_path}" alt="${card.name}" onerror="this.style.opacity=0.15;">
       ${lifeTracker}
       ${attackBadge}
       ${itemsBadge}
-      <div class="card-name-tag">${card.name}</div>
     </div>`;
 }
 
@@ -951,6 +1157,7 @@ function renderBattlefieldGrid(){
              data-slot="${slot.key}"
              ondragover="event.preventDefault(); event.currentTarget.classList.add('drag-over');"
              ondragleave="event.currentTarget.classList.remove('drag-over');"
+             oncontextmenu="onFieldSlotContextMenu(event,'${slot.key}')"
              ondrop="onFieldSlotDrop(event,'${slot.key}')">
           ${inner}
         </div>
@@ -973,6 +1180,7 @@ function renderPiles(){
     veilPile.classList.add('has-cards');
     veilPile.innerHTML = `
       <img src="${top.image_path}" alt="${top.name}"
+           onclick="openCardById('${top.instanceId}')"
            draggable="true"
            ondragstart="onVeilDragStart(event)"
            onerror="this.style.opacity=0.15;">
@@ -987,11 +1195,11 @@ function renderHand(){
     return;
   }
   strip.innerHTML = battle.hand.map(card => `
-    <div class="field-card accent" style="flex-shrink:0; --accent-color:${accentColorFor(card)}"
+    <div class="field-card hand-card accent" style="--accent-color:${accentColorFor(card)}"
          draggable="true"
+         onclick="openCardById('${card.instanceId}')"
          ondragstart="event.dataTransfer.setData('text/plain', JSON.stringify({source:'hand', instanceId:'${card.instanceId}'})); event.dataTransfer.effectAllowed='move';">
       <img src="${card.image_path}" alt="${card.name}" onerror="this.style.opacity=0.15;">
-      <div class="card-name-tag">${card.name}</div>
     </div>`).join('');
 }
 
@@ -1011,6 +1219,22 @@ function wireStaticDropzones(){
   veilZone.addEventListener('dragover', e => { e.preventDefault(); veilZone.classList.add('drag-over'); });
   veilZone.addEventListener('dragleave', () => veilZone.classList.remove('drag-over'));
   veilZone.addEventListener('drop', onVeilDrop);
+
+  const deckPile = document.getElementById('mainDeckPile');
+  deckPile.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    shuffleDeck();
+  });
+
+  const veilPile = document.getElementById('veilPile');
+  veilPile.addEventListener('contextmenu', onVeilContextMenu);
+  veilZone.addEventListener('contextmenu', onVeilContextMenu);
+
+  document.addEventListener('keydown', e => {
+    if(e.key !== 'Escape') return;
+    closeCardPreview();
+    closePileSpread();
+  });
 }
 
 
@@ -1056,7 +1280,6 @@ const POPOUT_DOCUMENT_HTML = `<!DOCTYPE html>
   }
   .slot.hero .box{ width:calc(var(--card-w) * 1.18); height:calc(var(--card-h) * 1.18); border-color:var(--gold-dim); }
   .box img{width:100%; height:100%; object-fit:cover;}
-  .tag{position:absolute; left:0; right:0; bottom:0; background:linear-gradient(0deg, rgba(0,0,0,0.88), transparent); color:var(--parchment); font-size:0.7rem; padding:14px 6px 5px; text-align:center;}
   .life{position:absolute; top:4px; right:4px; background:rgba(10,10,10,0.75); border-radius:999px; padding:2px 8px; font-size:0.68rem; font-weight:700; color:#fff;}
   .atk{position:absolute; top:4px; left:4px; background:rgba(10,10,10,0.75); color:var(--gold); font-size:0.65rem; font-weight:700; padding:2px 7px; border-radius:999px;}
   .item-badge{position:absolute; left:4px; bottom:4px; background:rgba(212,175,90,0.92); color:#241b06; font-size:0.65rem; font-weight:700; padding:2px 6px; border-radius:6px;}
@@ -1115,8 +1338,7 @@ const POPOUT_DOCUMENT_HTML = `<!DOCTYPE html>
           ? '<div class="atk">ATK ' + card.attack + '</div>'
           : '';
         inner = '<img src="' + card.image_path + '" alt="' + card.name + '" style="box-shadow:inset 0 0 0 2px ' + accentColorFor(card) + '">' +
-                lifeTag + atkTag + itemsBadge +
-                '<div class="tag">' + card.name + '</div>';
+                lifeTag + atkTag + itemsBadge;
       }
       return '<div class="slot ' + (slot.hero ? 'hero' : '') + '">' +
              '<div class="label">' + slot.label + '</div>' +
