@@ -18,21 +18,21 @@
    the file. See end of chat for what I need from you.
    ========================================================================== */
 :root{
-  --bg-900:#0e0e12;
-  --bg-800:#15151b;
-  --bg-700:#1c1c24;
-  --panel:#17171e;
-  --panel-raised:#1e1e27;
-  --line:#33333f;
-  --gold:#d4af5a;
-  --gold-dim:#8a713a;
-  --parchment:#ece7db;
-  --ink:#e2e2e8;
-  --ink-dim:#9797a6;
+  --bg-900:#0a0e27;
+  --bg-800:#0d1117;
+  --bg-700:#1a1a3f;
+  --panel:#0d1117;
+  --panel-raised:#111827;
+  --line:#3a86ff;
+  --gold:#9d4edd;
+  --gold-dim:#7b68ee;
+  --parchment:#e0e0e0;
+  --ink:#e0e0e0;
+  --ink-dim:#9ca3af;
   --blue-deck:#4d8fd6;
-  --blue-deck-dim:#274a6e;
+  --blue-deck-dim:#1d4ed8;
   --purple-veil:#9b6bd6;
-  --purple-veil-dim:#4a2f6e;
+  --purple-veil-dim:#7c3aed;
   --danger:#d16a5f;
   --good:#6fbf8b;
 
@@ -45,9 +45,9 @@
   --aff-void:#8a5cd6;
 
   /* Card-type accent colors — used when a card has no affinity (Skill/Item) */
-  --type-hero:#d4af5a;
-  --type-support:#5a9bd4;
-  --type-skill:#9b6bd6;
+  --type-hero:#9d4edd;
+  --type-support:#3a86ff;
+  --type-skill:#14b8a6;
   --type-item:#c98a4a;
 
   --card-w:135px;
@@ -84,12 +84,10 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
 }
 #topbar .brand{display:flex; align-items:center; gap:10px;}
 #topbar .brand .crest{
-  width:34px; height:34px; border-radius:50%;
-  background:radial-gradient(circle at 35% 30%, var(--gold), var(--gold-dim));
-  box-shadow:0 0 0 3px rgba(212,175,90,0.15);
+  width:34px; height:34px; object-fit:contain; flex-shrink:0;
+  filter:drop-shadow(0 0 6px rgba(58,134,255,0.3));
 }
 #topbar h1{margin:0; font-size:1.25rem; color:var(--parchment);}
-#topbar h1 span{color:var(--gold); font-style:italic;}
 .nav-tabs{display:flex; gap:8px;}
 .nav-tabs button{
   background:var(--panel); color:var(--ink-dim); border:1px solid var(--line);
@@ -283,13 +281,16 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
 
 /* Life tracker overlay (bottom-right) */
 .life-tracker{
-  position:absolute; right:5px; bottom:6px; display:flex; align-items:center; gap:3px;
+  position:absolute; right:5px; bottom:6px; display:flex; align-items:center;
   background:rgba(10,10,10,0.75); border-radius:8px; padding:2px 4px; z-index:3;
 }
-.life-tracker button{width:18px; height:18px; border-radius:50%; border:none; font-size:0.75rem; font-weight:700; cursor:pointer; line-height:1;}
-.life-tracker .life-minus{background:var(--danger); color:#2a0a06;}
-.life-tracker .life-plus{background:var(--good); color:#052b14;}
-.life-tracker .life-val{color:#fff; font-size:0.68rem; font-weight:700; min-width:26px; text-align:center;}
+.life-tracker .life-input{
+  width:58px; border:none; background:transparent; color:#fff; font-size:0.72rem;
+  font-weight:700; text-align:center; outline:none; padding:0;
+}
+.life-tracker .life-input::-webkit-outer-spin-button,
+.life-tracker .life-input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+.life-tracker .life-input[type=number]{ appearance:textfield; -moz-appearance:textfield; }
 
 /* Static attack readout (above LFE) */
 .attack-badge{
@@ -375,6 +376,32 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
 }
 .spread-actions button:hover{border-color:var(--gold-dim); color:var(--parchment);}
 
+.deck-search-shell{
+  width:min(980px, 95vw); max-height:85vh; overflow:auto;
+  border:1px solid var(--line); border-radius:12px; padding:16px;
+  background:linear-gradient(180deg, var(--panel-raised), var(--panel)); box-shadow:var(--shadow);
+}
+.deck-search-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;}
+.deck-search-title{font-size:0.95rem; color:var(--parchment); font-weight:700;}
+.deck-search-input{
+  width:100%; padding:8px 12px; margin-bottom:12px; border-radius:8px;
+  border:1px solid var(--line); background:var(--bg-900); color:var(--ink); outline:none;
+}
+.deck-search-grid{display:flex; gap:10px; flex-wrap:wrap;}
+.deck-search-card{width:98px;}
+.deck-search-thumb{
+  width:98px; height:138px; border-radius:8px; overflow:hidden; border:2px solid var(--line);
+  box-shadow:0 4px 12px rgba(0,0,0,0.45);
+}
+.deck-search-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+.deck-search-name{font-size:0.66rem; color:var(--ink-dim); margin-top:4px; line-height:1.2; text-align:center;}
+.deck-search-actions{display:flex; gap:4px; margin-top:5px;}
+.deck-search-actions button{
+  flex:1; border:1px solid var(--line); background:var(--bg-900); color:var(--ink-dim);
+  border-radius:5px; padding:2px 5px; font-size:0.62rem; cursor:pointer;
+}
+.deck-search-actions button:hover{border-color:var(--gold-dim); color:var(--parchment);}
+
 .skill-cast-overlay{
   position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:34;
   background:rgba(3,3,6,0.45); pointer-events:none;
@@ -408,8 +435,8 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
      ============================================================ -->
 <div id="topbar">
   <div class="brand">
-    <div class="crest"></div>
-    <h1>D20TCG <span>// Deck Editor &amp; Battle Simulator</span></h1>
+    <img class="crest" src="https://raw.githubusercontent.com/ScareTheVoices/D20/cff6235515082b1fcaf68dab934b85a4fd8d9bfc/pics/d20.png" alt="D20 logo">
+    <h1>D20 - Trading Card Game.</h1>
   </div>
   <div class="nav-tabs">
     <button id="tabEditor" class="active" onclick="showScreen('editor')">Deck Editor</button>
@@ -484,7 +511,7 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
         <div class="piles-row">
           <div class="pile deck">
             <div class="pile-label">Main Deck</div>
-            <div class="pile-stack" id="mainDeckPile" onclick="drawCard()" title="Click to draw a card. Right-click to shuffle."></div>
+            <div class="pile-stack" id="mainDeckPile" onclick="onDeckPileClick(event)" title="Click to draw, hold 1s to search, right-click to shuffle."></div>
             <div class="pile-hint">Click: draw. Right-click: shuffle.</div>
           </div>
           <div class="pile veil" id="veilDropzone">
@@ -510,6 +537,17 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
   <div class="spread-shell" onclick="event.stopPropagation()">
     <div class="spread-title" id="pileSpreadTitle">Pile</div>
     <div class="spread-row" id="pileSpreadRow"></div>
+  </div>
+</div>
+
+<div class="overlay" id="deckSearchOverlay" onclick="closeDeckSearch()">
+  <div class="deck-search-shell" onclick="event.stopPropagation()">
+    <div class="deck-search-head">
+      <div class="deck-search-title" id="deckSearchTitle">Main Deck Search</div>
+      <button class="btn btn-outline" onclick="closeDeckSearch()">Close</button>
+    </div>
+    <input class="deck-search-input" id="deckSearchInput" type="text" placeholder="Search cards in Main Deck..." oninput="renderDeckSearchList()">
+    <div class="deck-search-grid" id="deckSearchGrid"></div>
   </div>
 </div>
 
@@ -641,6 +679,8 @@ let popoutWin = null;
 let spreadContext = null;
 const holdTimers = {};
 const holdPreviewSuppressUntil = {};
+let deckHoldTimer = null;
+let suppressDeckClickUntil = 0;
 
 
 /* ============================================================================
@@ -964,6 +1004,7 @@ function makeCardInstance(dbCard){
     species: dbCard.species,
     class: dbCard.class,
     attack: dbCard.attack,
+    baseLife: dbCard.life,
     maxLife: dbCard.life,
     life: dbCard.life,     // current life — ticks down via the life tracker
     mach: dbCard.mach,
@@ -1101,11 +1142,15 @@ function onFieldSlotDrop(e, slotKey){
   }
 
   if(slotKey === 'hero' && card.card_type === 'Hero' && existing && existing.card_type === 'Hero' && Number(card.mach) > Number(existing.mach)){
+    const priorRemainingLife = Number(existing.life) || 0;
+    const incomingBaseLife = Number(card.baseLife) || Number(card.maxLife) || Number(card.life) || 0;
+    const upgradedLife = incomingBaseLife + priorRemainingLife;
     moveCardToVeilWithItems(existing);
-    card.life = (Number(card.life) || 0) + (Number(existing.life) || 0);
+    card.maxLife = upgradedLife;
+    card.life = upgradedLife;
     battle.field.hero = card;
     playActionShowcase(card, SFX_LEVEL_UP, 'level-up');
-    document.getElementById('battleStatus').textContent = 'Hero upgrade! "' + card.name + '" inherited +' + (Number(existing.life) || 0) + ' LFE.';
+    document.getElementById('battleStatus').textContent = 'Hero upgrade! "' + card.name + '" inherited +' + priorRemainingLife + ' LFE.';
   } else if(existing && existing.instanceId !== card.instanceId && card.card_type === 'Item'){
     existing.items.push(card);
     playActionShowcase(card, SFX_ITEM, 'item');
@@ -1113,6 +1158,11 @@ function onFieldSlotDrop(e, slotKey){
   } else {
     if(existing && existing.instanceId !== card.instanceId){
       moveCardToVeilWithItems(existing);
+    }
+    if(slotKey === 'hero' && card.card_type === 'Hero'){
+      const resetLife = Number(card.baseLife) || Number(card.maxLife) || Number(card.life) || 0;
+      card.maxLife = resetLife;
+      card.life = resetLife;
     }
     battle.field[slotKey] = card;
     if(card.card_type === 'Item'){
@@ -1204,6 +1254,85 @@ function openPileSpread(cards, title){
 function closePileSpread(){
   spreadContext = null;
   document.getElementById('pileSpreadOverlay').classList.remove('open');
+}
+
+function openDeckSearch(){
+  document.getElementById('deckSearchTitle').textContent = 'Main Deck Search (' + battle.mainDeck.length + ' cards)';
+  const input = document.getElementById('deckSearchInput');
+  input.value = '';
+  document.getElementById('deckSearchOverlay').classList.add('open');
+  renderDeckSearchList();
+  setTimeout(() => input.focus(), 0);
+}
+
+function closeDeckSearch(){
+  document.getElementById('deckSearchOverlay').classList.remove('open');
+}
+
+function renderDeckSearchList(){
+  const grid = document.getElementById('deckSearchGrid');
+  const term = document.getElementById('deckSearchInput').value.trim().toLowerCase();
+  const cards = [...battle.mainDeck].reverse().filter(card => card.name.toLowerCase().includes(term));
+
+  if(cards.length === 0){
+    grid.innerHTML = '<div class="empty-hint" style="width:100%;">No cards match your search.</div>';
+    return;
+  }
+
+  grid.innerHTML = cards.map((card, idx) => `
+    <div class="deck-search-card" title="${idx === 0 ? 'Top of deck' : ''}">
+      <div class="deck-search-thumb" style="border-color:${accentColorFor(card)}" onclick="openCardById('${card.instanceId}')">
+        <img src="${card.image_path}" alt="${card.name}" onerror="this.style.opacity=0.15;">
+      </div>
+      <div class="deck-search-name">${card.name}</div>
+      <div class="deck-search-actions">
+        <button onclick="deckSearchMove(event, '${card.instanceId.replace(/'/g, "\\'")}', 'hand')">Hand</button>
+        <button onclick="deckSearchMove(event, '${card.instanceId.replace(/'/g, "\\'")}', 'top')">Top</button>
+      </div>
+    </div>`).join('');
+}
+
+function deckSearchMove(e, instanceId, target){
+  e.stopPropagation();
+  const idx = battle.mainDeck.findIndex(c => c.instanceId === instanceId);
+  if(idx === -1) return;
+  const card = battle.mainDeck.splice(idx, 1)[0];
+
+  if(target === 'hand'){
+    battle.hand.push(card);
+    document.getElementById('battleStatus').textContent = 'Moved "' + card.name + '" from Main Deck to hand.';
+  }else{
+    battle.mainDeck.push(card);
+    document.getElementById('battleStatus').textContent = 'Moved "' + card.name + '" to top of Main Deck.';
+  }
+
+  document.getElementById('deckSearchTitle').textContent = 'Main Deck Search (' + battle.mainDeck.length + ' cards)';
+  renderDeckSearchList();
+  renderBattle();
+  syncPopout();
+}
+
+function beginDeckHoldSearch(e){
+  if(e.button !== 0) return;
+  clearDeckHoldSearch();
+  deckHoldTimer = setTimeout(() => {
+    suppressDeckClickUntil = Date.now() + 600;
+    openDeckSearch();
+  }, 1000);
+}
+
+function clearDeckHoldSearch(){
+  if(!deckHoldTimer) return;
+  clearTimeout(deckHoldTimer);
+  deckHoldTimer = null;
+}
+
+function onDeckPileClick(e){
+  if(Date.now() < suppressDeckClickUntil){
+    e.preventDefault();
+    return;
+  }
+  drawCard();
 }
 
 function spreadMoveCard(e, instanceId, target){
@@ -1327,6 +1456,16 @@ function adjustLife(slotKey, delta){
   syncPopout();
 }
 
+function setLife(slotKey, nextValue){
+  const card = battle.field[slotKey];
+  if(!card) return;
+  const parsed = Number(nextValue);
+  if(!Number.isFinite(parsed)) return;
+  card.life = Math.max(0, Math.floor(parsed));
+  renderBattle();
+  syncPopout();
+}
+
 
 /* ============================================================================
    8. BATTLE SCREEN RENDERING
@@ -1344,9 +1483,10 @@ function fieldCardHTML(card, slotKey){
   const hasAttack = typeof card.attack === 'number';
   const lifeTracker = hasLife ? `
       <div class="life-tracker">
-        <button class="life-minus" onclick="event.stopPropagation(); adjustLife('${slotKey}', -1)">−</button>
-        <span class="life-val">${card.life}</span>
-        <button class="life-plus" onclick="event.stopPropagation(); adjustLife('${slotKey}', 1)">+</button>
+        <input class="life-input" type="number" min="0" value="${card.life}"
+               onclick="event.stopPropagation()"
+               onmousedown="event.stopPropagation()"
+               oninput="setLife('${slotKey}', this.value)">
       </div>` : '';
   const attackBadge = hasAttack ? `<div class="attack-badge">ATK ${card.attack}</div>` : '';
   const itemsBadge = card.items.length
@@ -1443,10 +1583,14 @@ function wireStaticDropzones(){
   veilZone.addEventListener('drop', onVeilDrop);
 
   const deckPile = document.getElementById('mainDeckPile');
+  deckPile.addEventListener('mousedown', beginDeckHoldSearch);
+  deckPile.addEventListener('mouseup', clearDeckHoldSearch);
+  deckPile.addEventListener('mouseleave', clearDeckHoldSearch);
   deckPile.addEventListener('dragover', e => { e.preventDefault(); deckPile.classList.add('drag-over'); });
   deckPile.addEventListener('dragleave', () => deckPile.classList.remove('drag-over'));
-  deckPile.addEventListener('drop', onDeckDrop);
+  deckPile.addEventListener('drop', e => { clearDeckHoldSearch(); onDeckDrop(e); });
   deckPile.addEventListener('contextmenu', e => {
+    clearDeckHoldSearch();
     e.preventDefault();
     shuffleDeck();
   });
@@ -1459,6 +1603,7 @@ function wireStaticDropzones(){
     if(e.key !== 'Escape') return;
     closeCardPreview();
     closePileSpread();
+    closeDeckSearch();
   });
 }
 
@@ -1478,10 +1623,10 @@ const POPOUT_DOCUMENT_HTML = `<!DOCTYPE html>
 <title>Battle Stream</title>
 <style>
   :root{
-    --bg-900:#0e0e12; --bg-800:#15151b; --bg-700:#1c1c24; --line:#33333f;
-    --gold:#d4af5a; --gold-dim:#8a713a; --parchment:#ece7db;
-    --blue-deck:#4d8fd6; --blue-deck-dim:#274a6e;
-    --purple-veil:#9b6bd6; --purple-veil-dim:#4a2f6e;
+    --bg-900:#0a0e27; --bg-800:#0d1117; --bg-700:#1a1a3f; --line:#3a86ff;
+    --gold:#9d4edd; --gold-dim:#7b68ee; --parchment:#e0e0e0;
+    --blue-deck:#4d8fd6; --blue-deck-dim:#1d4ed8;
+    --purple-veil:#9b6bd6; --purple-veil-dim:#7c3aed;
     --danger:#d16a5f; --good:#6fbf8b;
     --aff-fire:#e2572b; --aff-water:#3aa6d9; --aff-earth:#7a9a4a;
     --aff-air:#8fd0c9; --aff-aether:#e8c766; --aff-void:#8a5cd6;
