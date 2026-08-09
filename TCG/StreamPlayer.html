@@ -238,13 +238,15 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
 }
 
 .battle-main-grid{
-  display:grid; grid-template-columns:minmax(620px, 1fr) 320px; gap:18px; align-items:start;
+  display:grid; grid-template-columns:1fr; gap:0; align-items:start;
 }
 
-.battle-side{display:flex; flex-direction:column; gap:14px;}
+.battle-bottom-row{
+  display:grid; grid-template-columns:minmax(580px,1fr) 320px; gap:18px; align-items:start;
+}
 
 @media (max-width:1180px){
-  .battle-main-grid{grid-template-columns:1fr;}
+  .battle-bottom-row{grid-template-columns:1fr;}
 }
 
 .battlefield-grid{
@@ -273,22 +275,26 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
 .field-card{
   width:100%; height:100%; border-radius:8px; overflow:hidden; position:relative;
   cursor:grab; box-shadow:0 4px 14px rgba(0,0,0,0.55);
+  transform-origin:center center;
 }
 .field-card img{width:100%; height:100%; object-fit:cover; display:block; background:var(--bg-700);}
+.field-card.rotated{transform:rotate(-90deg);}
+.field-card.slam-play{animation:slamIn .28s ease-out;}
+.field-card.item-play{animation:itemLand .4s ease-out, itemFadeStack .45s ease-in .4s;}
 
-/* Life tracker overlay (top-right) */
+/* Life tracker overlay (bottom-right) */
 .life-tracker{
-  position:absolute; top:4px; right:4px; display:flex; align-items:center; gap:4px;
-  background:rgba(10,10,10,0.75); border-radius:999px; padding:2px 4px; z-index:3;
+  position:absolute; right:5px; bottom:6px; display:flex; align-items:center; gap:3px;
+  background:rgba(10,10,10,0.75); border-radius:8px; padding:2px 4px; z-index:3;
 }
 .life-tracker button{width:18px; height:18px; border-radius:50%; border:none; font-size:0.75rem; font-weight:700; cursor:pointer; line-height:1;}
 .life-tracker .life-minus{background:var(--danger); color:#2a0a06;}
 .life-tracker .life-plus{background:var(--good); color:#052b14;}
 .life-tracker .life-val{color:#fff; font-size:0.68rem; font-weight:700; min-width:26px; text-align:center;}
 
-/* Static attack readout (top-left) */
+/* Static attack readout (above LFE) */
 .attack-badge{
-  position:absolute; top:4px; left:4px; background:rgba(10,10,10,0.75); color:var(--gold);
+  position:absolute; right:8px; bottom:30px; background:rgba(10,10,10,0.75); color:var(--gold);
   font-size:0.65rem; font-weight:700; padding:2px 7px; border-radius:999px; z-index:3;
 }
 
@@ -302,7 +308,7 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
 
 .slot-empty-icon{color:var(--line); font-size:1.6rem;}
 
-.piles-row{display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+.piles-row{display:flex; gap:14px; justify-content:flex-end; flex-wrap:wrap;}
 .pile{display:flex; flex-direction:column; align-items:center; gap:8px;}
 .pile-label{font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;}
 .pile.deck .pile-label{color:var(--blue-deck);}
@@ -313,6 +319,7 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
   display:flex; align-items:center; justify-content:center; position:relative;
   cursor:pointer; box-shadow:var(--shadow); user-select:none;
 }
+.pile-stack.drag-over{box-shadow:0 0 0 2px var(--gold), var(--shadow);}
 .pile.deck .pile-stack{
   background:repeating-linear-gradient(135deg, var(--blue-deck-dim), var(--blue-deck-dim) 10px, #1c3a55 10px, #1c3a55 20px);
   border:2px solid var(--blue-deck); font-weight:700; color:#fff; font-size:1.5rem;
@@ -323,14 +330,14 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
 .pile-count{position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,0.7); color:#fff; font-size:0.72rem; font-weight:700; padding:2px 7px; border-radius:999px;}
 .pile-hint{font-size:0.68rem; color:var(--ink-dim); max-width:150px; text-align:center;}
 
-.hand-tray{border:1px solid var(--line); border-radius:12px; background:rgba(0,0,0,0.2); padding:12px;}
+.hand-tray{padding:2px 0 0;}
 .hand-tray-header{display:flex; align-items:center; justify-content:space-between; margin:0 0 8px;}
 .hand-tray-header h3{margin:0; font-size:0.9rem; color:var(--parchment);}
 .hand-strip{
-  display:flex; gap:8px; overflow-x:auto; padding:8px; min-height:calc(var(--card-h) + 16px);
-  border:2px dashed var(--line); border-radius:var(--radius); background:rgba(0,0,0,0.18);
+  display:flex; gap:8px; flex-wrap:wrap; overflow:visible; padding:0; min-height:calc(var(--card-h) + 6px);
+  border:none; border-radius:0; background:transparent;
 }
-.hand-strip.drag-over{border-color:var(--gold);}
+.hand-strip.drag-over{outline:2px dashed var(--gold); outline-offset:3px; border-radius:8px;}
 .hand-empty{margin:auto; color:var(--ink-dim); font-size:0.85rem;}
 
 .hand-card{width:var(--card-w); height:var(--card-h); flex-shrink:0;}
@@ -361,6 +368,39 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
   box-shadow:0 4px 12px rgba(0,0,0,0.45);
 }
 .spread-card img{width:100%; height:100%; object-fit:cover; display:block;}
+
+.spread-actions{display:flex; gap:6px; margin-top:6px;}
+.spread-actions button{
+  border:1px solid var(--line); background:var(--bg-900); color:var(--ink-dim);
+  border-radius:5px; padding:2px 7px; font-size:0.65rem; cursor:pointer;
+}
+.spread-actions button:hover{border-color:var(--gold-dim); color:var(--parchment);}
+
+.skill-cast-overlay{
+  position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:34;
+  background:rgba(3,3,6,0.45); pointer-events:none;
+}
+.skill-cast-overlay.open{display:flex;}
+.skill-card{
+  width:196px; height:276px; border-radius:12px; overflow:hidden; position:relative;
+  transform-style:preserve-3d; animation:skillFlip .9s ease-out forwards;
+  box-shadow:0 12px 40px rgba(0,0,0,0.65);
+}
+.skill-card img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; backface-visibility:hidden;}
+.skill-card .front{transform:rotateY(180deg);}
+
+@keyframes slamIn{
+  0%{transform:translateY(-18px) scale(0.93);} 70%{transform:translateY(4px) scale(1.02);} 100%{transform:translateY(0) scale(1);}
+}
+@keyframes itemLand{
+  0%{transform:translateY(-12px) scale(0.96);} 100%{transform:translateY(0) scale(1);}
+}
+@keyframes itemFadeStack{
+  0%{filter:brightness(1);} 100%{filter:brightness(0.85);}
+}
+@keyframes skillFlip{
+  0%{transform:rotateY(0deg) scale(0.92);} 35%{transform:rotateY(0deg) scale(1);} 100%{transform:rotateY(180deg) scale(1);}
+}
 
 .status-line{max-width:1400px; margin:14px auto 0; font-size:0.78rem; color:var(--ink-dim); text-align:center;}
 </style>
@@ -437,7 +477,14 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
     <div class="battle-main-grid">
       <div class="battlefield-grid" id="battlefieldGrid"></div>
 
-      <div class="battle-side">
+      <div class="battle-bottom-row">
+        <div class="hand-tray">
+          <div class="hand-tray-header">
+            <h3>Your Hand (Private)</h3>
+          </div>
+          <div class="hand-strip" id="handStrip"></div>
+        </div>
+
         <div class="piles-row">
           <div class="pile deck">
             <div class="pile-label">Main Deck</div>
@@ -449,13 +496,6 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
             <div class="pile-stack" id="veilPile"></div>
             <div class="pile-hint">Discard pile — drag cards here</div>
           </div>
-        </div>
-
-        <div class="hand-tray">
-          <div class="hand-tray-header">
-            <h3>Your Hand (Private)</h3>
-          </div>
-          <div class="hand-strip" id="handStrip"></div>
         </div>
       </div>
     </div>
@@ -474,6 +514,13 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
   <div class="spread-shell" onclick="event.stopPropagation()">
     <div class="spread-title" id="pileSpreadTitle">Pile</div>
     <div class="spread-row" id="pileSpreadRow"></div>
+  </div>
+</div>
+
+<div class="skill-cast-overlay" id="skillCastOverlay">
+  <div class="skill-card" id="skillCastCard">
+    <img id="skillCastBack" src="" alt="Skill card back">
+    <img id="skillCastFront" class="front" src="" alt="Skill card front">
   </div>
 </div>
 
@@ -507,6 +554,7 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
      2. Or open index.html in Firefox, which allows local fetch() by default.
    ============================================================================ */
 const CARDS_JSON_PATH = 'cards/cards.json';
+const CARD_BACK_IMAGE = 'https://raw.githubusercontent.com/ScareTheVoices/D20/main/TCG/cards/D20TCGCardBack.png';
 
 const CARD_TYPES = ['Hero', 'Support', 'Skill', 'Item'];
 const AFFINITY_KEYS = ['FIRE', 'WATER', 'EARTH', 'AIR', 'AETHER', 'VOID'];
@@ -591,6 +639,9 @@ let instanceCounter = 0;
 function newInstanceId(){ instanceCounter += 1; return 'inst-' + instanceCounter + '-' + Date.now(); }
 
 let popoutWin = null;
+let spreadContext = null;
+const holdTimers = {};
+const holdPreviewSuppressUntil = {};
 
 
 /* ============================================================================
@@ -918,7 +969,9 @@ function makeCardInstance(dbCard){
     life: dbCard.life,     // current life — ticks down via the life tracker
     mach: dbCard.mach,
     image_path: dbCard.image_path,
-    items: []
+    items: [],
+    rotated: false,
+    animTag: ''
   };
 }
 
@@ -955,15 +1008,60 @@ function drawCard(){
    ============================================================================ */
 function onCardDragStart(e, source, slotKey){
   const payload = { source, slotKey: slotKey || null };
+  if(source === 'field' && slotKey && battle.field[slotKey]) payload.instanceId = battle.field[slotKey].instanceId;
   e.dataTransfer.setData('text/plain', JSON.stringify(payload));
   e.dataTransfer.effectAllowed = 'move';
+  if(payload.instanceId) cancelHoldRotate(payload.instanceId);
 }
 function readDragPayload(e){
   try{ return JSON.parse(e.dataTransfer.getData('text/plain')); }
   catch(err){ return null; }
 }
+
+function clearAnimTagLater(card){
+  if(!card) return;
+  setTimeout(() => {
+    card.animTag = '';
+    renderBattle();
+    syncPopout();
+  }, 720);
+}
+
+function popTopCardForDeck(card){
+  if(!card) return;
+  battle.mainDeck.push(card);
+}
+
+function moveCardToVeilWithItems(card){
+  if(!card) return;
+  const attached = Array.isArray(card.items) ? card.items.splice(0) : [];
+  battle.veil.push(card);
+  attached.forEach(item => battle.veil.push(item));
+}
+
+function removeCardByInstanceId(instanceId){
+  let idx = battle.hand.findIndex(c => c.instanceId === instanceId);
+  if(idx !== -1) return battle.hand.splice(idx, 1)[0];
+
+  idx = battle.veil.findIndex(c => c.instanceId === instanceId);
+  if(idx !== -1) return battle.veil.splice(idx, 1)[0];
+
+  for(const slotKey of Object.keys(battle.field)){
+    const base = battle.field[slotKey];
+    if(!base) continue;
+    if(base.instanceId === instanceId){
+      battle.field[slotKey] = null;
+      return base;
+    }
+    const itemIdx = base.items.findIndex(i => i.instanceId === instanceId);
+    if(itemIdx !== -1) return base.items.splice(itemIdx, 1)[0];
+  }
+  return null;
+}
+
 function pluckCardFromSource(payload){
   if(!payload) return null;
+  if(payload.instanceId) return removeCardByInstanceId(payload.instanceId);
   if(payload.source === 'hand'){
     const idx = battle.hand.findIndex(c => c.instanceId === payload.instanceId);
     if(idx === -1) return null;
@@ -994,11 +1092,34 @@ function onFieldSlotDrop(e, slotKey){
   if(!card) { renderBattle(); return; }
 
   const existing = battle.field[slotKey];
-  if(existing && existing.instanceId !== card.instanceId){
+  if(card.card_type === 'Skill'){
+    playSkillCast(card);
+    moveCardToVeilWithItems(card);
+    document.getElementById('battleStatus').textContent = '"' + card.name + '" was activated and sent to The Veil.';
+    renderBattle();
+    syncPopout();
+    return;
+  }
+
+  if(slotKey === 'hero' && card.card_type === 'Hero' && existing && existing.card_type === 'Hero' && Number(card.mach) > Number(existing.mach)){
+    moveCardToVeilWithItems(existing);
+    card.life = (Number(card.life) || 0) + (Number(existing.life) || 0);
+    battle.field.hero = card;
+    card.animTag = 'slam-play';
+    clearAnimTagLater(card);
+    document.getElementById('battleStatus').textContent = 'Hero upgrade! "' + card.name + '" inherited +' + (Number(existing.life) || 0) + ' LFE.';
+  } else if(existing && existing.instanceId !== card.instanceId && card.card_type === 'Item'){
+    card.animTag = 'item-play';
     existing.items.push(card);
+    clearAnimTagLater(card);
     document.getElementById('battleStatus').textContent = '"' + card.name + '" attached to "' + existing.name + '" as an item.';
   } else {
+    if(existing && existing.instanceId !== card.instanceId){
+      moveCardToVeilWithItems(existing);
+    }
     battle.field[slotKey] = card;
+    card.animTag = 'slam-play';
+    clearAnimTagLater(card);
     document.getElementById('battleStatus').textContent = '"' + card.name + '" moved to the field.';
   }
   renderBattle();
@@ -1022,8 +1143,20 @@ function onVeilDrop(e){
   const payload = readDragPayload(e);
   const card = pluckCardFromSource(payload);
   if(!card) { renderBattle(); return; }
-  battle.veil.push(card);
+  moveCardToVeilWithItems(card);
   document.getElementById('battleStatus').textContent = '"' + card.name + '" sent to The Veil.';
+  renderBattle();
+  syncPopout();
+}
+
+function onDeckDrop(e){
+  e.preventDefault();
+  document.getElementById('mainDeckPile').classList.remove('drag-over');
+  const payload = readDragPayload(e);
+  const card = pluckCardFromSource(payload);
+  if(!card) { renderBattle(); return; }
+  popTopCardForDeck(card);
+  document.getElementById('battleStatus').textContent = '"' + card.name + '" placed on top of the Main Deck.';
   renderBattle();
   syncPopout();
 }
@@ -1049,18 +1182,41 @@ function closeCardPreview(){
 
 function openPileSpread(cards, title){
   if(!cards || cards.length <= 1) return;
+  spreadContext = { title, ids: cards.map(c => c.instanceId) };
   document.getElementById('pileSpreadTitle').textContent = title + ' (' + cards.length + ')';
   const row = document.getElementById('pileSpreadRow');
   row.innerHTML = cards.map(card =>
-    `<div class="spread-card" onclick="openCardById('${card.instanceId.replace(/'/g, "\\'")}')" title="${card.name}">` +
-    `<img src="${card.image_path}" alt="${card.name}" onerror="this.style.opacity=0.15;">` +
-    '</div>'
+    `<div>` +
+      `<div class="spread-card" onclick="openCardById('${card.instanceId.replace(/'/g, "\\'")}')" title="${card.name}">` +
+      `<img src="${card.image_path}" alt="${card.name}" onerror="this.style.opacity=0.15;">` +
+      `</div>` +
+      `<div class="spread-actions">` +
+        `<button onclick="spreadMoveCard(event, '${card.instanceId.replace(/'/g, "\\'")}', 'veil')">Veil</button>` +
+        `<button onclick="spreadMoveCard(event, '${card.instanceId.replace(/'/g, "\\'")}', 'hand')">Hand</button>` +
+        `<button onclick="spreadMoveCard(event, '${card.instanceId.replace(/'/g, "\\'")}', 'deck')">Deck</button>` +
+      `</div>` +
+    `</div>`
   ).join('');
   document.getElementById('pileSpreadOverlay').classList.add('open');
 }
 
 function closePileSpread(){
+  spreadContext = null;
   document.getElementById('pileSpreadOverlay').classList.remove('open');
+}
+
+function spreadMoveCard(e, instanceId, target){
+  e.stopPropagation();
+  const card = removeCardByInstanceId(instanceId);
+  if(!card) return;
+
+  if(target === 'veil') moveCardToVeilWithItems(card);
+  if(target === 'hand') battle.hand.push(card);
+  if(target === 'deck') popTopCardForDeck(card);
+
+  closePileSpread();
+  renderBattle();
+  syncPopout();
 }
 
 function findCardByInstanceId(instanceId){
@@ -1076,8 +1232,54 @@ function findCardByInstanceId(instanceId){
 }
 
 function openCardById(instanceId){
+  if(holdPreviewSuppressUntil[instanceId] && Date.now() < holdPreviewSuppressUntil[instanceId]) return;
   const card = findCardByInstanceId(instanceId);
   if(card) openCardPreview(card);
+}
+
+function beginHoldRotate(instanceId){
+  cancelHoldRotate(instanceId);
+  holdTimers[instanceId] = setTimeout(() => {
+    const card = findCardByInstanceId(instanceId);
+    if(!card) return;
+    card.rotated = !card.rotated;
+    holdPreviewSuppressUntil[instanceId] = Date.now() + 700;
+    renderBattle();
+    syncPopout();
+  }, 2000);
+}
+
+function cancelHoldRotate(instanceId){
+  if(!holdTimers[instanceId]) return;
+  clearTimeout(holdTimers[instanceId]);
+  delete holdTimers[instanceId];
+}
+
+function playSkillCast(card){
+  const overlay = document.getElementById('skillCastOverlay');
+  const castCard = document.getElementById('skillCastCard');
+  const back = document.getElementById('skillCastBack');
+  const front = document.getElementById('skillCastFront');
+
+  back.src = CARD_BACK_IMAGE;
+  front.src = card.image_path;
+  castCard.style.animation = 'none';
+  void castCard.offsetWidth;
+  castCard.style.animation = '';
+  overlay.classList.add('open');
+
+  setTimeout(() => overlay.classList.remove('open'), 980);
+  syncPopoutAnimation('skill-cast', card);
+}
+
+function syncPopoutAnimation(kind, card){
+  if(!popoutWin || popoutWin.closed) return;
+  popoutWin.postMessage({
+    type: 'tcg-anim',
+    kind,
+    back: CARD_BACK_IMAGE,
+    front: card ? card.image_path : ''
+  }, '*');
 }
 
 function onFieldSlotContextMenu(e, slotKey){
@@ -1126,7 +1328,7 @@ function fieldCardHTML(card, slotKey){
   const lifeTracker = hasLife ? `
       <div class="life-tracker">
         <button class="life-minus" onclick="event.stopPropagation(); adjustLife('${slotKey}', -1)">−</button>
-        <span class="life-val">${card.life}${typeof card.maxLife === 'number' ? '/' + card.maxLife : ''}</span>
+        <span class="life-val">${card.life}</span>
         <button class="life-plus" onclick="event.stopPropagation(); adjustLife('${slotKey}', 1)">+</button>
       </div>` : '';
   const attackBadge = hasAttack ? `<div class="attack-badge">ATK ${card.attack}</div>` : '';
@@ -1134,8 +1336,11 @@ function fieldCardHTML(card, slotKey){
     ? `<div class="item-badge" title="${card.items.map(i=>i.name).join(', ')}">+${card.items.length} item${card.items.length>1?'s':''}</div>`
     : '';
   return `
-    <div class="field-card accent" style="--accent-color:${accentColorFor(card)}"
+      <div class="field-card accent ${card.rotated ? 'rotated' : ''} ${card.animTag || ''}" style="--accent-color:${accentColorFor(card)}"
          draggable="true"
+        onmousedown="beginHoldRotate('${card.instanceId}')"
+        onmouseup="cancelHoldRotate('${card.instanceId}')"
+        onmouseleave="cancelHoldRotate('${card.instanceId}')"
          ondragstart="onCardDragStart(event,'field','${slotKey}')"
          onclick="openCardById('${card.instanceId}')">
       <img src="${card.image_path}" alt="${card.name}" onerror="this.style.opacity=0.15;">
@@ -1167,9 +1372,9 @@ function renderBattlefieldGrid(){
 
 function renderPiles(){
   const deckPile = document.getElementById('mainDeckPile');
-  deckPile.innerHTML = battle.mainDeck.length
-    ? `<span style="color:var(--blue-deck); font-weight:700;">${battle.mainDeck.length}</span><span class="pile-count">MAIN</span>`
-    : `<span class="slot-empty-icon">Ø</span>`;
+  deckPile.innerHTML = `
+    <img src="${CARD_BACK_IMAGE}" alt="Deck back" style="width:100%; height:100%; object-fit:cover; border-radius:7px; opacity:${battle.mainDeck.length ? '1' : '0.4'};">
+    <span class="pile-count">${battle.mainDeck.length}</span>`;
 
   const veilPile = document.getElementById('veilPile');
   if(battle.veil.length === 0){
@@ -1195,7 +1400,7 @@ function renderHand(){
     return;
   }
   strip.innerHTML = battle.hand.map(card => `
-    <div class="field-card hand-card accent" style="--accent-color:${accentColorFor(card)}"
+    <div class="field-card hand-card accent ${card.rotated ? 'rotated' : ''} ${card.animTag || ''}" style="--accent-color:${accentColorFor(card)}"
          draggable="true"
          onclick="openCardById('${card.instanceId}')"
          ondragstart="event.dataTransfer.setData('text/plain', JSON.stringify({source:'hand', instanceId:'${card.instanceId}'})); event.dataTransfer.effectAllowed='move';">
@@ -1221,6 +1426,9 @@ function wireStaticDropzones(){
   veilZone.addEventListener('drop', onVeilDrop);
 
   const deckPile = document.getElementById('mainDeckPile');
+  deckPile.addEventListener('dragover', e => { e.preventDefault(); deckPile.classList.add('drag-over'); });
+  deckPile.addEventListener('dragleave', () => deckPile.classList.remove('drag-over'));
+  deckPile.addEventListener('drop', onDeckDrop);
   deckPile.addEventListener('contextmenu', e => {
     e.preventDefault();
     shuffleDeck();
@@ -1279,9 +1487,13 @@ const POPOUT_DOCUMENT_HTML = `<!DOCTYPE html>
     background:rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;
   }
   .slot.hero .box{ width:calc(var(--card-w) * 1.18); height:calc(var(--card-h) * 1.18); border-color:var(--gold-dim); }
-  .box img{width:100%; height:100%; object-fit:cover;}
-  .life{position:absolute; top:4px; right:4px; background:rgba(10,10,10,0.75); border-radius:999px; padding:2px 8px; font-size:0.68rem; font-weight:700; color:#fff;}
-  .atk{position:absolute; top:4px; left:4px; background:rgba(10,10,10,0.75); color:var(--gold); font-size:0.65rem; font-weight:700; padding:2px 7px; border-radius:999px;}
+  .card{position:relative; width:100%; height:100%; transform-origin:center center;}
+  .card img{width:100%; height:100%; object-fit:cover; display:block;}
+  .card.rotated{transform:rotate(-90deg);}
+  .card.slam-play{animation:slamIn .28s ease-out;}
+  .card.item-play{animation:itemLand .4s ease-out, itemFadeStack .45s ease-in .4s;}
+  .life{position:absolute; right:6px; bottom:6px; background:rgba(10,10,10,0.75); border-radius:8px; padding:2px 8px; font-size:0.68rem; font-weight:700; color:#fff;}
+  .atk{position:absolute; right:6px; bottom:30px; background:rgba(10,10,10,0.75); color:var(--gold); font-size:0.65rem; font-weight:700; padding:2px 7px; border-radius:999px;}
   .item-badge{position:absolute; left:4px; bottom:4px; background:rgba(212,175,90,0.92); color:#241b06; font-size:0.65rem; font-weight:700; padding:2px 6px; border-radius:6px;}
   .empty{color:var(--line); font-size:1.6rem;}
   .piles{display:flex; gap:28px; justify-content:center;}
@@ -1291,20 +1503,33 @@ const POPOUT_DOCUMENT_HTML = `<!DOCTYPE html>
   .pile.veil .pile-label{color:var(--purple-veil);}
   .stack{width:var(--card-w); height:var(--card-h); border-radius:10px; display:flex; align-items:center; justify-content:center; position:relative;}
   .pile.deck .stack{background:repeating-linear-gradient(135deg, var(--blue-deck-dim), var(--blue-deck-dim) 10px, #1c3a55 10px, #1c3a55 20px); border:2px solid var(--blue-deck); font-weight:700; color:#fff; font-size:1.4rem;}
+  .pile.deck .stack img{width:100%; height:100%; object-fit:cover; border-radius:8px;}
   .pile.veil .stack{background:var(--bg-900); border:2px dashed var(--purple-veil-dim);}
   .pile.veil .stack.has img{width:100%; height:100%; object-fit:cover; border-radius:8px;}
   .count{position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,0.7); color:#fff; font-size:0.72rem; font-weight:700; padding:2px 7px; border-radius:999px;}
-  .status{text-align:center; color:#9797a6; font-size:0.75rem; margin-top:20px;}
+  .skill-cast-overlay{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(3,3,6,0.45);}
+  .skill-cast-overlay.open{display:flex;}
+  .skill-card{width:196px; height:276px; border-radius:12px; overflow:hidden; transform-style:preserve-3d; animation:skillFlip .9s ease-out forwards; box-shadow:0 12px 40px rgba(0,0,0,0.65); position:relative;}
+  .skill-card img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; backface-visibility:hidden;}
+  .skill-card .front{transform:rotateY(180deg);}
+  @keyframes slamIn{0%{transform:translateY(-18px) scale(0.93);} 70%{transform:translateY(4px) scale(1.02);} 100%{transform:translateY(0) scale(1);}}
+  @keyframes itemLand{0%{transform:translateY(-12px) scale(0.96);} 100%{transform:translateY(0) scale(1);}}
+  @keyframes itemFadeStack{0%{filter:brightness(1);} 100%{filter:brightness(0.85);}}
+  @keyframes skillFlip{0%{transform:rotateY(0deg) scale(0.92);} 35%{transform:rotateY(0deg) scale(1);} 100%{transform:rotateY(180deg) scale(1);}}
 </style>
 </head>
 <body>
-  <h2>🎥 Live Battle Stream</h2>
   <div class="grid" id="grid"></div>
   <div class="piles">
     <div class="pile deck"><div class="pile-label">Main Deck</div><div class="stack" id="deckStack"></div></div>
     <div class="pile veil"><div class="pile-label">The Veil</div><div class="stack" id="veilStack"></div></div>
   </div>
-  <div class="status">Mirroring the host window's board in real time. The host's private hand is intentionally never transmitted here.</div>
+  <div class="skill-cast-overlay" id="skillOverlay">
+    <div class="skill-card" id="skillCard">
+      <img id="skillBack" src="" alt="Back">
+      <img id="skillFront" class="front" src="" alt="Front">
+    </div>
+  </div>
 <script>
   // NOTE: there is deliberately no hand-related markup or state anywhere in
   // this document — the "sync" payload never contains it, by design.
@@ -1332,13 +1557,16 @@ const POPOUT_DOCUMENT_HTML = `<!DOCTYPE html>
           ? '<div class="item-badge">+' + card.items.length + ' item' + (card.items.length>1?'s':'') + '</div>'
           : '';
         var lifeTag = (typeof card.life === 'number')
-          ? '<div class="life">' + card.life + (typeof card.maxLife === 'number' ? '/' + card.maxLife : '') + '</div>'
+          ? '<div class="life">' + card.life + '</div>'
           : '';
         var atkTag = (typeof card.attack === 'number')
           ? '<div class="atk">ATK ' + card.attack + '</div>'
           : '';
-        inner = '<img src="' + card.image_path + '" alt="' + card.name + '" style="box-shadow:inset 0 0 0 2px ' + accentColorFor(card) + '">' +
-                lifeTag + atkTag + itemsBadge;
+        var cardClass = 'card ' + (card.rotated ? 'rotated ' : '') + (card.animTag || '');
+        inner = '<div class="' + cardClass.trim() + '">' +
+                  '<img src="' + card.image_path + '" alt="' + card.name + '" style="box-shadow:inset 0 0 0 2px ' + accentColorFor(card) + '">' +
+                  lifeTag + atkTag + itemsBadge +
+                '</div>';
       }
       return '<div class="slot ' + (slot.hero ? 'hero' : '') + '">' +
              '<div class="label">' + slot.label + '</div>' +
@@ -1346,7 +1574,8 @@ const POPOUT_DOCUMENT_HTML = `<!DOCTYPE html>
     }).join('');
 
     var deckStack = document.getElementById('deckStack');
-    deckStack.textContent = data.mainDeckCount != null ? data.mainDeckCount : '0';
+    deckStack.innerHTML = '<img src="' + data.cardBack + '" alt="Deck back">' +
+                          '<div class="count">' + (data.mainDeckCount != null ? data.mainDeckCount : 0) + '</div>';
 
     var veilStack = document.getElementById('veilStack');
     if(data.veilTop){
@@ -1361,6 +1590,17 @@ const POPOUT_DOCUMENT_HTML = `<!DOCTYPE html>
 
   window.addEventListener('message', function(e){
     if(e.data && e.data.type === 'tcg-sync'){ render(e.data); }
+    if(e.data && e.data.type === 'tcg-anim' && e.data.kind === 'skill-cast'){
+      var overlay = document.getElementById('skillOverlay');
+      var skillCard = document.getElementById('skillCard');
+      document.getElementById('skillBack').src = e.data.back;
+      document.getElementById('skillFront').src = e.data.front;
+      skillCard.style.animation = 'none';
+      void skillCard.offsetWidth;
+      skillCard.style.animation = '';
+      overlay.classList.add('open');
+      setTimeout(function(){ overlay.classList.remove('open'); }, 980);
+    }
   });
 
   if(window.opener){ window.opener.postMessage({ type: 'tcg-popout-ready' }, '*'); }
@@ -1385,6 +1625,7 @@ function syncPopout(){
   const payload = {
     type: 'tcg-sync',
     field: battle.field,
+    cardBack: CARD_BACK_IMAGE,
     mainDeckCount: battle.mainDeck.length,
     veilTop: battle.veil.length ? battle.veil[battle.veil.length - 1] : null,
     veilCount: battle.veil.length
