@@ -319,7 +319,7 @@ Items: ["leviathan-mask.png"],
             skills: [
                 {
                     name: "Sand Manipulation",
-                    icon: "sand-wave.png",
+                    icon: "sandstorm.png",
                     type: "race-skill",
                     description: "Control sand to blind an enemy or create a barrier, gaining +1 Agility towards dodge during combat of your subsequent turn. Affinity must be Earth for this skill."
                 }
