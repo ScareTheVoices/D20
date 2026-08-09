@@ -18,23 +18,23 @@
    the file. See end of chat for what I need from you.
    ========================================================================== */
 :root{
-  --bg-900:#0a0e27;
-  --bg-800:#0d1117;
-  --bg-700:#1a1a3f;
-  --panel:#0d1117;
-  --panel-raised:#111827;
-  --line:#3a86ff;
-  --gold:#9d4edd;
-  --gold-dim:#7b68ee;
-  --parchment:#e0e0e0;
-  --ink:#e0e0e0;
-  --ink-dim:#9ca3af;
-  --blue-deck:#4d8fd6;
-  --blue-deck-dim:#1d4ed8;
-  --purple-veil:#9b6bd6;
-  --purple-veil-dim:#7c3aed;
-  --danger:#d16a5f;
-  --good:#6fbf8b;
+  --bg-900:#0b1020;
+  --bg-800:#111827;
+  --bg-700:#1b263b;
+  --panel:#101725;
+  --panel-raised:#172033;
+  --line:#566072;
+  --gold:#c9a227;
+  --gold-dim:#8f6f1e;
+  --parchment:#ede6d3;
+  --ink:#e5e7eb;
+  --ink-dim:#a9b1c3;
+  --blue-deck:#4a78c2;
+  --blue-deck-dim:#2b4d88;
+  --purple-veil:#7d5aa6;
+  --purple-veil-dim:#553978;
+  --danger:#b85757;
+  --good:#5f9f78;
 
   /* Affinity accent colors — used on card borders, dots, and badges */
   --aff-fire:#e2572b;
@@ -45,10 +45,10 @@
   --aff-void:#8a5cd6;
 
   /* Card-type accent colors — used when a card has no affinity (Skill/Item) */
-  --type-hero:#9d4edd;
-  --type-support:#3a86ff;
-  --type-skill:#14b8a6;
-  --type-item:#c98a4a;
+  --type-hero:#c9a227;
+  --type-support:#4a78c2;
+  --type-skill:#2f8f83;
+  --type-item:#b57b3e;
 
   --card-w:135px;
   --card-h:190px;      /* 135 x 190 == 1 : 1.4074, matches 960x1350 art */
@@ -88,6 +88,7 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
   filter:drop-shadow(0 0 6px rgba(58,134,255,0.3));
 }
 #topbar h1{margin:0; font-size:1.25rem; color:var(--parchment);}
+.topbar-tools{display:flex; align-items:center; gap:10px;}
 .nav-tabs{display:flex; gap:8px;}
 .nav-tabs button{
   background:var(--panel); color:var(--ink-dim); border:1px solid var(--line);
@@ -402,6 +403,25 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
 }
 .deck-search-actions button:hover{border-color:var(--gold-dim); color:var(--parchment);}
 
+.theme-shell{
+  width:min(1120px, 96vw); max-height:88vh; overflow:auto;
+  border:1px solid var(--line); border-radius:12px; padding:16px;
+  background:linear-gradient(180deg, var(--panel-raised), var(--panel)); box-shadow:var(--shadow);
+}
+.theme-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;}
+.theme-title{font-size:1rem; color:var(--parchment); font-weight:700;}
+.theme-presets{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+.theme-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px;}
+.theme-swatch{
+  border:1px solid var(--line); border-radius:10px; padding:10px; background:rgba(255,255,255,0.03);
+  display:flex; flex-direction:column; gap:6px;
+}
+.theme-swatch label{font-size:0.68rem; color:var(--ink-dim);}
+.theme-swatch input[type="color"]{
+  width:100%; height:40px; padding:4px; border-radius:8px; border:1px solid var(--line); background:var(--bg-900);
+}
+.theme-footer{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;}
+
 .skill-cast-overlay{
   position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:34;
   background:rgba(3,3,6,0.45); pointer-events:none;
@@ -438,9 +458,12 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
     <img class="crest" src="https://raw.githubusercontent.com/ScareTheVoices/D20/cff6235515082b1fcaf68dab934b85a4fd8d9bfc/pics/d20.png" alt="D20 logo">
     <h1>D20 - Trading Card Game.</h1>
   </div>
-  <div class="nav-tabs">
-    <button id="tabEditor" class="active" onclick="showScreen('editor')">Deck Editor</button>
-    <button id="tabBattle" onclick="showScreen('battle')">Battle Screen</button>
+  <div class="topbar-tools">
+    <button class="btn btn-outline" onclick="openThemeEditor()">Theme</button>
+    <div class="nav-tabs">
+      <button id="tabEditor" class="active" onclick="showScreen('editor')">Deck Editor</button>
+      <button id="tabBattle" onclick="showScreen('battle')">Battle Screen</button>
+    </div>
   </div>
 </div>
 
@@ -551,6 +574,25 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
   </div>
 </div>
 
+<div class="overlay" id="themeOverlay" onclick="closeThemeEditor()">
+  <div class="theme-shell" onclick="event.stopPropagation()">
+    <div class="theme-head">
+      <div class="theme-title">Theme Studio</div>
+      <button class="btn btn-outline" onclick="closeThemeEditor()">Close</button>
+    </div>
+    <div class="theme-presets">
+      <button class="btn btn-outline" onclick="applyThemePreset('ttrpg')">D20 TTRPG</button>
+      <button class="btn btn-outline" onclick="applyThemePreset('creator')">Card Creator</button>
+      <button class="btn btn-outline" onclick="applyThemePreset('midnight')">Midnight</button>
+    </div>
+    <div class="theme-grid" id="themeGrid"></div>
+    <div class="theme-footer">
+      <button class="btn btn-gold" onclick="saveThemeToStorage()">Save Theme</button>
+      <button class="btn btn-outline" onclick="resetThemeToDefault()">Reset Default</button>
+    </div>
+  </div>
+</div>
+
 <div class="skill-cast-overlay" id="skillCastOverlay">
   <div class="skill-card" id="skillCastCard">
     <img id="skillCastBack" class="back" src="" alt="Skill card back">
@@ -595,6 +637,36 @@ const SFX_LEVEL_UP = 'https://raw.githubusercontent.com/ScareTheVoices/D20/main/
 
 const CARD_TYPES = ['Hero', 'Support', 'Skill', 'Item'];
 const AFFINITY_KEYS = ['FIRE', 'WATER', 'EARTH', 'AIR', 'AETHER', 'VOID'];
+const THEME_STORAGE_KEY = 'd20tcg-theme';
+const THEME_VARS = [
+  'bg-900','bg-800','bg-700','panel','panel-raised','line','gold','gold-dim','parchment','ink','ink-dim',
+  'blue-deck','blue-deck-dim','purple-veil','purple-veil-dim','danger','good',
+  'aff-fire','aff-water','aff-earth','aff-air','aff-aether','aff-void',
+  'type-hero','type-support','type-skill','type-item'
+];
+const THEME_PRESETS = {
+  ttrpg: {
+    'bg-900':'#0b1020','bg-800':'#111827','bg-700':'#1b263b','panel':'#101725','panel-raised':'#172033','line':'#566072',
+    'gold':'#c9a227','gold-dim':'#8f6f1e','parchment':'#ede6d3','ink':'#e5e7eb','ink-dim':'#a9b1c3',
+    'blue-deck':'#4a78c2','blue-deck-dim':'#2b4d88','purple-veil':'#7d5aa6','purple-veil-dim':'#553978','danger':'#b85757','good':'#5f9f78',
+    'aff-fire':'#c65a3a','aff-water':'#4f89cc','aff-earth':'#6f8b4d','aff-air':'#b8c4d3','aff-aether':'#d6bf6a','aff-void':'#6f5b8c',
+    'type-hero':'#c9a227','type-support':'#4a78c2','type-skill':'#2f8f83','type-item':'#b57b3e'
+  },
+  creator: {
+    'bg-900':'#0a0e27','bg-800':'#0d1117','bg-700':'#1a1a3f','panel':'#0d1117','panel-raised':'#111827','line':'#3a86ff',
+    'gold':'#9d4edd','gold-dim':'#7b68ee','parchment':'#e0e0e0','ink':'#e0e0e0','ink-dim':'#9ca3af',
+    'blue-deck':'#4d8fd6','blue-deck-dim':'#1d4ed8','purple-veil':'#9b6bd6','purple-veil-dim':'#7c3aed','danger':'#d16a5f','good':'#6fbf8b',
+    'aff-fire':'#e2572b','aff-water':'#3aa6d9','aff-earth':'#7a9a4a','aff-air':'#8fd0c9','aff-aether':'#e8c766','aff-void':'#8a5cd6',
+    'type-hero':'#9d4edd','type-support':'#3a86ff','type-skill':'#14b8a6','type-item':'#c98a4a'
+  },
+  midnight: {
+    'bg-900':'#081018','bg-800':'#0d1622','bg-700':'#142235','panel':'#0f1826','panel-raised':'#182338','line':'#2e648d',
+    'gold':'#d4af5a','gold-dim':'#8a713a','parchment':'#e6eaef','ink':'#d8e1ea','ink-dim':'#8ea0b4',
+    'blue-deck':'#3b82f6','blue-deck-dim':'#1e3a8a','purple-veil':'#7c3aed','purple-veil-dim':'#4c1d95','danger':'#dc6b5f','good':'#5dbb88',
+    'aff-fire':'#db5b32','aff-water':'#379fd8','aff-earth':'#7c9850','aff-air':'#9ecad1','aff-aether':'#d8bf6a','aff-void':'#7c61c9',
+    'type-hero':'#d4af5a','type-support':'#5a9bd4','type-skill':'#33b0a6','type-item':'#c98a4a'
+  }
+};
 
 let CARD_DATABASE = [];       // populated by loadCardDatabase()
 let activeTypeFilter = 'All'; // deck-editor left panel filter
@@ -607,6 +679,81 @@ function accentColorFor(card){
   if(card.affinity) return 'var(--aff-' + affinityClass(card.affinity) + ')';
   const t = (card.card_type || '').toLowerCase();
   return 'var(--type-' + t + ')';
+}
+
+function captureThemeValues(){
+  const style = getComputedStyle(document.documentElement);
+  const theme = {};
+  THEME_VARS.forEach(name => { theme[name] = style.getPropertyValue('--' + name).trim(); });
+  return theme;
+}
+
+function applyTheme(theme){
+  if(!theme) return;
+  Object.entries(theme).forEach(([name, value]) => {
+    document.documentElement.style.setProperty('--' + name, value);
+  });
+  syncThemeInputs();
+  syncPopout();
+}
+
+function renderThemeEditor(){
+  const grid = document.getElementById('themeGrid');
+  if(!grid) return;
+  const current = captureThemeValues();
+  grid.innerHTML = THEME_VARS.map(name => `
+    <div class="theme-swatch">
+      <label for="theme-${name}">--${name}</label>
+      <input id="theme-${name}" type="color" value="${current[name] || '#000000'}" oninput="updateThemeVar('${name}', this.value)">
+    </div>`).join('');
+}
+
+function syncThemeInputs(){
+  const current = captureThemeValues();
+  THEME_VARS.forEach(name => {
+    const input = document.getElementById('theme-' + name);
+    if(input) input.value = current[name] || '#000000';
+  });
+}
+
+function updateThemeVar(name, value){
+  document.documentElement.style.setProperty('--' + name, value);
+  syncPopout();
+}
+
+function applyThemePreset(presetName){
+  const preset = THEME_PRESETS[presetName];
+  if(!preset) return;
+  applyTheme(preset);
+}
+
+function saveThemeToStorage(){
+  localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(captureThemeValues()));
+}
+
+function resetThemeToDefault(){
+  localStorage.removeItem(THEME_STORAGE_KEY);
+  applyTheme(THEME_PRESETS.ttrpg);
+}
+
+function openThemeEditor(){
+  document.getElementById('themeOverlay').classList.add('open');
+  renderThemeEditor();
+}
+
+function closeThemeEditor(){
+  document.getElementById('themeOverlay').classList.remove('open');
+}
+
+function loadSavedTheme(){
+  const saved = localStorage.getItem(THEME_STORAGE_KEY);
+  if(saved){
+    try{
+      applyTheme(JSON.parse(saved));
+      return;
+    }catch(err){}
+  }
+  applyTheme(THEME_PRESETS.ttrpg);
 }
 
 function showLoadBanner(kind, html){
@@ -1604,6 +1751,7 @@ function wireStaticDropzones(){
     closeCardPreview();
     closePileSpread();
     closeDeckSearch();
+    closeThemeEditor();
   });
 }
 
@@ -1623,14 +1771,14 @@ const POPOUT_DOCUMENT_HTML = `<!DOCTYPE html>
 <title>Battle Stream</title>
 <style>
   :root{
-    --bg-900:#0a0e27; --bg-800:#0d1117; --bg-700:#1a1a3f; --line:#3a86ff;
-    --gold:#9d4edd; --gold-dim:#7b68ee; --parchment:#e0e0e0;
-    --blue-deck:#4d8fd6; --blue-deck-dim:#1d4ed8;
-    --purple-veil:#9b6bd6; --purple-veil-dim:#7c3aed;
-    --danger:#d16a5f; --good:#6fbf8b;
+    --bg-900:#0b1020; --bg-800:#111827; --bg-700:#1b263b; --line:#566072;
+    --gold:#c9a227; --gold-dim:#8f6f1e; --parchment:#ede6d3;
+    --blue-deck:#4a78c2; --blue-deck-dim:#2b4d88;
+    --purple-veil:#7d5aa6; --purple-veil-dim:#553978;
+    --danger:#b85757; --good:#5f9f78;
     --aff-fire:#e2572b; --aff-water:#3aa6d9; --aff-earth:#7a9a4a;
     --aff-air:#8fd0c9; --aff-aether:#e8c766; --aff-void:#8a5cd6;
-    --type-hero:#d4af5a; --type-support:#5a9bd4; --type-skill:#9b6bd6; --type-item:#c98a4a;
+    --type-hero:#c9a227; --type-support:#4a78c2; --type-skill:#2f8f83; --type-item:#b57b3e;
     --card-w:150px; --card-h:211px;
   }
   *{box-sizing:border-box;}
@@ -1717,7 +1865,15 @@ const POPOUT_DOCUMENT_HTML = `<!DOCTYPE html>
     }catch(err){}
   }
 
+  function applyTheme(theme){
+    if(!theme) return;
+    Object.keys(theme).forEach(function(name){
+      document.documentElement.style.setProperty('--' + name, theme[name]);
+    });
+  }
+
   function render(data){
+    applyTheme(data.theme);
     var grid = document.getElementById('grid');
     grid.innerHTML = SLOTS.map(function(slot){
       var card = data.field ? data.field[slot.key] : null;
@@ -1796,6 +1952,7 @@ function syncPopout(){
   const payload = {
     type: 'tcg-sync',
     field: battle.field,
+    theme: captureThemeValues(),
     cardBack: CARD_BACK_IMAGE,
     mainDeckCount: battle.mainDeck.length,
     veilTop: battle.veil.length ? battle.veil[battle.veil.length - 1] : null,
@@ -1814,6 +1971,7 @@ window.addEventListener('message', e => {
    10. INITIALIZATION
    ============================================================================ */
 async function init(){
+  loadSavedTheme();
   renderBattle();
   wireStaticDropzones();
   await loadCardDatabase(); // async: renders the deck editor once cards.json resolves
