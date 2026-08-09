@@ -185,7 +185,7 @@ Items: ["leviathan-mask.png"],
                     name: "Radiant Burst",
                     icon: "light-explosion.png",
                     type: "race-skill",
-                    description: "Release a burst of holy light, dealing 1d20 damage to undead within a small radius."
+                    description: "Release a burst of holy light, dealing 1d20 damage to entities with Golden Fever or undead within a small radius."
                 }
             ]
         },
@@ -263,14 +263,14 @@ Items: ["leviathan-mask.png"],
                 name: "Vampiric Resilience",
                 icon: "vampire-bite.png",
                 type: "race-passive",
-                description: "Gain +2 to saving throws against necrotic damage and blood-based effects."
+                description: "After you successfully use 'Blood Drain', the sudden surge of vitality heightens your reflexes. You gain +2 Agility during your subsequent turn."
             },
             skills: [
                 {
                     name: "Blood Drain",
                     icon: "blood-drop.png",
                     type: "race-skill",
-                    description: "Target an enemy and drain 1d20 health, healing yourself for the same amount."
+                    description: "Once per scene (or once per combat turn per target), you can attempt to siphon life from a living target. Roll 1d20 + Might against the target’s 1d20 + Vigor. On a success, you drain the target's health and heal yourself for the same amount. This skill has no effect on Undead."
                 }
             ]
         },
@@ -278,14 +278,14 @@ Items: ["leviathan-mask.png"],
             name: "Bugbear",
             passive: {
                 name: "Savage Instinct",
-                icon: "bear-trap.png",
+                icon: "grease-trap.png",
                 type: "race-passive",
-                description: "Gain +2 to intimidation checks and +1 to damage when making surprise attacks."
+                description: "Gain +2 to Mind towards intimidation checks and +1 Might when making surprise attacks."
             },
             skills: [
                 {
                     name: "Ambush Strike",
-                    icon: "sneak-attack.png",
+                    icon: "hidden.png",
                     type: "race-skill",
                     description: "Strike from hiding, dealing 2d20 damage on a successful stealth check."
                 }
@@ -295,16 +295,16 @@ Items: ["leviathan-mask.png"],
             name: "Ashborn",
             passive: {
                 name: "Ember Heart",
-                icon: "coal.png",
+                icon: "hidden.png",
                 type: "race-passive",
                 description: "Gain +2 to fire-based damage and +1 resistance to all fire effects."
             },
             skills: [
                 {
                     name: "Ember Flare",
-                    icon: "flame-burst.png",
+                    icon: "fire-dash.png",
                     type: "race-skill",
-                    description: "Burst into flames, dealing 1d20 damage to nearby enemies and igniting them."
+                    description: "Once per battle, Burst into flames, dealing 1d20 + Might damage to 1 Target and Inflicting 'Burn' to them."
                 }
             ]
         },
@@ -312,16 +312,16 @@ Items: ["leviathan-mask.png"],
             name: "Jerbeen",
             passive: {
                 name: "Desert Runner",
-                icon: "sprint.png",
+                icon: "run.png",
                 type: "race-passive",
-                description: "Gain +2 to agility and navigation checks in arid environments."
+                description: "Gain +2 to Agility and Instict in arid environments."
             },
             skills: [
                 {
                     name: "Sand Manipulation",
                     icon: "sand-wave.png",
                     type: "race-skill",
-                    description: "Control sand to blind an enemy or create a barrier, gaining +1 to dodge for 1 turn."
+                    description: "Control sand to blind an enemy or create a barrier, gaining +1 Agility towards dodge during combat of your subsequent turn. Affinity must be Earth for this skill."
                 }
             ]
         }
@@ -359,7 +359,7 @@ Items: ["leviathan-mask.png"],
                             name: "Holy Smite",
                             icon: "zeus-sword.png",
                             type: "class-sub-skill",
-                            description: "Deal extra damage to undead or demonic creatures."
+                            description: "Deal extra damage to entities with Golden Fever, undead or demonic creatures."
                         }
                     ]
                 },
@@ -1610,7 +1610,12 @@ Items: ["leviathan-mask.png"],
             icon: "twirly-flower.png",
             type: "status-effect",
             description: "At the start of each turn, roll 1d20, (the DC is set by the initial application of the effect from the source of the Curiosity Effect) if result is less the DC;  .",
-            hide: true
+        },
+        {
+                name: "Golden Fever",
+                icon: "GF.png",
+                type: "status-effect",
+                description: "You have fallen victim to the Golden Fever. All rolls and checks take a -2 penalty. Each time you perform an action, roll 1d20 — on a 10 or lower, the penalty doubles."
         }
     ],
     
