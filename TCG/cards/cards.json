@@ -33,6 +33,7 @@
     {
         "name": "Baron Of Flame",
         "card_type": "Hero",
+        "mach": 2,
         "affinity": "FIRE",
         "species": "Human",
         "class": "Knight",
