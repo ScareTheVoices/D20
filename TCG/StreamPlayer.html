@@ -1609,6 +1609,14 @@ function setLife(slotKey, nextValue){
   const parsed = Number(nextValue);
   if(!Number.isFinite(parsed)) return;
   card.life = Math.max(0, Math.floor(parsed));
+  syncPopout();
+}
+
+function commitLife(slotKey, inputEl){
+  const card = battle.field[slotKey];
+  if(!card) return;
+  const parsed = Number(inputEl.value);
+  card.life = Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : Math.max(0, Math.floor(Number(card.life) || 0));
   renderBattle();
   syncPopout();
 }
@@ -1633,7 +1641,9 @@ function fieldCardHTML(card, slotKey){
         <input class="life-input" type="number" min="0" value="${card.life}"
                onclick="event.stopPropagation()"
                onmousedown="event.stopPropagation()"
-               oninput="setLife('${slotKey}', this.value)">
+               oninput="setLife('${slotKey}', this.value)"
+               onchange="commitLife('${slotKey}', this)"
+               onblur="commitLife('${slotKey}', this)">
       </div>` : '';
   const attackBadge = hasAttack ? `<div class="attack-badge">ATK ${card.attack}</div>` : '';
   const itemsBadge = card.items.length
