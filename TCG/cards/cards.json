@@ -38,7 +38,7 @@
         "species": "Human",
         "class": "Knight",
         "attack": 900,
-        "life": 1900,
+        "life": 1700,
         "image_path": "cards/Baron_Of_Flame_frame.png"
     }
 ]
