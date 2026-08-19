@@ -770,8 +770,7 @@ window.D20_CAMPAIGN_DATA = {
             name: "Identity Crisis",
             icon: "identity-crisis.png",
             type: "status-effect",
-            description: "The Fourth Bridge Of Chaos has rewritten your identity and you are unable to recognize your past or who you are. Character believes they are a different person and will act according to that belief. This status effect can only be removed by the Fourth Bridge Of Chaos or by a powerful magic user. To remove this status effect, DC is 15 or higher.",
-            hide: true        
+            description: "The Fourth Bridge Of Chaos has rewritten your identity and you are unable to recognize your past or who you are. Character believes they are a different person and will act according to that belief. This status effect can only be removed by the Fourth Bridge Of Chaos or by a powerful magic user. To remove this status effect, DC is 15 or higher."
         },
         {
             name: "Neverland",
@@ -784,8 +783,7 @@ window.D20_CAMPAIGN_DATA = {
             name: "Influenced",
             icon: "influenced.png",
             type: "status-effect",
-            description: "The First Bridge of Chaos, Harlequin, has seized your emotions and forced your mood against your will. While Influenced, your reactions are unstable and can be redirected by intense emotion, making calm judgment difficult. This status effect can only be removed by Harlequin, a powerful magic user, DC 15 or higher.",
-            hide: true
+            description: "The First Bridge of Chaos, Harlequin, has seized your emotions and forced your mood against your will. While Influenced, your reactions are unstable and can be redirected by intense emotion, making calm judgment difficult. This status effect can only be removed by Harlequin, a powerful magic user, DC 15 or higher."
 
         },
         {
