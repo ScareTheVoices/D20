@@ -40,5 +40,47 @@
         "attack": 900,
         "life": 1700,
         "image_path": "cards/Baron_Of_Flame_frame.png"
+    },
+    {
+      "name": "Countess Of Cinders",
+      "card-type": "Hero",
+      "mach": 1,
+      "affinity": "FIRE",
+      "species": "Human",
+      "class": "Magician",
+      "attack": 110,
+      "life": 1100,
+      "image_path": "cards/Countess_Of_Cinders.png"
+    },
+    {
+     "name": "Mother",
+      "card-type": "Support",
+      "affinity": "AETHER",
+      "species": "Voidborn",
+      "class": "Mystic",
+      "attack": 300,
+      "life": 700,
+      "image_path": "cards/Mother.png"
+    },
+    {
+      "name": "Kappa",
+      "card-type": "Support",
+      "affinity": "AETHER",
+      "species": "Warforged",
+      "class": "Cleric",
+      "attack": 300,
+      "life": 700,
+      "image_path": "cards/Kappa.png"
+    },
+    {
+      "name": "Lucian Kaine",
+      "card-type": "Hero",
+      "mach": 1,
+      "affinity": "WATER",
+      "species": "Human",
+      "class": "Knight",
+      "attack": 200,
+      "life" : 659,
+      "image_path": "cards/Lucian_Kaine.png"
     }
 ]
