@@ -80,7 +80,7 @@
       "species": "Human",
       "class": "Knight",
       "attack": 200,
-      "life" : 650,
+      "life" : 1100,
       "image_path": "cards/Lucian_Kaine.png"
     }
 ]
