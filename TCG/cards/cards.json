@@ -43,7 +43,7 @@
     },
     {
       "name": "Countess Of Cinders",
-      "card-type": "Hero",
+      "card_type": "Hero",
       "mach": 1,
       "affinity": "FIRE",
       "species": "Human",
@@ -54,7 +54,7 @@
     },
     {
      "name": "Mother",
-      "card-type": "Support",
+      "card_type": "Support",
       "affinity": "AETHER",
       "species": "Voidborn",
       "class": "Mystic",
@@ -64,7 +64,7 @@
     },
     {
       "name": "Kappa",
-      "card-type": "Support",
+      "card_type": "Support",
       "affinity": "AETHER",
       "species": "Warforged",
       "class": "Cleric",
@@ -74,13 +74,13 @@
     },
     {
       "name": "Lucian Kaine",
-      "card-type": "Hero",
+      "card_type": "Hero",
       "mach": 1,
       "affinity": "WATER",
       "species": "Human",
       "class": "Knight",
       "attack": 200,
-      "life" : 659,
+      "life" : 650,
       "image_path": "cards/Lucian_Kaine.png"
     }
 ]
