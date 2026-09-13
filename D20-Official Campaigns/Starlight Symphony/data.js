@@ -6,21 +6,27 @@ window.D20_CAMPAIGN_DATA = {
 	
 	ItemsCreateSkills: [
         {
-            name: "Starlight Rider",
+            name: "Sol Driver",
             item: ["KarmaBelt.png"],
             icon: "KarmaBelt.png",
-            description: "Whilst you wear Starlight Rider Belt; Once per turn: You may equip one of your suits as an additional action."
+            description: "Whilst you wear Sol Driver Belt; Once per turn: You may equip one of your suits as an additional action."
         },
 		{
-            name: "Harp String",
+            name: "Harp String Of Might",
+            item: ["Might String.png"],
+            icon: "Might String.png",
+            description: "Whilst you have The Harp String Of Might; Thrice per battle: You may add +4 to your rolls related to Might."
+        },
+		{
+            name: "Harp String Of Mind",
             item: ["String.png"],
             icon: "String.png",
-            description: "Whilst you have a Harp String; Once per battle: You may add +2 to one of your modified rolls."
+            description: "Whilst you have The Harp String Of Mind; Thrice per battle: You may add +4 to your rolls related to Mind."
         }
     ],
 	
 	
-	Items: ["KarmaBelt.png", "String.png"],
+	Items: ["KarmaBelt.png", "Might String.png", "String.png"],
 	
 	
 	races: [
