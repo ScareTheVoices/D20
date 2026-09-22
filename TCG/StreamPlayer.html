@@ -180,6 +180,11 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
 .affinity-dot.air{background:var(--aff-air); color:var(--aff-air);}
 .affinity-dot.aether{background:var(--aff-aether); color:var(--aff-aether);}
 .affinity-dot.void{background:var(--aff-void); color:var(--aff-void);}
+.affinity-icon{
+  width:15px; height:15px; object-fit:contain; flex-shrink:0;
+  display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 3px rgba(0,0,0,0.35));
+}
+.name-row .affinity-icon{margin-right:4px;}
 
 .qty-badge{
   font-size:0.72rem; color:var(--gold); border:1px solid var(--gold-dim); border-radius:999px;
@@ -672,7 +677,26 @@ let CARD_DATABASE = [];       // populated by loadCardDatabase()
 let activeTypeFilter = 'All'; // deck-editor left panel filter
 
 function affinityClass(affinity){
-  return affinity ? affinity.toLowerCase() : '';
+  return affinity ? String(affinity).trim().toLowerCase() : '';
+}
+
+function affinityIconName(affinity){
+  const canonical = String(affinity || '').trim().toUpperCase();
+  const map = {
+    FIRE: 'fire',
+    WATER: 'water',
+    EARTH: 'earth',
+    AIR: 'air',
+    AETHER: 'aether',
+    VOID: 'void'
+  };
+  return map[canonical] || 'none';
+}
+
+function affinityIconHTML(affinity){
+  const iconKey = affinityIconName(affinity);
+  if(!iconKey || iconKey === 'none') return '';
+  return `<img class="affinity-icon" src="https://raw.githubusercontent.com/ScareTheVoices/D20/main/pics/charicons/elemticon/${iconKey}.png" alt="${String(affinity || '').trim()}" title="${String(affinity || '').trim()}">`;
 }
 
 function accentColorFor(card){
@@ -898,7 +922,7 @@ function renderDatabaseList(){
   list.innerHTML = filtered.map(card => {
     const qty = deckState[card.name] || 0;
     const maxed = qty >= 3;
-    const dot = card.affinity ? `<span class="affinity-dot ${affinityClass(card.affinity)}"></span>` : '';
+    const affinityIcon = affinityIconHTML(card.affinity);
     return `
       <div class="db-row">
         <img class="thumb-sm" src="${card.image_path}" alt="${card.name}"
@@ -906,7 +930,7 @@ function renderDatabaseList(){
         <div class="meta">
           <div class="name-row">
             <span class="type-badge ${card.card_type.toLowerCase()}">${card.card_type}</span>
-            ${dot}
+            ${affinityIcon}
             <span class="name">${card.name}</span>
           </div>
           ${cardMetaHTML(card)}
@@ -965,7 +989,7 @@ function renderDeckEditor(){
   }
 
   deckList.innerHTML = entries.map(({card, qty}) => {
-    const dot = card.affinity ? `<span class="affinity-dot ${affinityClass(card.affinity)}"></span>` : '';
+    const affinityIcon = affinityIconHTML(card.affinity);
     return `
     <div class="deck-row">
       <img class="thumb-sm" src="${card.image_path}" alt="${card.name}"
@@ -973,7 +997,7 @@ function renderDeckEditor(){
       <div class="meta" style="flex:1;">
         <div class="name-row">
           <span class="type-badge ${card.card_type.toLowerCase()}">${card.card_type}</span>
-          ${dot}
+          ${affinityIcon}
           <span class="name">${card.name}</span>
         </div>
         ${cardMetaHTML(card)}
@@ -1292,12 +1316,13 @@ function onFieldSlotDrop(e, slotKey){
     const priorRemainingLife = Number(existing.life) || 0;
     const incomingBaseLife = Number(card.baseLife) || Number(card.maxLife) || Number(card.life) || 0;
     const upgradedLife = incomingBaseLife + priorRemainingLife;
-    moveCardToVeilWithItems(existing);
+    const preservedItems = Array.isArray(existing.items) ? existing.items.slice() : [];
+    card.items = [...preservedItems, ...(Array.isArray(card.items) ? card.items : [])];
     card.maxLife = upgradedLife;
     card.life = upgradedLife;
     battle.field.hero = card;
     playActionShowcase(card, SFX_LEVEL_UP, 'level-up');
-    document.getElementById('battleStatus').textContent = 'Hero upgrade! "' + card.name + '" inherited +' + priorRemainingLife + ' LFE.';
+    document.getElementById('battleStatus').textContent = 'Hero upgrade! "' + card.name + '" inherited +' + priorRemainingLife + ' LFE and kept all attached items.';
   } else if(existing && existing.instanceId !== card.instanceId && card.card_type === 'Item'){
     existing.items.push(card);
     playActionShowcase(card, SFX_ITEM, 'item');
