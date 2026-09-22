@@ -3,20 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/ScareTheVoices/D20/main/pics/d20.png">
 <title>D20TCG — Deck Editor &amp; Battle Simulator</title>
 <style>
-/* ==========================================================================
-   DESIGN TOKENS
-   -----------------------------------------------------------------------
-   ⚠ PLACEHOLDER PALETTE. I could not scrape the live CSS off
-   scarethevoices.github.io/D20/D20TCCreator.html — my web-fetch tool only
-   pulls text content, not stylesheets, so these hex values are a
-   reasonable stand-in, not a match to your creator page.
-   Everything is centralized in this one :root block, so once you give me
-   (or paste in yourself) the real hex codes from D20TCCreator.html, it's a
-   ten-value swap and the whole app re-themes itself — no hunting through
-   the file. See end of chat for what I need from you.
-   ========================================================================== */
+
 :root{
   --bg-900:#0b1020;
   --bg-800:#111827;
@@ -586,9 +576,13 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
       <button class="btn btn-outline" onclick="closeThemeEditor()">Close</button>
     </div>
     <div class="theme-presets">
-      <button class="btn btn-outline" onclick="applyThemePreset('ttrpg')">D20 TTRPG</button>
-      <button class="btn btn-outline" onclick="applyThemePreset('creator')">Card Creator</button>
-      <button class="btn btn-outline" onclick="applyThemePreset('midnight')">Midnight</button>
+      <button class="btn btn-outline" onclick="applyThemePreset('midnight')">Default (Midnight)</button>
+      <button class="btn btn-outline" onclick="applyThemePreset('fire')">FIRE</button>
+      <button class="btn btn-outline" onclick="applyThemePreset('water')">WATER</button>
+      <button class="btn btn-outline" onclick="applyThemePreset('earth')">EARTH</button>
+      <button class="btn btn-outline" onclick="applyThemePreset('air')">AIR</button>
+      <button class="btn btn-outline" onclick="applyThemePreset('aether')">AETHER</button>
+      <button class="btn btn-outline" onclick="applyThemePreset('void')">VOID</button>
     </div>
     <div class="theme-grid" id="themeGrid"></div>
     <div class="theme-footer">
@@ -650,26 +644,54 @@ const THEME_VARS = [
   'type-hero','type-support','type-skill','type-item'
 ];
 const THEME_PRESETS = {
-  ttrpg: {
-    'bg-900':'#0b1020','bg-800':'#111827','bg-700':'#1b263b','panel':'#101725','panel-raised':'#172033','line':'#566072',
-    'gold':'#c9a227','gold-dim':'#8f6f1e','parchment':'#ede6d3','ink':'#e5e7eb','ink-dim':'#a9b1c3',
-    'blue-deck':'#4a78c2','blue-deck-dim':'#2b4d88','purple-veil':'#7d5aa6','purple-veil-dim':'#553978','danger':'#b85757','good':'#5f9f78',
-    'aff-fire':'#c65a3a','aff-water':'#4f89cc','aff-earth':'#6f8b4d','aff-air':'#b8c4d3','aff-aether':'#d6bf6a','aff-void':'#6f5b8c',
-    'type-hero':'#c9a227','type-support':'#4a78c2','type-skill':'#2f8f83','type-item':'#b57b3e'
-  },
-  creator: {
-    'bg-900':'#0a0e27','bg-800':'#0d1117','bg-700':'#1a1a3f','panel':'#0d1117','panel-raised':'#111827','line':'#3a86ff',
-    'gold':'#9d4edd','gold-dim':'#7b68ee','parchment':'#e0e0e0','ink':'#e0e0e0','ink-dim':'#9ca3af',
-    'blue-deck':'#4d8fd6','blue-deck-dim':'#1d4ed8','purple-veil':'#9b6bd6','purple-veil-dim':'#7c3aed','danger':'#d16a5f','good':'#6fbf8b',
-    'aff-fire':'#e2572b','aff-water':'#3aa6d9','aff-earth':'#7a9a4a','aff-air':'#8fd0c9','aff-aether':'#e8c766','aff-void':'#8a5cd6',
-    'type-hero':'#9d4edd','type-support':'#3a86ff','type-skill':'#14b8a6','type-item':'#c98a4a'
-  },
   midnight: {
     'bg-900':'#081018','bg-800':'#0d1622','bg-700':'#142235','panel':'#0f1826','panel-raised':'#182338','line':'#2e648d',
     'gold':'#d4af5a','gold-dim':'#8a713a','parchment':'#e6eaef','ink':'#d8e1ea','ink-dim':'#8ea0b4',
     'blue-deck':'#3b82f6','blue-deck-dim':'#1e3a8a','purple-veil':'#7c3aed','purple-veil-dim':'#4c1d95','danger':'#dc6b5f','good':'#5dbb88',
     'aff-fire':'#db5b32','aff-water':'#379fd8','aff-earth':'#7c9850','aff-air':'#9ecad1','aff-aether':'#d8bf6a','aff-void':'#7c61c9',
     'type-hero':'#d4af5a','type-support':'#5a9bd4','type-skill':'#33b0a6','type-item':'#c98a4a'
+  },
+  fire: {
+    'bg-900':'#120d0d','bg-800':'#1a1212','bg-700':'#2a1717','panel':'#1f1212','panel-raised':'#2d1818','line':'#b5482d',
+    'gold':'#e2572b','gold-dim':'#9d3920','parchment':'#f4e3d1','ink':'#f1e4d9','ink-dim':'#d1a28b',
+    'blue-deck':'#df6e3a','blue-deck-dim':'#b84a1f','purple-veil':'#c25644','purple-veil-dim':'#7d2f26','danger':'#d96a4c','good':'#d18d54',
+    'aff-fire':'#e2572b','aff-water':'#3aa6d9','aff-earth':'#7a9a4a','aff-air':'#8fd0c9','aff-aether':'#e8c766','aff-void':'#8a5cd6',
+    'type-hero':'#e2572b','type-support':'#cc5a2d','type-skill':'#ef8d4a','type-item':'#b85757'
+  },
+  water: {
+    'bg-900':'#0b1118','bg-800':'#111c28','bg-700':'#172b3a','panel':'#101d28','panel-raised':'#13263a','line':'#3aa6d9',
+    'gold':'#57b7df','gold-dim':'#2778a2','parchment':'#dfeef8','ink':'#edf8ff','ink-dim':'#9cc9e6',
+    'blue-deck':'#3aa6d9','blue-deck-dim':'#1b7bb4','purple-veil':'#4d7bd8','purple-veil-dim':'#2f519d','danger':'#76b7d9','good':'#7bc0b0',
+    'aff-fire':'#e2572b','aff-water':'#3aa6d9','aff-earth':'#7a9a4a','aff-air':'#8fd0c9','aff-aether':'#e8c766','aff-void':'#8a5cd6',
+    'type-hero':'#3aa6d9','type-support':'#5aa9d9','type-skill':'#63d2eb','type-item':'#5b8bc7'
+  },
+  earth: {
+    'bg-900':'#0d120f','bg-800':'#121b16','bg-700':'#1b2b1d','panel':'#142118','panel-raised':'#1d3124','line':'#7a9a4a',
+    'gold':'#a9bf60','gold-dim':'#6f8740','parchment':'#edf0df','ink':'#ebf3dd','ink-dim':'#b4c29a',
+    'blue-deck':'#839f5f','blue-deck-dim':'#5b7d41','purple-veil':'#7a9a4a','purple-veil-dim':'#4d6f35','danger':'#c59b59','good':'#7abf79',
+    'aff-fire':'#e2572b','aff-water':'#3aa6d9','aff-earth':'#7a9a4a','aff-air':'#8fd0c9','aff-aether':'#e8c766','aff-void':'#8a5cd6',
+    'type-hero':'#7a9a4a','type-support':'#8eaf5f','type-skill':'#a3c66d','type-item':'#b58a5b'
+  },
+  air: {
+    'bg-900':'#0d1215','bg-800':'#101b1f','bg-700':'#162c34','panel':'#132228','panel-raised':'#1a2f38','line':'#8fd0c9',
+    'gold':'#d2f0ee','gold-dim':'#76b7b0','parchment':'#edf9f8','ink':'#ebfdfc','ink-dim':'#bdd7d3',
+    'blue-deck':'#79c9d2','blue-deck-dim':'#4a9ca5','purple-veil':'#6db0c7','purple-veil-dim':'#3d7387','danger':'#d3a76d','good':'#8ec5a4',
+    'aff-fire':'#e2572b','aff-water':'#3aa6d9','aff-earth':'#7a9a4a','aff-air':'#8fd0c9','aff-aether':'#e8c766','aff-void':'#8a5cd6',
+    'type-hero':'#8fd0c9','type-support':'#7fc4d9','type-skill':'#a7e4df','type-item':'#74b8d1'
+  },
+  aether: {
+    'bg-900':'#14120d','bg-800':'#1a1710','bg-700':'#2a220f','panel':'#1b1a12','panel-raised':'#292515','line':'#e8c766',
+    'gold':'#e8c766','gold-dim':'#b89734','parchment':'#f5efdd','ink':'#f7f2df','ink-dim':'#d1c38d',
+    'blue-deck':'#d7b65e','blue-deck-dim':'#a9842a','purple-veil':'#d5a76c','purple-veil-dim':'#926433','danger':'#d97b61','good':'#adbf7d',
+    'aff-fire':'#e2572b','aff-water':'#3aa6d9','aff-earth':'#7a9a4a','aff-air':'#8fd0c9','aff-aether':'#e8c766','aff-void':'#8a5cd6',
+    'type-hero':'#e8c766','type-support':'#d7b65e','type-skill':'#f0d889','type-item':'#c9a227'
+  },
+  void: {
+    'bg-900':'#0f0d15','bg-800':'#171320','bg-700':'#1d162b','panel':'#171521','panel-raised':'#221a2f','line':'#8a5cd6',
+    'gold':'#b490eb','gold-dim':'#7859bb','parchment':'#f0eafc','ink':'#f3eefb','ink-dim':'#c6b4e6',
+    'blue-deck':'#8d67d8','blue-deck-dim':'#6041b0','purple-veil':'#8a5cd6','purple-veil-dim':'#553978','danger':'#c96997','good':'#7cb3a1',
+    'aff-fire':'#e2572b','aff-water':'#3aa6d9','aff-earth':'#7a9a4a','aff-air':'#8fd0c9','aff-aether':'#e8c766','aff-void':'#8a5cd6',
+    'type-hero':'#8a5cd6','type-support':'#9f79db','type-skill':'#b58fe4','type-item':'#805bc5'
   }
 };
 
@@ -757,7 +779,7 @@ function saveThemeToStorage(){
 
 function resetThemeToDefault(){
   localStorage.removeItem(THEME_STORAGE_KEY);
-  applyTheme(THEME_PRESETS.ttrpg);
+  applyTheme(THEME_PRESETS.midnight);
 }
 
 function openThemeEditor(){
@@ -777,7 +799,7 @@ function loadSavedTheme(){
       return;
     }catch(err){}
   }
-  applyTheme(THEME_PRESETS.ttrpg);
+  applyTheme(THEME_PRESETS.midnight);
 }
 
 function showLoadBanner(kind, html){
