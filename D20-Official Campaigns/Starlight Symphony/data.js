@@ -22,11 +22,17 @@ window.D20_CAMPAIGN_DATA = {
             item: ["String.png"],
             icon: "String.png",
             description: "Whilst you have The Harp String Of Mind; Thrice per battle: You may add +4 to your rolls related to Mind."
+        },
+		{
+            name: "Harp String Of Agility",
+            item: ["Agility String.png"],
+            icon: "Agility String.png",
+            description: "Whilst you have The Harp String Of Agility; Thrice per battle: You may add +4 to your rolls related to Agility."
         }
     ],
 	
 	
-	Items: ["KarmaBelt.png", "Might String.png", "String.png"],
+	Items: ["KarmaBelt.png", "Might String.png", "String.png", "Agility String.png"],
 	
 	
 	races: [
