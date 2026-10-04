@@ -4,6 +4,10 @@ PlayerSkillCreate: {
         sections: ["Fundamental", "Unfamiliar", "Aoa"]
     },
 
+SecondRace: {
+    enabled: true,
+    racelock: true
+},
     ItemsCreateSkills: [
         {
             name: "Scale Mask Of The Leviathan",
@@ -336,7 +340,7 @@ Items: ["leviathan-mask.png"],
             subrace: ["Human", "Elf", "Dwarf", "Halfling", "Orc", "Goblin", "Bugbear", "Tiefling", "Aasimar", "Genasi", "Dhampir", "Beastman", "Catfolk", "Kobold"],
             passive: {
                 name: "Ember Heart",
-                icon: "heartburn.png",
+                icon: "heartburn",
                 type: "race-passive",
                 SRT: true,
                 description: "Gain +2 to fire-based damage and +1 resistance to all fire effects."
