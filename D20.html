@@ -451,10 +451,16 @@
                 </div>
             </div>
             <br>
-            <!-- Dropdown for Race -->
-            <select id="race" onchange="updateRace()">
-                 <option value="">Select Race</option>
-                </select><br>
+            <div id="raceSelectionRow" style="display: contents;">
+                <select id="race" onchange="updateRace()">
+                    <option value="">Select Race</option>
+                </select>
+                <div id="secondRaceContainer" style="display: none;">
+                    <select id="secondRace" onchange="updateSecondRaceDisplay(); updateStats();" style="box-sizing: border-box; margin-top: 10px;">
+                        <option value="">Select Race</option>
+                    </select>
+                </div>
+            </div><br id="raceSelectionBreak">
             <!-- Dropdown for Class -->
             <select id="class" onchange="updateClass()">
                 <option value="">Select Class</option>
@@ -620,6 +626,10 @@
                 <label id="statusEffectOptionRow" style="display: flex; align-items: center; font-size: 18px; cursor: pointer;">
                     <input type="checkbox" id="statusEffectCheckbox" style="width: 18px; height: 18px; accent-color: #533663; margin: 0; flex-shrink: 0;" checked>
                     <span style="margin-left: 8px;">Status Effect</span>
+                </label>
+                <label id="secondRaceOptionRow" style="display: flex; align-items: center; font-size: 18px; cursor: pointer; margin-top: 4px;">
+                    <input type="checkbox" id="secondRaceCheckbox" style="width: 18px; height: 18px; accent-color: #533663; margin: 0; flex-shrink: 0;">
+                    <span style="margin-left: 8px;">Second Race</span>
                 </label>
             </div>
         </div>
@@ -1347,20 +1357,24 @@
         }
 
         function updateStats() {
-            const level = document.getElementById('level').value || 'Level';
-            const race = document.getElementById('race').value || 'Race';
-            const className = document.getElementById('class').value || 'Class';
-            const skill = document.getElementById('skill').value || 'Skill';
-            const passiveTrait = document.getElementById('passiveTrait').value || 'Passive Trait';
-            const classPassiveTrait = document.getElementById('classPassiveTrait').value || 'Class Passive Trait';
-            const atk = document.getElementById('atk').value || 'ATK';
-            const def = document.getElementById('def').value || 'DEF';
+            const level = document.getElementById('level')?.value || 'Level';
+            const race = document.getElementById('race')?.value || 'Race';
+            const secondRace = document.getElementById('secondRace')?.value || '';
+            const combinedRace = secondRace ? `${race} / ${secondRace}` : race;
+            const className = document.getElementById('class')?.value || 'Class';
+            const skill = document.getElementById('skill')?.value || 'Skill';
+            const passiveTrait = document.getElementById('passiveTrait')?.value || 'Passive Trait';
+            const classPassiveTrait = document.getElementById('classPassiveTrait')?.value || 'Class Passive Trait';
+            const atk = document.getElementById('atk')?.value || 'ATK';
+            const def = document.getElementById('def')?.value || 'DEF';
             const currency = document.getElementById('currency')?.value || '0';
 
             const stats = document.querySelector('.stats');
+            if (!stats) return;
+
             stats.innerHTML = `
                 <div class="stat">Lvl. ${level}</div>
-                <div class="stat">Race: ${race}</div>
+                <div class="stat">Race: ${combinedRace}</div>
                 <div class="stat">Class: ${className}</div>
                 <div class="stat">Skill: ${skill}</div>
                 <div class="stat">Passive: ${passiveTrait}</div>
@@ -1486,6 +1500,8 @@
             const characterName = document.getElementById('characterName').value || '';
             const level = document.getElementById('level').value || '';
             const race = document.getElementById('race').value || '';
+            const secondRaceEnabled = document.getElementById('secondRaceCheckbox')?.checked || false;
+            const secondRace = secondRaceEnabled ? (document.getElementById('secondRace')?.value || '') : '';
             const className = document.getElementById('class').value || '';
             const subclass = document.getElementById('subclass')?.value || '';
             const currency = document.getElementById('currency').value || '';
@@ -1538,6 +1554,8 @@ Character Name: ${characterName}
 Level: ${level}
 Health: ${currentHealth}
 Race: ${race}
+Second Race: ${secondRace}
+Second Race Enabled: ${secondRaceEnabled ? "Enabled" : "Disabled"}
 Class: ${className}
 Subclass: ${subclass}
 Currency: ${currency}
@@ -1630,6 +1648,21 @@ function pasteCode() {
             document.getElementById('race').value = data['Race'];
             updateRace();
         }
+        const importedSecondRace = data['Second Race'] || '';
+        const secondRaceCheckbox = document.getElementById('secondRaceCheckbox');
+        const secondRaceSelect = document.getElementById('secondRace');
+        if (secondRaceSelect) {
+            populateSecondRaceOptions();
+            const allowedValues = Array.from(secondRaceSelect.options).map(option => option.value);
+            secondRaceSelect.value = allowedValues.includes(importedSecondRace) ? importedSecondRace : '';
+        }
+        if (secondRaceCheckbox) {
+            const hasImportedSubrace = Boolean(importedSecondRace && secondRaceSelect && secondRaceSelect.value === importedSecondRace);
+            const explicitlyEnabled = data['Second Race Enabled'] === 'Enabled';
+            secondRaceCheckbox.checked = hasImportedSubrace || explicitlyEnabled;
+        }
+        updateSecondRaceToggleUI();
+        updateSecondRaceDisplay();
         if (typeof data['Class'] !== 'undefined') {
             document.getElementById('class').value = data['Class'];
             updateClass();
@@ -1800,6 +1833,8 @@ function updateRace() {
     const statsBox = document.querySelector('.stats-box');
     const race = window.D20_CAMPAIGN_DATA.races.find(r => r.name === raceName) || {};
 
+    populateSecondRaceOptions();
+
     // Remove any existing race trait display
     const existingTraits = statsBox.querySelectorAll('.race-passive-trait, .race-skill-button');
     existingTraits.forEach(trait => trait.remove());
@@ -1864,6 +1899,7 @@ function updateRace() {
         statsBox.insertBefore(skillButton, exportButtonRow);
     });
 
+    updateSecondRaceDisplay();
     updateActionSlotH();
 }
 
@@ -2398,11 +2434,161 @@ document.querySelectorAll('.action-slot').forEach(slot => {
         }
 
         function openExtraPanel() {
+            populateSecondRaceOptions();
             updateStatusTabVisibility();
+            updateSecondRaceToggleUI();
             document.getElementById('extraPanel').style.display = 'flex';
         }
         function closeExtraPanel() {
             document.getElementById('extraPanel').style.display = 'none';
+        }
+
+        function populateSecondRaceOptions() {
+            const secondRaceSelect = document.getElementById('secondRace');
+            if (!secondRaceSelect) return;
+            const currentValue = secondRaceSelect.value;
+            secondRaceSelect.innerHTML = '<option value="">Select Race</option>';
+            const races = (window.D20_CAMPAIGN_DATA && Array.isArray(window.D20_CAMPAIGN_DATA.races)) ? window.D20_CAMPAIGN_DATA.races : [];
+            const primaryRaceName = document.getElementById('race')?.value;
+            const primaryRace = races.find(race => race.name === primaryRaceName);
+            const allowedSubraces = Array.isArray(primaryRace?.subrace) ? primaryRace.subrace : [];
+            const allowedNames = new Set(allowedSubraces);
+            races.filter(race => allowedNames.has(race.name)).forEach(race => {
+                const option = document.createElement('option');
+                option.value = race.name;
+                option.textContent = race.name;
+                secondRaceSelect.appendChild(option);
+            });
+            if (currentValue && Array.from(secondRaceSelect.options).some(option => option.value === currentValue)) {
+                secondRaceSelect.value = currentValue;
+            }
+        }
+
+        function updateSecondRaceToggleUI() {
+            const enabled = document.getElementById('secondRaceCheckbox')?.checked;
+            const raceRow = document.getElementById('raceSelectionRow');
+            const raceBreak = document.getElementById('raceSelectionBreak');
+            const raceSelect = document.getElementById('race');
+            const secondRaceContainer = document.getElementById('secondRaceContainer');
+            const secondRaceSelect = document.getElementById('secondRace');
+
+            if (raceRow) {
+                raceRow.style.display = enabled ? 'flex' : 'contents';
+                if (enabled) {
+                    raceRow.style.alignItems = 'flex-start';
+                    raceRow.style.gap = '8px';
+                    raceRow.style.width = '100%';
+                }
+            }
+            if (raceBreak) {
+                raceBreak.style.display = enabled ? 'none' : '';
+            }
+            if (secondRaceContainer) {
+                secondRaceContainer.style.display = enabled ? 'block' : 'none';
+            }
+            if (enabled && raceSelect && secondRaceSelect) {
+                const levelInput = document.getElementById('level');
+                const currencyInput = document.getElementById('currency');
+                raceSelect.style.boxSizing = 'border-box';
+                raceSelect.style.flex = '0 0 auto';
+                raceSelect.style.width = `${levelInput.getBoundingClientRect().width}px`;
+                secondRaceSelect.style.flex = '0 0 auto';
+                secondRaceSelect.style.width = `${currencyInput.getBoundingClientRect().width}px`;
+            } else if (raceSelect) {
+                raceSelect.style.width = '';
+                raceSelect.style.boxSizing = '';
+                raceSelect.style.flex = '';
+            }
+            if (secondRaceSelect) {
+                secondRaceSelect.disabled = !enabled;
+            }
+            if (!enabled) {
+                if (secondRaceSelect) secondRaceSelect.value = '';
+                updateSecondRaceDisplay();
+            }
+            updateStats();
+        }
+
+        function updateSecondRaceDisplay() {
+            const statsBox = document.querySelector('.stats-box');
+            if (!statsBox) return;
+            const existing = statsBox.querySelectorAll('.second-race-passive-trait, .second-race-skill-button');
+            existing.forEach(el => el.remove());
+
+            if (!document.getElementById('secondRaceCheckbox')?.checked) return;
+            const secondRaceName = document.getElementById('secondRace')?.value;
+            if (!secondRaceName) return;
+
+            const races = (window.D20_CAMPAIGN_DATA && Array.isArray(window.D20_CAMPAIGN_DATA.races))
+                ? window.D20_CAMPAIGN_DATA.races
+                : null;
+            const primaryRaceName = document.getElementById('race')?.value;
+            const primaryRace = races && races.find(race => race.name === primaryRaceName);
+            const isAllowedSubrace = primaryRace
+                && Array.isArray(primaryRace.subrace)
+                && primaryRace.subrace.includes(secondRaceName);
+            if (!isAllowedSubrace) {
+                document.getElementById('secondRace').value = '';
+                return;
+            }
+            const secondRace = races.find(race => race.name === secondRaceName);
+            if (!secondRace) return;
+
+            let passives = [];
+            if (Array.isArray(secondRace.passives)) passives = secondRace.passives;
+            else if (secondRace.passive) passives = [secondRace.passive];
+
+            passives.filter(trait => trait.SRT === true).forEach(trait => {
+                const traitCard = document.createElement('div');
+                traitCard.className = 'second-race-passive-trait';
+                traitCard.style.display = 'inline-flex';
+                traitCard.style.alignItems = 'center';
+                traitCard.style.marginRight = '5px';
+                traitCard.style.cursor = 'pointer';
+
+                const traitIcon = document.createElement('img');
+                traitIcon.src = `icons/${trait.icon}`;
+                traitIcon.alt = trait.name;
+                traitIcon.style.width = '50px';
+                traitIcon.style.height = '50px';
+                traitCard.appendChild(traitIcon);
+
+                traitCard.addEventListener('click', () => {
+                    showModal(trait.name, trait.icon, trait.description, trait.type);
+                });
+
+                const exportButtonRow = statsBox.querySelector('.button-row');
+                statsBox.insertBefore(traitCard, exportButtonRow);
+            });
+
+            let skills = [];
+            if (Array.isArray(secondRace.skills)) skills = secondRace.skills;
+            else if (secondRace.skill) skills = [secondRace.skill];
+
+            skills.filter(skill => skill.SRT === true).forEach(skill => {
+                const skillButton = document.createElement('button');
+                skillButton.className = 'second-race-skill-button';
+                skillButton.style.display = 'inline-flex';
+                skillButton.style.alignItems = 'center';
+                skillButton.style.marginRight = '5px';
+                skillButton.style.background = 'none';
+                skillButton.style.border = 'none';
+                skillButton.style.cursor = 'pointer';
+
+                const skillIcon = document.createElement('img');
+                skillIcon.src = `icons/${skill.icon}`;
+                skillIcon.alt = skill.name;
+                skillIcon.style.width = '50px';
+                skillIcon.style.height = '50px';
+                skillButton.appendChild(skillIcon);
+
+                skillButton.addEventListener('click', () => {
+                    showModal(skill.name, skill.icon, skill.description, skill.type);
+                });
+
+                const exportButtonRow = statsBox.querySelector('.button-row');
+                statsBox.insertBefore(skillButton, exportButtonRow);
+            });
         }
 
         // Affinity icon list (add more as needed)
@@ -2426,6 +2612,10 @@ document.querySelectorAll('.action-slot').forEach(slot => {
         // Handle Affinity checkbox toggle
         document.getElementById('affinityCheckbox').addEventListener('change', function() {
             affinityBtn.style.display = this.checked ? 'block' : 'none';
+        });
+
+        document.getElementById('secondRaceCheckbox').addEventListener('change', function() {
+            updateSecondRaceToggleUI();
         });
 
         // Show affinity picker modal
@@ -3416,6 +3606,7 @@ document.querySelectorAll('.action-slot').forEach(slot => {
         function closeSettingsPanel() {
             document.getElementById('settingsPanel').style.display = 'none';
         }
+
         // Optional: Hide settings panel if background is clicked
         document.getElementById('settingsPanel').addEventListener('click', function(e) {
             if (e.target === this) closeSettingsPanel();
@@ -3928,6 +4119,10 @@ function populateDropdowns() {
         raceSelect.innerHTML += `<option value="${race.name}">${race.name}</option>`;
     });
 
+    // Populate secondary race dropdown.
+    populateSecondRaceOptions();
+    updateSecondRaceToggleUI();
+
     // Populate Class
     const classSelect = document.getElementById('class');
     classSelect.innerHTML = '<option value="">Select Class</option>';
@@ -3945,6 +4140,7 @@ window.addEventListener('DOMContentLoaded', function() {
         populateDropdowns();
         updateBestiaryTabVisibility();
         updateStatusTabVisibility();
+        updateSecondRaceToggleUI();
         bindStatsSheetInputs();
         updateStatsSheetUI();
         updateSubclassDropdown();
