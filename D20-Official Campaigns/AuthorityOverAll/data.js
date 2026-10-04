@@ -17,6 +17,7 @@ Items: ["leviathan-mask.png"],
     races: [
         {
             name: "Human",
+            subrace: ["Elf", "Dwarf", "Halfling", "Orc", "Goblin", "Bugbear", "Tiefling", "Aasimar", "Genasi", "Dhampir", "Ashborn", "Beastman", "Catfolk", "Dragonborn"],
             passive: {
                 name: "Versatile",
                 icon: "human-pyramid.png",
@@ -26,26 +27,31 @@ Items: ["leviathan-mask.png"],
         },
         {
             name: "Elf",
+            subrace: ["Human", "Dwarf", "Halfling", "Orc", "Goblin", "Bugbear", "Tiefling", "Aasimar", "Genasi", "Dhampir", "Ashborn", "Beastman", "Catfolk"],
             passive: {
                 name: "Keen Senses",
                 icon: "advancedperception.png",
                 type: "race-passive",
+                SRT: true,
                 description: "Gain +2 to all perception-based checks."
             }
         },
         {
             name: "Beastman",
+            subrace: ["Human", "Elf", "Orc", "Tiefling", "Aasimar", "Genasi", "Dhampir", "Ashborn", "Catfolk"],
             skills: [
                 {
                     name: "Savage Attack",
                     icon: "claw-slashes.png",
                     type: "race-skill",
+                    SRT: true,
                     description: "Once per battle, deal an extra 1d20 damage after a successful hit."
                 }
             ]
         },
         {
             name: "Dwarf",
+            subrace: ["Human", "Elf", "Halfling", "Orc", "Goblin", "Bugbear", "Tiefling", "Aasimar", "Genasi", "Dhampir", "Ashborn"],
             passive: {
                 name: "Stone Endurance",
                 icon: "stone-shield.png",
@@ -57,16 +63,19 @@ Items: ["leviathan-mask.png"],
                     name: "Forge Mastery",
                     icon: "anvil-impact.png",
                     type: "race-skill",
+                    SRT: true,
                     description: "Craft weapons or armor with +1 quality when using a forge."
                 }
             ]
         },
         {
             name: "Gnome",
+            subrace: ["Halfling", "Goblin", "Jerbeen"],
             passive: {
                 name: "Tinker’s Wit",
                 icon: "gears.png",
                 type: "race-passive",
+                SRT: true,
                 description: "Gain +2 to all checks involving mechanical or arcane devices."
             },
             skills: [
@@ -74,25 +83,30 @@ Items: ["leviathan-mask.png"],
                     name: "Gadget Trap",
                     icon: "spiky-pit.png",
                     type: "race-skill",
+                    SRT: true,
                     description: "Set a trap that deals 1d20 damage and immobilizes an enemy for 1 turn."
                 }
             ]
         },
         {
             name: "Halfling",
+            subrace: ["Human", "Elf", "Dwarf", "Gnome", "Goblin", "Tiefling", "Aasimar", "Genasi", "Dhampir", "Ashborn", "Jerbeen"],
             passive: {
                 name: "Lucky Foot",
                 icon: "clover.png",
                 type: "race-passive",
+                SRT: true,
                 description: "Reroll any failed skill check once per session."
             }
         },
         {
             name: "Orc",
+            subrace: ["Human", "Elf", "Dwarf", "Bugbear", "Goliath", "Tiefling", "Aasimar", "Genasi", "Dhampir", "Ashborn", "Beastman", "Catfolk"],
             passive: {
                 name: "Brutal Strength",
                 icon: "muscle-up.png",
                 type: "race-passive",
+                SRT: true,
                 description: "Gain +2 to all strength-based checks."
             },
             skills: [
@@ -106,10 +120,12 @@ Items: ["leviathan-mask.png"],
         },
         {
             name: "Tiefling",
+            subrace: ["Human", "Elf", "Dwarf", "Halfling", "Orc", "Goblin", "Bugbear", "Aasimar", "Genasi", "Dhampir", "Ashborn", "Beastman", "Catfolk", "Kobold"],
             passive: {
                 name: "Infernal Resistance",
                 icon: "fire-shield.png",
                 type: "race-passive",
+                SRT: true,
                 description: "Gain +2 to saving throws against fire or demonic effects."
             },
             skills: [
@@ -117,12 +133,14 @@ Items: ["leviathan-mask.png"],
                     name: "Hellfire Bolt",
                     icon: "fireball.png",
                     type: "race-skill",
+                    SRT: true,
                     description: "Cast a fire bolt dealing 1d20 fire damage once per battle."
                 }
             ]
         },
         {
             name: "Dragonborn",
+            subrace: ["Human", "Kobold", "Lizardfolk"],
             passive: {
                 name: "Draconic Scales",
                 icon: "dragon-head.png",
@@ -134,16 +152,19 @@ Items: ["leviathan-mask.png"],
                     name: "Dragon Breath",
                     icon: "dragon-breath.png",
                     type: "race-skill",
+                    SRT: true,
                         description: "Unleash a breath attack dealing 2d20 elemental damage (choose fire, ice, or acid) once per battle."
                 }
             ]
         },
         {
             name: "Goblin",
+            subrace: ["Human", "Elf", "Dwarf", "Gnome", "Halfling", "Tiefling", "Aasimar", "Genasi", "Dhampir", "Ashborn"],
             passive: {
                 name: "Nimble Escape",
                 icon: "sneaky.png",
                 type: "race-passive",
+                SRT: true,
                 description: "Gain +2 to all stealth and escape checks."
             },
             skills: [
@@ -157,6 +178,7 @@ Items: ["leviathan-mask.png"],
         },
         {
             name: "Kobold",
+            subrace: ["Dragonborn", "Lizardfolk", "Tiefling", "Aasimar", "Genasi", "Dhampir", "Ashborn"],
             passive: {
                 name: "Cunning Instinct",
                 icon: "trap-mask.png",
@@ -168,12 +190,14 @@ Items: ["leviathan-mask.png"],
                     name: "Scavenger’s Strike",
                     icon: "dagger-throw.png",
                     type: "race-skill",
+                    SRT: true,
                     description: "Throw a scavenged weapon for 1d20 damage, with a chance to inflict a random debuff."
                 }
             ]
         },
         {
             name: "Aasimar",
+            subrace: ["Human", "Elf", "Dwarf", "Halfling", "Orc", "Goblin", "Bugbear", "Tiefling", "Genasi", "Dhampir", "Ashborn", "Beastman", "Catfolk", "Kobold"],
             passive: {
                 name: "Celestial Glow",
                 icon: "holy-light.png",
@@ -185,16 +209,19 @@ Items: ["leviathan-mask.png"],
                     name: "Radiant Burst",
                     icon: "light-explosion.png",
                     type: "race-skill",
+                    SRT: true,
                     description: "Release a burst of holy light, dealing 1d20 damage to entities with Golden Fever or undead within a small radius."
                 }
             ]
         },
         {
             name: "Lizardfolk",
+            subrace: ["Dragonborn", "Kobold"],
             passive: {
                 name: "Scaly Resilience",
                 icon: "lizard-skin.png",
                 type: "race-passive",
+                SRT: true,
                 description: "Gain +2 to saving throws against poison and disease."
             },
             skills: [
@@ -208,10 +235,12 @@ Items: ["leviathan-mask.png"],
         },
         {
             name: "Goliath",
+            subrace: ["Orc", "Bugbear"],
             passive: {
                 name: "Mountain’s Might",
                 icon: "stone-giant.png",
                 type: "race-passive",
+                SRT: true,
                 description: "Gain +2 to all checks involving lifting or breaking objects."
             },
             skills: [
@@ -219,16 +248,19 @@ Items: ["leviathan-mask.png"],
                     name: "Boulder Toss",
                     icon: "rock-throw.png",
                     type: "race-skill",
+                    SRT: true,
                         description: "Hurl a large rock, dealing 2d20 damage to a single target."
                 }
             ]
         },
         {
             name: "Genasi",
+            subrace: ["Human", "Elf", "Dwarf", "Halfling", "Orc", "Goblin", "Bugbear", "Tiefling", "Aasimar", "Dhampir", "Ashborn", "Beastman", "Catfolk", "Kobold"],
             passive: {
                 name: "Elemental Kin",
                 icon: "elemental-spark.png",
                 type: "race-passive",
+                SRT: true,
                 description: "Gain +2 to checks related to your chosen element (fire, water, air, or earth)."
             },
             skills: [
@@ -236,16 +268,19 @@ Items: ["leviathan-mask.png"],
                     name: "Elemental Pulse",
                     icon: "elemental-wave.png",
                     type: "race-skill",
+                    SRT: true,
                     description: "Unleash a pulse of your chosen element, dealing 1d20 damage to nearby enemies."
                 }
             ]
         },
         {
             name: "Catfolk",
+            subrace: ["Human", "Elf", "Orc", "Tiefling", "Aasimar", "Genasi", "Dhampir", "Ashborn", "Beastman"],
             passive: {
                 name: "Feline Agility",
                 icon: "cat-paw.png",
                 type: "race-passive",
+                SRT: true,
                 description: "Gain +2 to all agility and reflex checks."
             },
             skills: [
@@ -259,10 +294,12 @@ Items: ["leviathan-mask.png"],
         },
         {
             name: "Dhampir",
+            subrace: ["Human", "Elf", "Dwarf", "Halfling", "Orc", "Goblin", "Bugbear", "Tiefling", "Aasimar", "Genasi", "Ashborn", "Beastman", "Catfolk", "Kobold"],
             passive: {
                 name: "Vampiric Resilience",
                 icon: "vampire-bite.png",
                 type: "race-passive",
+                SRT: true,
                 description: "After you successfully use 'Blood Drain', the sudden surge of vitality heightens your reflexes. You gain +2 Agility during your subsequent turn."
             },
             skills: [
@@ -270,16 +307,19 @@ Items: ["leviathan-mask.png"],
                     name: "Blood Drain",
                     icon: "heart-drop.png",
                     type: "race-skill",
+                    SRT: true,
                     description: "Once per scene (or once per combat turn per target), you can attempt to siphon life from a living target. Roll 1d20 + Might against the target’s 1d20 + Vigor. On a success, you drain the target's health and heal yourself for the same amount. This skill has no effect on Undead."
                 }
             ]
         },
         {
             name: "Bugbear",
+            subrace: ["Human", "Elf", "Dwarf", "Orc", "Goliath", "Tiefling", "Aasimar", "Genasi", "Dhampir", "Ashborn"],
             passive: {
                 name: "Savage Instinct",
                 icon: "grease-trap.png",
                 type: "race-passive",
+                SRT: true,
                 description: "Gain +2 to Mind towards intimidation checks and +1 Might when making surprise attacks."
             },
             skills: [
@@ -293,10 +333,12 @@ Items: ["leviathan-mask.png"],
         },
         {
             name: "Ashborn",
+            subrace: ["Human", "Elf", "Dwarf", "Halfling", "Orc", "Goblin", "Bugbear", "Tiefling", "Aasimar", "Genasi", "Dhampir", "Beastman", "Catfolk", "Kobold"],
             passive: {
                 name: "Ember Heart",
-                icon: "heartburn",
+                icon: "heartburn.png",
                 type: "race-passive",
+                SRT: true,
                 description: "Gain +2 to fire-based damage and +1 resistance to all fire effects."
             },
             skills: [
@@ -310,10 +352,12 @@ Items: ["leviathan-mask.png"],
         },
         {
             name: "Jerbeen",
+            subrace: ["Gnome", "Halfling"],
             passive: {
                 name: "Desert Runner",
                 icon: "run.png",
                 type: "race-passive",
+                SRT: true,
                 description: "Gain +2 to Agility and Instict in arid environments."
             },
             skills: [
@@ -321,6 +365,7 @@ Items: ["leviathan-mask.png"],
                     name: "Sand Manipulation",
                     icon: "sandstorm.png",
                     type: "race-skill",
+                    SRT: true,
                     description: "Control sand to blind an enemy or create a barrier, gaining +1 Agility towards dodge during combat of your subsequent turn. Affinity must be Earth for this skill."
                 }
             ]
