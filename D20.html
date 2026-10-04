@@ -1500,7 +1500,8 @@
             const characterName = document.getElementById('characterName').value || '';
             const level = document.getElementById('level').value || '';
             const race = document.getElementById('race').value || '';
-            const secondRaceEnabled = document.getElementById('secondRaceCheckbox')?.checked || false;
+            const secondRaceEnabled = isSecondRaceOptionEnabled()
+                && (document.getElementById('secondRaceCheckbox')?.checked || false);
             const secondRace = secondRaceEnabled ? (document.getElementById('secondRace')?.value || '') : '';
             const className = document.getElementById('class').value || '';
             const subclass = document.getElementById('subclass')?.value || '';
@@ -1657,9 +1658,10 @@ function pasteCode() {
             secondRaceSelect.value = allowedValues.includes(importedSecondRace) ? importedSecondRace : '';
         }
         if (secondRaceCheckbox) {
-            const hasImportedSubrace = Boolean(importedSecondRace && secondRaceSelect && secondRaceSelect.value === importedSecondRace);
+            const optionEnabled = isSecondRaceOptionEnabled();
+            const hasImportedSubrace = Boolean(optionEnabled && importedSecondRace && secondRaceSelect && secondRaceSelect.value === importedSecondRace);
             const explicitlyEnabled = data['Second Race Enabled'] === 'Enabled';
-            secondRaceCheckbox.checked = hasImportedSubrace || explicitlyEnabled;
+            secondRaceCheckbox.checked = optionEnabled && (hasImportedSubrace || explicitlyEnabled);
         }
         updateSecondRaceToggleUI();
         updateSecondRaceDisplay();
@@ -2451,9 +2453,12 @@ document.querySelectorAll('.action-slot').forEach(slot => {
             const races = (window.D20_CAMPAIGN_DATA && Array.isArray(window.D20_CAMPAIGN_DATA.races)) ? window.D20_CAMPAIGN_DATA.races : [];
             const primaryRaceName = document.getElementById('race')?.value;
             const primaryRace = races.find(race => race.name === primaryRaceName);
+            const raceLockEnabled = isSecondRaceRaceLockEnabled();
             const allowedSubraces = Array.isArray(primaryRace?.subrace) ? primaryRace.subrace : [];
-            const allowedNames = new Set(allowedSubraces);
-            races.filter(race => allowedNames.has(race.name)).forEach(race => {
+            const eligibleRaces = raceLockEnabled
+                ? races.filter(race => allowedSubraces.includes(race.name))
+                : races;
+            eligibleRaces.forEach(race => {
                 const option = document.createElement('option');
                 option.value = race.name;
                 option.textContent = race.name;
@@ -2464,8 +2469,29 @@ document.querySelectorAll('.action-slot').forEach(slot => {
             }
         }
 
+        function isSecondRaceOptionEnabled() {
+            const setting = window.D20_CAMPAIGN_DATA?.SecondRace;
+            if (setting === true) return true;
+            if (Array.isArray(setting)) {
+                return setting.some(option => option && typeof option === 'object' && option.enabled === true);
+            }
+            return Boolean(setting && typeof setting === 'object' && setting.enabled === true);
+        }
+
+        function isSecondRaceRaceLockEnabled() {
+            const setting = window.D20_CAMPAIGN_DATA?.SecondRace;
+            return Boolean(setting && !Array.isArray(setting) && typeof setting === 'object' && setting.racelock === true);
+        }
+
         function updateSecondRaceToggleUI() {
-            const enabled = document.getElementById('secondRaceCheckbox')?.checked;
+            const settingEnabled = isSecondRaceOptionEnabled();
+            const checkbox = document.getElementById('secondRaceCheckbox');
+            const optionRow = document.getElementById('secondRaceOptionRow');
+            if (optionRow) optionRow.style.display = settingEnabled ? 'flex' : 'none';
+            if (!settingEnabled && checkbox) checkbox.checked = false;
+
+            populateSecondRaceOptions();
+            const enabled = settingEnabled && checkbox?.checked;
             const raceRow = document.getElementById('raceSelectionRow');
             const raceBreak = document.getElementById('raceSelectionBreak');
             const raceSelect = document.getElementById('race');
@@ -2515,18 +2541,18 @@ document.querySelectorAll('.action-slot').forEach(slot => {
             const existing = statsBox.querySelectorAll('.second-race-passive-trait, .second-race-skill-button');
             existing.forEach(el => el.remove());
 
-            if (!document.getElementById('secondRaceCheckbox')?.checked) return;
+            if (!isSecondRaceOptionEnabled() || !document.getElementById('secondRaceCheckbox')?.checked) return;
             const secondRaceName = document.getElementById('secondRace')?.value;
             if (!secondRaceName) return;
 
             const races = (window.D20_CAMPAIGN_DATA && Array.isArray(window.D20_CAMPAIGN_DATA.races))
                 ? window.D20_CAMPAIGN_DATA.races
-                : null;
+                : [];
             const primaryRaceName = document.getElementById('race')?.value;
-            const primaryRace = races && races.find(race => race.name === primaryRaceName);
-            const isAllowedSubrace = primaryRace
+            const primaryRace = races.find(race => race.name === primaryRaceName);
+            const isAllowedSubrace = !isSecondRaceRaceLockEnabled() || (primaryRace
                 && Array.isArray(primaryRace.subrace)
-                && primaryRace.subrace.includes(secondRaceName);
+                && primaryRace.subrace.includes(secondRaceName));
             if (!isAllowedSubrace) {
                 document.getElementById('secondRace').value = '';
                 return;
