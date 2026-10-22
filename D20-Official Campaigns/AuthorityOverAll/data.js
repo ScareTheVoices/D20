@@ -1650,7 +1650,7 @@ Items: ["leviathan-mask.png"],
         },
         {
             name: "Drowsiness",
-            icon: "Sloth.png",
+            icon: "Sloth_Portrait.jpg",
             type: "status-effect",
             description: "While Sloth is present, all rolls and checks take a -2 penalty. Each time you perform an action, roll 1d20 — on a 10 or lower, the penalty doubles."
         },
