@@ -33,7 +33,7 @@ window.D20_CAMPAIGN_DATA = {
 			name: "Harp String Of Vigor",
 			item: ["Vigor String.png"],
 			icon: "Vigor String.png",
-			description: "Whilst you have The Harp String Of Vigor; Thrice per battle: You may add +4 to your rolls related to Vigor.
+			description: "Whilst you have The Harp String Of Vigor; Thrice per battle: You may add +4 to your rolls related to Vigor."
 		}
     ],
 	
