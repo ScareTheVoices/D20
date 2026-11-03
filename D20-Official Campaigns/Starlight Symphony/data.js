@@ -3,7 +3,10 @@ window.D20_CAMPAIGN_DATA = {
         enabled: true,
         sections: ["Equipment", "Symphony", "Requiem", "SS"]
     },
-	
+	SecondRace: {
+    enabled: true,
+    racelock: true
+},
 	ItemsCreateSkills: [
         {
             name: "Sol Driver",
@@ -38,53 +41,61 @@ window.D20_CAMPAIGN_DATA = {
     ],
 	
 	
-	Items: ["KarmaBelt.png", "Might String.png", "String.png", "Agility String.png", "Vigor String.png"],
+	Items: ["KarmaBelt.png", "Might String.png", "String.png", "Agility String.png", "Vigor String.png", "Brother String.png"],
 	
 	
 	races: [
 		{
 			name: "Human",
+			subrace: ["Nomad", "Mutant", "Voidborn", "Nebulon"],
             passive: {
                 name: "Versatile",
                 icon: "human-pyramid.png",
                 type: "race-passive",
+				SRT: true,
                 description: "Gain +1 to any two different skill checks of your choice."
             }
 		},
 		{
 			name: "Droid",
+			subrace: ["Aegis"],
 			skills: [
 				{
 					name: "Connect",
 					icon: "connect.png",
 					type: "race-skill",
+					SRT: true,
 					description: "Can interface with machines and digital systems."
 				}
 			]
 		},
 		{
 			name: "Nomad",
+			subrace: ["Human", "Mutant", "Voidborn", "Nebulon"],
 			passive: {
 				name: "Scavenger",
 				icon: "scavenger.png",
 				type: "race-passive",
-			 	description: "Nomads find useful materials more often when scavenging."
+			 	description: "Nomads find useful materials more often when scavenging. Gain +2 Instict when performing a Scavenge check."
 			},
 			skills: [
 				{
 					name: "Trail Sense",
 					icon: "trailsense.png",
 					type: "race-skill",
-					description: "You can track or find shelter faster when traveling between locations."
+					SRT: true,
+					description: "Once per turn, when you make a Senses check (Instinct), you may roll an additional unmodified 1d20 and add the result to your total."
 				}
 			]
 		},
 		{
 			name: "Mutant",
+			subrace: ["Human", "Nomad", "Voidborn", "Nebulon"],
 			passive: {
 				name: "Unstable Gift",
 				icon: "unstable.png",
 				type: "race-passive",
+				SRT: true,
 				description: "Mutant abilities produce unpredictable side effects; GM will call for a d20."
 			},
 			skills: [
@@ -98,10 +109,12 @@ window.D20_CAMPAIGN_DATA = {
 		},
 		{
 			name: "Voidborn",
+			subrace: ["Human", "Nomad", "Mutant", "Nebulon"],
 			passive: {
 				name: "Starless Resilience",
 				icon: "voidborn.png",
 				type: "race-passive",
+				SRT: true,
 				description: "Voidborns gain +2 towards Vigor when defending against Starlight/Requiem attacks."
 			},
 			skills: [
@@ -115,6 +128,7 @@ window.D20_CAMPAIGN_DATA = {
 		},
 		{
 			name: "Nebulon",
+			subrace: ["Nomad","Mutant", "Voidborn", "Human"],
 			passive: {
 				name: "Nebula Cloak",
 				icon: "nebulon.png",
@@ -126,24 +140,27 @@ window.D20_CAMPAIGN_DATA = {
 					name: "Gasform",
 					icon: "gasform.png",
 					type: "race-skill",
+					SRT: true,
 					description: "For 2 turns/scenes, take on a 'Gas Form', preventing you from taking damage involving Might, but you can not perform attack rolls. (Cooldown 2 turns/scenes)"
 				}
 			]
 		},
 		{
 			name: "Aegis",
+			subrace: ["Droid"],
 			passive: {
 				name: "Shieldborn",
 				icon: "aegis.png",
 				type: "race-passive",
-				description: "Aegis have natural resistance to energy damage and system shocks."
+				description: "Aegis have natural resistance to energy damage and system shocks. Gain +2 Vigor when defending against energy attacks."
 			},
 			skills: [
 				{
 					name: "Fortify",
 					icon: "fortify.png",
 					type: "race-skill",
-					description: "Temporarily bolster shields or armor for a brief duration."
+					SRT: true,
+					description: "Once per turn: Gain +2 Vigor for 3 turns/scenes. If this skill is declared then Gain -2 Agility for the same duration. (Cooldown 4 turns/scenes)."
 				}
 			]
 		}
