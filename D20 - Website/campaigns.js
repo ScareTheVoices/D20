@@ -72,7 +72,15 @@ const campaignRegistry = [
         description: "Take A Look Inside Ihe Book Where Fairytales Aren't What They Seem...",
         banner: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/ShatteredTales/banner.png",
         infoUrl: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/ShatteredTales/info.js"
-    }
+    },
+     {
+          name: "Showdown!",
+          color: "#FFC71F",
+          folder: "Showdown",
+          description: "Time To Showdown with your D20 Heroes!",
+          banner: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/Showdown/banner.png",
+          infoUrl: "https://raw.githubusercontent.com/ScareTheVoices/D20/refs/heads/main/D20-Official%20Campaigns/Showdown/info.js"
+     }
     
 ];
 
