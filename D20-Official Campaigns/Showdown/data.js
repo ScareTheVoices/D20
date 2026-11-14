@@ -59,7 +59,7 @@ window.D20_CAMPAIGN_DATA = {
                 icon: "human-pyramid.png",
                 type: "race-passive",
                 SRT: true,
-                description: "Gain +1 to any two different skill checks of your choice."
+                description: "Gain +1 to any skill checks of your choice."
             }
         },
         {
