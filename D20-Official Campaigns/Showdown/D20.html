@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -935,7 +935,7 @@
         align-items: center;
     ">
         <span>Stats Sheet</span>
-        <span class="close-button" onclick="closeStatsSheet()" style="cursor:pointer; font-size: 1.3em;">Ã—</span>
+        <span class="close-button" onclick="closeStatsSheet()" style="cursor:pointer; font-size: 1.3em;">&times;</span>
     </div>
     <div class="modal-content" style="
         width: 460px;
@@ -948,14 +948,7 @@
         border-bottom-left-radius: 10px;
         border-bottom-right-radius: 10px;
         border-top: none;
-        display: flex;
-        flex-direction: column;
     ">
-        <div style="display:flex; gap:8px; margin-bottom:10px;">
-            <button id="statsTabAttributes" type="button" style="flex:1; background:#533663; color:#fff; border:1px solid #676767; border-radius:4px; padding:6px 8px; cursor:pointer;">Attributes</button>
-        </div>
-        
-        <div id="statsAttributesPanel" style="flex:1; overflow-y:auto;">
             <div style="font-size: 14px; color: #cfcfcf; margin-bottom: 10px;">
                 Available Points:
                 <span id="availableSkillPoints" style="color: #f0f0f0; font-weight: bold;">0</span>
@@ -996,7 +989,6 @@
                 Agility: sleight of hand, stealth, fixing, ranged weapons, acrobatics.
                 Mind: knowledge, understanding, speaking and reasoning.
                 Instinct: senses, reflexes, subconscious reactions.
-            </div>
         </div>
     </div>
 </div>
