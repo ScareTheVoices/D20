@@ -82,7 +82,7 @@ window.D20_CAMPAIGN_DATA = {
                     icon: "claw-slashes.png",
                     type: "race-skill",
                     SRT: true,
-                    description: "Once per battle, deal an extra 1d20 damage after a successful hit."
+                    description: "Mach 2: Roll 1d20 (Might) then roll an additional 1d20 for additional damage."
                 }
             ]
         },
@@ -101,7 +101,7 @@ window.D20_CAMPAIGN_DATA = {
                     icon: "anvil-impact.png",
                     type: "race-skill",
                     SRT: true,
-                    description: "Craft weapons or armor with +1 quality when using a forge."
+                    description: "Mach 1: Craft weapons or armor with +1 quality when using a forge."
                 }
             ]
         },
@@ -121,7 +121,7 @@ window.D20_CAMPAIGN_DATA = {
                     icon: "spiky-pit.png",
                     type: "race-skill",
                     SRT: true,
-                    description: "Set a trap that deals 1d20 damage and immobilizes an enemy for 1 turn."
+                    description: "Mach 2: Roll 1d20 (Might) and set a trap where you stand. The result of your dice roll equals the damage an entity takes when they move across or onto the trap."
                 }
             ]
         },
@@ -151,7 +151,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Berserk Charge",
                     icon: "sprint.png",
                     type: "race-skill",
-                    description: "Charge an enemy, gaining +1d20 damage on your next attack."
+                    description: "Mach 3: Move 4 feet in a direction, then roll 1d20 (Might) for an attack. This does not count as a movement."
                 }
             ]
         },
@@ -171,7 +171,7 @@ window.D20_CAMPAIGN_DATA = {
                     icon: "fireball.png",
                     type: "race-skill",
                     SRT: true,
-                    description: "Cast a fire bolt dealing 1d20 fire damage once per battle."
+                    description: "Mach 3: Once per battle, launch a bolt of fire that bursts on impact. Roll 1d20 (Mind); every entity within a radius equal to your Mind stat takes that much fire damage."
                 }
             ]
         },
@@ -190,7 +190,7 @@ window.D20_CAMPAIGN_DATA = {
                     icon: "dragon-breath.png",
                     type: "race-skill",
                     SRT: true,
-                    description: "Unleash a breath attack dealing 2d20 elemental damage (choose fire, ice, or acid) once per battle."
+                    description: "Mach 4: Unleash a breath attack and roll 2d20 (Mind) for elemental damage (choose fire, ice, or acid) once per battle."
                 }
             ]
         },
@@ -209,7 +209,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Quick Bomb",
                     icon: "bomb-explosion.png",
                     type: "race-skill",
-                    description: "Throw a small explosive dealing 1d20 damage to enemies in a small radius."
+                    description: "Mach 2: Throw a small explosive dealing 1d20 damage to enemies in a radius equal to your Mind stat."
                 }
             ]
         },
@@ -228,7 +228,7 @@ window.D20_CAMPAIGN_DATA = {
                     icon: "dagger-throw.png",
                     type: "race-skill",
                     SRT: true,
-                    description: "Throw a scavenged weapon for 1d20 damage, with a chance to inflict a random debuff."
+                    description: "Mach 2: Throw a scavenged weapon for 1d20 damage, with a chance to inflict a random debuff."
                 }
             ]
         },
@@ -247,7 +247,7 @@ window.D20_CAMPAIGN_DATA = {
                     icon: "light-explosion.png",
                     type: "race-skill",
                     SRT: true,
-                    description: "Release a burst of holy light, dealing 1d20 damage to entities with Golden Fever or undead within a small radius."
+                    description: "Mach 4: Release a burst of holy light. Roll 1d20 (Mind), dealing that much damage to entities with Golden Fever or undead within a radius equal to your Mind stat."
                 }
             ]
         },
@@ -266,7 +266,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Tail Whip",
                     icon: "tail-swipe.png",
                     type: "race-skill",
-                    description: "Knock back an enemy, dealing 1d20 damage and forcing them to lose their next action."
+                    description: "Mach 2: Roll 1d20 (Might) to knock back an enemy a distance equal to your Might stat, dealing 1d20 damage."
                 }
             ]
         },
@@ -286,7 +286,7 @@ window.D20_CAMPAIGN_DATA = {
                     icon: "rock-throw.png",
                     type: "race-skill",
                     SRT: true,
-                    description: "Hurl a large rock, dealing 2d20 damage to a single target."
+                    description: "Mach 3: Hurl a large rock, dealing 2d20 damage to a single target."
                 }
             ]
         },
@@ -306,7 +306,7 @@ window.D20_CAMPAIGN_DATA = {
                     icon: "elemental-wave.png",
                     type: "race-skill",
                     SRT: true,
-                    description: "Unleash a pulse of your chosen element, dealing 1d20 damage to nearby enemies."
+                    description: "Mach 4: Unleash a pulse of your chosen element. Roll 1d20 (Mind), dealing that much damage to enemies within a radius equal to your Mind stat."
                 }
             ]
         },
@@ -325,7 +325,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Pounce",
                     icon: "claw-slashes.png",
                     type: "race-skill",
-                    description: "Leap onto an enemy, dealing 1d20 damage and gaining +1 on your next attack."
+                    description: "Mach 2: Move in any direction for a number of feet equal to your Agility stat modifier. Then, if you are adjacent to an entity, roll 1d20 (Might) for a physical attack."
                 }
             ]
         },
@@ -345,7 +345,7 @@ window.D20_CAMPAIGN_DATA = {
                     icon: "heart-drop.png",
                     type: "race-skill",
                     SRT: true,
-                    description: "Once per scene (or once per combat turn per target), you can attempt to siphon life from a living target. Roll 1d20 + Might against the target’s 1d20 + Vigor. On a success, you drain the target's health and heal yourself for the same amount. This skill has no effect on Undead."
+                    description: "Mach 3: You can attempt to siphon life from a living target. Roll 1d20 + Might against the target’s 1d20 + Vigor. On a success, you drain the target's health and heal yourself for the same amount. This skill has no effect on Undead."
                 }
             ]
         },
@@ -364,7 +364,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Ambush Strike",
                     icon: "hidden.png",
                     type: "race-skill",
-                    description: "Strike from hiding, dealing 2d20 damage on a successful stealth check."
+                    description: "Mach 4: Strike from hiding. On a successful stealth check, roll 2d20 (Might) for damage."
                 }
             ]
         },
@@ -383,7 +383,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Ember Flare",
                     icon: "fire-dash.png",
                     type: "race-skill",
-                    description: "Once per battle, Burst into flames, dealing 1d20 + Might damage to 1 Target and Inflicting 'Burn' to them."
+                    description: "Mach 3: Once per battle, Burst into flames, dealing 1d20 + Might damage to 1 Target and Inflicting 'Burn' to them."
                 }
             ]
         },
@@ -403,7 +403,7 @@ window.D20_CAMPAIGN_DATA = {
                     icon: "sandstorm.png",
                     type: "race-skill",
                     SRT: true,
-                    description: "Control sand to blind an enemy or create a barrier, gaining +1 Agility towards dodge during combat of your subsequent turn. Affinity must be Earth for this skill."
+                    description: "Mach 3: Create a barrier made out of sand covering a number of square feet equal to your Mind stat score. Affinity must be Earth for this skill."
                 }
             ]
         },
@@ -454,7 +454,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Mutation Burst",
                     icon: "mutationburst.png",
                     type: "race-skill",
-                    description: "Unleash a mutation effect; potency and side-effects are resolved with a d20."
+                    description: "Mach 3: Unleash a mutation effect; potency and side-effects are resolved with a d20."
                 }
             ]
         },
@@ -473,7 +473,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Null Pulse",
                     icon: "nullpulse.png",
                     type: "race-skill",
-                    description: "Once per battle, you can roll 1d20 + Mind. Every other entity in the battle (including allies) must roll a Vigor check. If an entity's result is lower than your roll, they lose their Symphony/Requiem for 2 Rotations."
+                    description: "Mach 4: Once per battle, you can roll 1d20 + Mind. Every other entity in the battle (including allies) must roll a Vigor check. If an entity's result is lower than your roll, they lose their Symphony/Requiem for 2 Rotations."
                 }
             ]
         },
@@ -492,7 +492,7 @@ window.D20_CAMPAIGN_DATA = {
                     icon: "gasform.png",
                     type: "race-skill",
                     SRT: true,
-                    description: "For 2 turns/scenes, take on a 'Gas Form', preventing you from taking damage involving Might, but you can not perform attack rolls. (Cooldown 2 turns/scenes)"
+                    description: "Mach 3: For 2 turns/scenes, take on a 'Gas Form', preventing you from taking damage involving Might, but you can not perform attack rolls. (Cooldown 2 turns/scenes)"
                 }
             ]
         },
@@ -511,7 +511,7 @@ window.D20_CAMPAIGN_DATA = {
                     icon: "fortify.png",
                     type: "race-skill",
                     SRT: true,
-                    description: "Once per turn: Gain +2 Vigor for 3 turns/scenes. If this skill is declared then Gain -2 Agility for the same duration. (Cooldown 4 turns/scenes)."
+                    description: "Mach 2: Once per turn: Gain +2 Vigor for 3 turns/scenes. If this skill is declared then Gain -2 Agility for the same duration. (Cooldown 4 turns/scenes)."
                 }
             ]
         }
@@ -533,7 +533,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Taunt",
                     icon: "locked-on.png",
                     type: "class-skill",
-                    description: "Force an enemy to target you instead of allies for one turn."
+                    description: "Mach 2: Force an enemy to target you instead of allies for one turn."
                 }
             ],
             subclasses: [
@@ -550,7 +550,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Holy Smite",
                             icon: "zeus-sword.png",
                             type: "class-sub-skill",
-                            description: "Deal extra damage to entities with Golden Fever, undead or demonic creatures."
+                            description: "Mach 2: Roll 1d20 (Might), performing an attack onto a single target. If you hit, roll an additional 1d20 for added damage."
                         }
                     ]
                 },
@@ -567,13 +567,13 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Spell Craft",
                             icon: "spell-book.png",
                             type: "class-sub-skill",
-                            description: "Create spells with certain conditions. Requires GM approval, and keep spells in your notes."
+                            description: "Mach 5: Create spells with certain conditions. Requires GM approval, and keep spells in your notes."
                         },
                         {
                             name: "Elemental Summoning",
                             icon: "pentagram-rose.png",
                             type: "class-sub-skill",
-                            description: "Summon a temporary elemental ally to fight alongside you. Allies gain half your health and deal 1d20/2 damage per turn."
+                            description: "Mach 3: Summon a temporary elemental ally to fight alongside you. Allies gain half your health and deal 1d20/2 damage per turn."
                         }
                     ]
                 },
@@ -591,7 +591,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Blood Slash",
                             icon: "bleeding-wound.png",
                             type: "class-sub-skill",
-                            description: "Sacrifice 1D20-5 of your health to deal double damage on your next sword attack."
+                            description: "Mach 2: Sacrifice 1D20-5 of your health to deal double damage on your next sword attack."
                         }
                     ]
                 }
@@ -612,13 +612,13 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Shadowstep Gambit",
                     icon: "hidden.png",
                     type: "class-skill",
-                    description: "Once per turn, roll 1d20 (Agility) to move unseen. Nearby entities roll 1d20; if they tie or beat your result, they detect you."
+                    description: "Mach 2: Roll 1d20 (Agility) to move unseen. Nearby enemies must roll 1d20 (Instinct); if they tie or beat your result, they detect you."
                 },
                 {
                     name: "Backstab",
                     icon: "backstab.png",
                     type: "class-skill",
-                    description: "Once per target, per battle, deal +1d20/2 bonus damage when attacking from stealth."
+                    description: "Mach 1: Once per target, per battle, deal +1d20/2 bonus damage when attacking from stealth."
                 }
             ],
             subclasses: [
@@ -629,7 +629,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Illusion",
                             icon: "magick-trick.png",
                             type: "class-sub-skill",
-                            description: "Create a temporary illusion to distract enemies. Illusion lasts for 1 turn in battle and cannot attack."
+                            description: "Mach 2: Create a temporary illusion to taunt enemies. Illusion lasts for 1 turn in battle and cannot attack."
                         }
                     ]
                 },
@@ -646,7 +646,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Death Mark",
                             icon: "skull-crossed-bones.png",
                             type: "class-sub-skill",
-                            description: "Once per battle, mark an enemy for 2 turns. Your next successful stealth attack against that target deals an additional +1d20/2 (Rounded Down) damage."
+                            description: "Mach 5: Once per battle, mark an enemy for 2 turns. Your next successful stealth attack against that target deals an additional +1d20/2 (Rounded Down) damage."
                         }
                     ]
                 },
@@ -663,7 +663,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Quick Fingers",
                             icon: "hand-pocket.png",
                             type: "class-sub-passive",
-                            description: "Gain +2 to sleight-of-hand."
+                            description: "Mach 2: Gain +2 to sleight-of-hand."
                         }
                     ]
                 }
@@ -684,7 +684,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Piercing Shot",
                     icon: "wide-arrow-dunk.png",
                     type: "class-skill",
-                    description: "Ignore defense on your next attack. Requires a bow equipped."
+                    description: "Mach 2: Ignore defense on your next attack. Requires a bow equipped."
                 }
             ],
             subclasses: [
@@ -710,7 +710,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Snipe",
                             icon: "target-shot.png",
                             type: "class-sub-skill",
-                            description: "Deal triple damage to a single target from long range."
+                            description: "Mach 4: Deal triple damage to a single target from long range."
                         }
                     ]
                 },
@@ -727,7 +727,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Volley",
                             icon: "arrow-rain.png",
                             type: "class-sub-skill",
-                            description: "Fire a volley of arrows, dealing 1d20 damage to up to three enemies."
+                            description: "Mach 3: Fire a volley of arrows, dealing 1d20 damage to up to three enemies."
                         }
                     ]
                 }
@@ -748,7 +748,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Elemental Burst",
                     icon: "burning-dot.png",
                     type: "class-skill",
-                    description: "Deal +1d20 bonus damage based on Affinity on hit."
+                    description: "Mach 3: Deal 1d20 additional damage to your target on your next attack."
                 }
             ],
             subclasses: [
@@ -765,7 +765,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Enchant Item",
                             icon: "magic-swirl.png",
                             type: "class-sub-skill",
-                            description: "Temporarily enchant an item to give it magical properties. Lasts for 4 turns."
+                            description: "Mach 4: Temporarily enchant an item to give it magical properties. Lasts for 4 turns."
                         }
                     ]
                 },
@@ -783,7 +783,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Arcane Barrage",
                             icon: "magic-missile.png",
                             type: "class-sub-skill",
-                            description: "Unleash a volley of 3 arcane bolts, each dealing 1d20 damage."
+                            description: "Mach 3: Unleash a volley of 3 arcane bolts, each dealing 1d20 damage."
                         }
                     ]
                 },
@@ -800,7 +800,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Conjure Familiar",
                             icon: "familiar-spirit.png",
                             type: "class-sub-skill",
-                            description: "Summon a magical familiar that aids in scouting or combat for 3 turns."
+                            description: "Mach 3: Summon a magical familiar that aids in scouting or combat for 3 turns."
                         }
                     ]
                 }
@@ -820,7 +820,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Healing Light",
                     icon: "light-heal.png",
                     type: "class-skill",
-                    description: "Heal an ally for 2d20 health."
+                    description: "Mach 3: Heal an ally for 1d20 (Mind)."
                 }
             ],
             subclasses: [
@@ -838,7 +838,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Divine Shield",
                             icon: "holy-shield.png",
                             type: "class-sub-skill",
-                            description: "Grant an ally a shield that absorbs 2d20 damage for 2 turns."
+                            description: "Mach 3: Grant an ally a shield that absorbs 1d20 damage for 2 turns."
                         }
                     ]
                 },
@@ -849,15 +849,7 @@ window.D20_CAMPAIGN_DATA = {
                         icon: "eye-of-truth.png",
                         type: "class-sub-passive",
                         description: "Gain +2 to all foresight and divination checks."
-                    },
-                    skills: [
-                        {
-                            name: "Foresight",
-                            icon: "future-sight.png",
-                            type: "class-sub-skill",
-                            description: "Predict an enemy’s next move, granting +2 to dodge or counterattack."
-                        }
-                    ]
+                    }
                 },
                 {
                     name: "Crusader",
@@ -873,7 +865,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Smite Evil",
                             icon: "holy-hammer.png",
                             type: "class-sub-skill",
-                            description: "Deal 2d20 damage to an unholy creature with a melee attack."
+                            description: "Mach 4: Deal 2d20 (Might) damage to an adjacent entity."
                         }
                     ]
                 }
@@ -893,7 +885,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Frenzied Strike",
                     icon: "axe-swing.png",
                     type: "class-skill",
-                    description: "Deal 2d20 damage but take 1d20 recoil damage."
+                    description: "Mach 3: Deal 2d20 damage but take 1d20 recoil damage."
                 }
             ],
             subclasses: [
@@ -911,7 +903,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Rampage",
                             icon: "war-axe.png",
                             type: "class-sub-skill",
-                            description: "Attack all enemies in a small radius for 1d20 damage each."
+                            description: "Mach 5: Attack all entities in a radius equal to your Agility stat score for 1d20 (Might) each."
                         }
                     ]
                 },
@@ -928,7 +920,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Totem Call",
                             icon: "spirit-wolf.png",
                             type: "class-sub-skill",
-                            description: "Summon a spiritual animal that aids in battle for 3 turns."
+                            description: "Mach 4: Summon a spiritual animal that aids in battle for 3 turns."
                         }
                     ]
                 },
@@ -946,7 +938,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Rallying Shout",
                             icon: "war-cry.png",
                             type: "class-sub-skill",
-                            description: "Inspire allies, granting +1 to attack rolls for 2 turns."
+                            description: "Mach 3: Inspire allies, granting +1 plus your Might stat score to attack rolls for 2 turns."
                         }
                     ]
                 }
@@ -966,7 +958,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Wild Shape",
                     icon: "wolf-head.png",
                     type: "class-skill",
-                    description: "Transform into an animal, gaining its abilities for 3 turns."
+                    description: "Mach 4: Transform into an animal, gaining its abilities for 3 turns."
                 }
             ],
             subclasses: [
@@ -984,7 +976,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Dire Form",
                             icon: "bear-head.png",
                             type: "class-sub-skill",
-                            description: "Transform into a powerful beast, gaining +2 strength and 2d20 health."
+                            description: "Mach 5: Transform into a powerful beast, gaining +2 Might and 1d20 (Vigor) additional health."
                         }
                     ]
                 },
@@ -1001,7 +993,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Storm Call",
                             icon: "lightning-bolt.png",
                             type: "class-sub-skill",
-                            description: "Summon a storm that deals 1d20 lightning damage to all enemies."
+                            description: "Mach 4: Summon a storm that deals 1d20 lightning damage to all enemies."
                         }
                     ]
                 },
@@ -1019,7 +1011,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Vine Barrier",
                             icon: "vine-shield.png",
                             type: "class-sub-skill",
-                            description: "Summon a barrier of vines that absorbs 2d20 damage for 2 turns."
+                            description: "Mach 3: Summon a barrier of vines that covers a square footage equal to your Mind stat score and absorbs 1d20 damage for 2 turns."
                         }
                     ]
                 }
@@ -1039,7 +1031,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Flurry of Blows",
                     icon: "fist-strike.png",
                     type: "class-skill",
-                    description: "Make two unarmed attacks in a single turn, each dealing 1d20 damage."
+                    description: "Mach 3: Make two unarmed attacks on a single target. Roll 1d20 (Might) twice; on each roll your target rolls 1d20 (Vigor)."
                 }
             ],
             subclasses: [
@@ -1057,7 +1049,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Shadow Strike",
                             icon: "shadow-grasp.png",
                             type: "class-sub-skill",
-                            description: "Teleport behind an enemy and deal 1d20 damage."
+                            description: "Mach 3: Teleport a distance up to or equal to your Mind stat score. Then, if an enemy is adjacent to you, roll 1d20 (Might) for an attack."
                         }
                     ]
                 },
@@ -1074,7 +1066,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Tranquil Touch",
                             icon: "healing-hand.png",
                             type: "class-sub-skill",
-                            description: "Calm an enemy, preventing them from attacking for 1 turn."
+                            description: "Mach 4: Calm an enemy, preventing them from attacking for 1 turn."
                         }
                     ]
                 },
@@ -1092,7 +1084,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Thunder Punch",
                             icon: "thunder-fist.png",
                             type: "class-sub-skill",
-                            description: "Deliver a punch that deals 1d20 damage and stuns the enemy for 1 turn."
+                            description: "Mach 3: Deliver a punch that deals 1d20 damage and stuns the enemy for 1 turn."
                         }
                     ]
                 }
@@ -1112,7 +1104,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Song of Courage",
                     icon: "lyre.png",
                     type: "class-skill",
-                    description: "Grant all allies +2 to attack rolls for 2 turns."
+                    description: "Mach 3: Grant all allies +2 to attack rolls for 2 turns."
                 }
             ],
             subclasses: [
@@ -1130,7 +1122,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Battle Hymn",
                             icon: "war-drum.png",
                             type: "class-sub-skill",
-                            description: "Increase allies’ damage by 1d20 for 2 turns."
+                            description: "Mach 4: Increase allies’ damage by 1d20 for 2 turns."
                         }
                     ]
                 },
@@ -1147,7 +1139,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Enthralling Tune",
                             icon: "charm-song.png",
                             type: "class-sub-skill",
-                            description: "Charm an enemy, preventing them from attacking for 1 turn."
+                            description: "Mach 3: Charm an enemy, preventing them from attacking for 1 turn."
                         }
                     ]
                 },
@@ -1164,7 +1156,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Legendary Saga",
                             icon: "story-book.png",
                             type: "class-sub-skill",
-                            description: "Recount a tale, granting allies +2 to saving throws for 2 turns."
+                            description: "Mach 2: Recount a tale, granting allies +2 to saving throws for 2 turns."
                         }
                     ]
                 }
@@ -1184,7 +1176,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Eldritch Blast",
                     icon: "dark-bolt.png",
                     type: "class-skill",
-                    description: "Fire a blast of dark energy, dealing 2d20 damage."
+                    description: "Mach 3: Fire a blast of dark energy at a single target. Roll 1d20 (Mind), dealing that much dark damage."
                 }
             ],
             subclasses: [
@@ -1202,7 +1194,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Infernal Chains",
                             icon: "chain-fire.png",
                             type: "class-sub-skill",
-                            description: "Bind an enemy with fiery chains, dealing 1d20 damage and immobilizing them for 1 turn."
+                            description: "Mach 4: Bind an enemy with fiery chains, dealing 1d20 damage and immobilizing them for 1 turn."
                         }
                     ]
                 },
@@ -1228,7 +1220,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Curious Gaze",
                             icon: "eldritch-eye.png",
                             type: "class-sub-skill",
-                            description: "Roll 1d20 and Affict a target with 'Curiosity Effect' for 3 turns, The Result of your roll becomes the DC for the status effect. Also the target must roll at the start of their turn and if the result is 7 or lower, the target is confused and cannot take actions. (Cooldown 2 turns)."
+                            description: "Mach 4: Roll 1d20 and Affict a target with 'Curiosity Effect' for 3 turns, The Result of your roll becomes the DC for the status effect. Also the target must roll at the start of their turn and if the result is 7 or lower, the target is confused and cannot take actions. (Cooldown 2 turns)."
                         }
                     ]
                 },
@@ -1246,7 +1238,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Fey Step",
                             icon: "fey-portal.png",
                             type: "class-sub-skill",
-                            description: "Teleport a short distance and gain +2 to dodge for 1 turn."
+                            description: "Mach 2: Teleport a distance up to or equal to your Mind stat score. This does not count as your movement."
                         }
                     ]
                 }
@@ -1266,7 +1258,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Raise Dead",
                     icon: "skeleton-rise.png",
                     type: "class-skill",
-                    description: "Raise a fallen enemy as a skeleton minion with 1d20 health for 3 turns."
+                    description: "Mach 3: Raise a fallen enemy as a skeleton minion with 1d20 health for 3 turns."
                 }
             ],
             subclasses: [
@@ -1284,7 +1276,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Soul Slash",
                             icon: "soul-reap.png",
                             type: "class-sub-skill",
-                            description: "Strike an enemy for 2d20 damage, healing yourself for half the damage dealt."
+                            description: "Mach 4: Strike an enemy in an adjacent space and roll 1d20 (Might) for the attack. If it is successful, heal yourself for half the value of the damage your opponent took."
                         }
                     ]
                 },
@@ -1301,7 +1293,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Death’s Grasp",
                             icon: "death-hand.png",
                             type: "class-sub-skill",
-                            description: "Drain an enemy’s life force, dealing 1d20 damage and healing yourself for the same amount."
+                            description: "Mach 3: Drain an enemy’s life force, dealing 1d20 (Mind) damage and healing yourself for the same amount."
                         }
                     ]
                 },
@@ -1319,7 +1311,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Bone Storm",
                             icon: "bone-shard.png",
                             type: "class-sub-skill",
-                            description: "Unleash a storm of bones, dealing 1d20 damage to all enemies in a small radius."
+                            description: "Mach 4: Unleash a storm of bones, dealing 1d20 (Might) damage to all enemies in a radius equal to your Mind stat score."
                         }
                     ]
                 }
@@ -1339,7 +1331,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Mental Blast",
                     icon: "psionic-bolt.png",
                     type: "class-skill",
-                    description: "Focus your mind to strike an enemy mentally, dealing 2d20 damage."
+                    description: "Mach 3: Focus your mind to strike an enemy mentally, dealing 1d20 (Mind) damage."
                 },
                 {
                     name: "Meditation",
@@ -1363,7 +1355,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Mental Link",
                             icon: "telepathy.png",
                             type: "class-sub-skill",
-                            description: "Link minds with allies, allowing them to share information and grant +1 to insight checks."
+                            description: "Mach 1: Link minds with allies, allowing them to share information and grant +1 to insight checks."
                         }
                     ]
                 },
@@ -1380,7 +1372,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Psychic Mend",
                             icon: "mind-heal.png",
                             type: "class-sub-skill",
-                            description: "Mend an ally's mental wounds, healing 2d20 health and removing one negative mental effect."
+                            description: "Mach 3: Mend an ally's mental wounds, healing 1d20 (Mind) health and removing one negative mental effect."
                         }
                     ]
                 },
@@ -1398,7 +1390,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Telekinetic Strike",
                             icon: "telekinesis.png",
                             type: "class-sub-skill",
-                            description: "Use psychic force to manipulate objects and enemies, dealing 1d20 damage and moving them."
+                            description: "Mach 3: Use psychic force to manipulate objects and enemies, dealing 1d20 damage and moving them."
                         }
                     ]
                 },
@@ -1409,7 +1401,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Mother's Gift",
                             icon: "mothersgift.png",
                             type: "subclass-skill",
-                            description: "when you use your gift you hear your Symphony to call upon your Starlight Blade This weapon doesn't take an Inventory slot."
+                            description: "Mach 4: when you use your gift you hear your Symphony to call upon your Starlight Blade This weapon doesn't take an Inventory slot."
                         }
                     ],
                     passive: {
@@ -1426,7 +1418,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Brother's Gift",
                             icon: "brothersgift.png",
                             type: "subclass-skill",
-                            description: "when you use your gift you hear your Requiem to call upon your Oblivion Blade This weapon doesn't take an Inventory slot."
+                            description: "Mach 4: when you use your gift you hear your Requiem to call upon your Oblivion Blade This weapon doesn't take an Inventory slot."
                         }
                     ],
                     passive: {
@@ -1452,7 +1444,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Catalytic Reaction",
                     icon: "chemistry-flask.png",
                     type: "class-skill",
-                    description: "Throw an alchemical mixture dealing 1d20 damage and applying a random effect."
+                    description: "Mach 3: Throw an alchemical mixture dealing 1d20 damage and applying a random effect."
                 }
             ],
             subclasses: [
@@ -1470,7 +1462,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Bottled Fortune",
                             icon: "bottled-gift.png",
                             type: "class-sub-skill",
-                            description: "Brew a potion that grants an ally +2 to their next roll, lasting 2 turns."
+                            description: "Mach 2: Brew a potion that grants an ally +2 to their next roll, lasting 2 turns."
                         }
                     ]
                 },
@@ -1487,7 +1479,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Explosive Synthesis",
                             icon: "explosion-burst.png",
                             type: "class-sub-skill",
-                            description: "Create and detonate an explosive mixture, dealing 2d20 damage in a radius."
+                            description: "Mach 4: Create an explosive mixture and throw it up to a distance equal to your Agility stat score, dealing 1d20 damage. Targets are inflicted with Burning if successfully hit."
                         }
                     ]
                 },
@@ -1505,7 +1497,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Material Transform",
                             icon: "shape-shift.png",
                             type: "class-sub-skill",
-                            description: "Transform one material into another or change an object's properties for 3 turns."
+                            description: "Mach 3: Transform one material into another or change an object's properties for 3 turns."
                         }
                     ]
                 }
@@ -1525,7 +1517,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Automated Defense",
                     icon: "gear-construct.png",
                     type: "class-skill",
-                    description: "Deploy a constructed device that grants +1 defense to you or an ally for 2 turns."
+                    description: "Mach 2: Deploy a constructed device that grants +1 defense to you or an ally for 2 turns."
                 }
             ],
             subclasses: [
@@ -1543,7 +1535,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Enchanted Weapon",
                             icon: "enchanted-sword.png",
                             type: "class-sub-skill",
-                            description: "Infuse a weapon with magic, granting +1d20 damage for 3 turns."
+                            description: "Mach 3: Infuse a weapon with magic, granting +1d20 damage for 3 turns."
                         }
                     ]
                 },
@@ -1560,7 +1552,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Summon Golem",
                             icon: "stone-golem.png",
                             type: "class-sub-skill",
-                            description: "Create a golem companion with 3d20 health that fights for you for 4 turns."
+                            description: "Mach 4: Create a golem companion with 3d20 health that fights for you for 4 turns."
                         }
                     ]
                 },
@@ -1578,7 +1570,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Mechanical Trap",
                             icon: "trap-spring.png",
                             type: "class-sub-skill",
-                            description: "Set an automated trap dealing 1d20 damage and immobilizing enemies for 1 turn."
+                            description: "Mach 2: Roll 1d20 (Might) and set an automated trap where you stand. The result of your dice roll equals the damage an entity takes when they move across or onto the trap."
                         }
                     ]
                 }
@@ -1598,7 +1590,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Ancestral Totem",
                     icon: "totem.png",
                     type: "class-skill",
-                    description: "Place a totem that grants allies +1 to checks and absorbs 1d20 damage for 2 turns."
+                    description: "Mach 3: Place a totem that grants allies +1 to checks and absorbs 1d20 damage for 2 turns."
                 }
             ],
             subclasses: [
@@ -1616,7 +1608,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Thunder Rite",
                             icon: "lightning-bolt.png",
                             type: "class-sub-skill",
-                            description: "Call a thunder strike that deals 2d20 lightning damage to one target."
+                            description: "Mach 3: Call a thunder strike dealing 1d20 (Mind) lightning damage to one target."
                         }
                     ]
                 },
@@ -1633,7 +1625,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Warding Circle",
                             icon: "magic-circle.png",
                             type: "class-sub-skill",
-                            description: "Create a warded circle that weakens enemies by -2 to checks for 2 turns."
+                            description: "Mach 3: Create a warded circle that weakens enemies by -2 to checks for 2 turns."
                         }
                     ]
                 },
@@ -1651,7 +1643,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Binding Hex",
                             icon: "curse.png",
                             type: "class-sub-skill",
-                            description: "Hex a target for 3 turns; they take 1d20 damage at the start of each turn."
+                            description: "Mach 4: Hex a target for 3 turns; they take 1d20 damage at the start of each turn."
                         }
                     ]
                 }
@@ -1671,7 +1663,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Guardian Stance",
                     icon: "shield-bash.png",
                     type: "class-skill",
-                    description: "Enter a stance for 2 turns that reduces incoming damage by 1d20."
+                    description: "Mach 3: Enter a stance for 2 turns that reduces incoming damage by 1d20."
                 }
             ],
             subclasses: [
@@ -1689,7 +1681,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Interpose",
                             icon: "protective-shield.png",
                             type: "class-sub-skill",
-                            description: "Take an incoming hit for an ally and reduce it by 2d20."
+                            description: "Mach 3: Take an incoming hit for an ally and reduce it by 1d20 (Vigor)."
                         }
                     ]
                 },
@@ -1706,7 +1698,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Advance Breaker",
                             icon: "charge.png",
                             type: "class-sub-skill",
-                            description: "Break enemy formation, dealing 1d20 damage and forcing a target back."
+                            description: "Mach 3: Break enemy formation, dealing 1d20 damage and forcing a target back."
                         }
                     ]
                 },
@@ -1724,7 +1716,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Sanctified Wall",
                             icon: "wall-shield.png",
                             type: "class-sub-skill",
-                            description: "Create a sacred barrier that absorbs 3d20 damage over 2 turns."
+                            description: "Mach 3: Create a sacred barrier that absorbs 1d20 damage over 2 turns."
                         }
                     ]
                 }
@@ -1744,7 +1736,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Arc Slash",
                     icon: "energy-sword.png",
                     type: "class-skill",
-                    description: "Strike with infused steel, dealing weapon damage plus +1d20 arcane damage."
+                    description: "Mach 3: Strike with infused steel, dealing weapon damage plus +1d20 arcane damage."
                 }
             ],
             subclasses: [
@@ -1762,7 +1754,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Rune Burst",
                             icon: "rune-blast.png",
                             type: "class-sub-skill",
-                            description: "Trigger a rune explosion for 2d20 arcane damage in a small radius."
+                            description: "Mach 2: Trigger a rune explosion for 1d20 arcane damage in a radius up to or equal to your Mind stat score."
                         }
                     ]
                 },
@@ -1779,7 +1771,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Mirror Cut",
                             icon: "slash.png",
                             type: "class-sub-skill",
-                            description: "Counter a melee attack and deal 1d20 retaliatory damage."
+                            description: "Mach 3: Enter a stance. If you are attacked with a physical attack, negate the attack and damage the attacker for 1d20 (Might). This stance remains until you counter an attack or are hit with a skill/attack that doesn’t roll Might."
                         }
                     ]
                 },
@@ -1797,7 +1789,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Sigil Drive",
                             icon: "sigil.png",
                             type: "class-sub-skill",
-                            description: "Imprint a sigil on a target; your next hit deals +2d20 damage."
+                            description: "Mach 3: Imprint a sigil on a target; your next hit deals +1d20 damage."
                         }
                     ]
                 }
@@ -1828,7 +1820,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Mother's Gift",
                             icon: "mothersgift.png",
                             type: "subclass-skill",
-                            description: "When you use your gift. you hear your Symphony to call upon your Starlight Blade. This weapon doesn't take an Inventory slot."
+                            description: "Mach 4: When you use your gift. you hear your Symphony to call upon your Starlight Blade. This weapon doesn't take an Inventory slot."
                         }
                     ],
                     passive: {
@@ -1845,7 +1837,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Brother's Gift",
                             icon: "brothersgift.png",
                             type: "subclass-skill",
-                            description: "When you use your gift you hear your Requiem to call upon your Oblivion Blade. This weapon doesn't take an Inventory slot."
+                            description: "Mach 4: When you use your gift you hear your Requiem to call upon your Oblivion Blade. This weapon doesn't take an Inventory slot."
                         }
                     ],
                     passive: {
@@ -1872,7 +1864,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Lock On",
                     icon: "locked on.png",
                     type: "class-skill",
-                    description: "Once per turn, when you make an Accuracy check (Agility), you may roll an additional unmodified 1d20 and add the result to your total."
+                    description: "Mach 3: Once per turn, when you make an Accuracy check (Agility), you may roll an additional unmodified 1d20 and add the result to your total."
                 }
             ],
             subclasses: [
@@ -1884,7 +1876,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Mother's Gift",
                             icon: "mothersgift.png",
                             type: "subclass-skill",
-                            description: "when you use your gift you hear your Symphony to call upon your Starlight Blade This weapon doesn't take an Inventory slot."
+                            description: "Mach 4: when you use your gift you hear your Symphony to call upon your Starlight Blade This weapon doesn't take an Inventory slot."
                         }
                     ],
                     passive: {
@@ -1902,7 +1894,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Brother's Gift",
                             icon: "brothersgift.png",
                             type: "subclass-skill",
-                            description: "when you use your gift you hear your Requiem to call upon your Oblivion Blade This weapon doesn't take an Inventory slot."
+                            description: "Mach 4: when you use your gift you hear your Requiem to call upon your Oblivion Blade This weapon doesn't take an Inventory slot."
                         }
                     ],
                     passive: {
@@ -1933,7 +1925,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Mother's Gift",
                             icon: "mothersgift.png",
                             type: "subclass-skill",
-                            description: "when you use your gift you hear your Symphony to call upon your Starlight Blade This weapon doesn't take an Inventory slot."
+                            description: "Mach 4: when you use your gift you hear your Symphony to call upon your Starlight Blade This weapon doesn't take an Inventory slot."
                         }
                     ],
                     passive: {
@@ -1950,7 +1942,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Brother's Gift",
                             icon: "brothersgift.png",
                             type: "subclass-skill",
-                            description: "when you use your gift you hear your Requiem to call upon your Oblivion Blade This weapon doesn't take an Inventory slot."
+                            description: "Mach 4: when you use your gift you hear your Requiem to call upon your Oblivion Blade This weapon doesn't take an Inventory slot."
                         }
                     ],
                     passive: {
@@ -1976,7 +1968,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Medical Experiment",
                     icon: "medicalexperiment.png",
                     type: "class-skill",
-                    description: "You can mix ingredients for new item effects."
+                    description: "Mach 2: You can mix ingredients for new item effects."
                 }
             ],
             subclasses: [
@@ -1987,7 +1979,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Mother's Gift",
                             icon: "mothersgift.png",
                             type: "subclass-skill",
-                            description: "when you use your gift you hear your Symphony to call upon your Starlight Blade This weapon doesn't take an Inventory slot."
+                            description: "Mach 4: when you use your gift you hear your Symphony to call upon your Starlight Blade This weapon doesn't take an Inventory slot."
                         }
                     ],
                     passive: {
@@ -2004,7 +1996,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Brother's Gift",
                             icon: "brothersgift.png",
                             type: "subclass-skill",
-                            description: "when you use your gift you hear your Requiem to call upon your Oblivion Blade This weapon doesn't take an Inventory slot."
+                            description: "Mach 4: when you use your gift you hear your Requiem to call upon your Oblivion Blade This weapon doesn't take an Inventory slot."
                         }
                     ],
                     passive: {
@@ -2031,7 +2023,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Footwork",
                     icon: "footwork.png",
                     type: "class-skill",
-                    description: "Gains additional stealth points on use. Requires Sword."
+                    description: "When holding a sword gain +2 towards agility checks."
                 }
             ],
             subclasses: [
@@ -2042,7 +2034,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Mother's Gift",
                             icon: "mothersgift.png",
                             type: "subclass-skill",
-                            description: "when you use your gift you hear your Symphony to call upon your Starlight Blade This weapon doesn't take an Inventory slot."
+                            description: "Mach 4: when you use your gift you hear your Symphony to call upon your Starlight Blade This weapon doesn't take an Inventory slot."
                         }
                     ],
                     passive: {
@@ -2059,7 +2051,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Brother's Gift",
                             icon: "brothersgift.png",
                             type: "subclass-skill",
-                            description: "when you use your gift you hear your Requiem to call upon your Oblivion Blade This weapon doesn't take an Inventory slot."
+                            description: "Mach 4: when you use your gift you hear your Requiem to call upon your Oblivion Blade This weapon doesn't take an Inventory slot."
                         }
                     ],
                     passive: {
@@ -2096,7 +2088,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Mother's Gift",
                             icon: "mothersgift.png",
                             type: "subclass-skill",
-                            description: "when you use your gift you hear your Symphony to call upon your Starlight Blade This weapon doesn't take an Inventory slot."
+                            description: "Mach 4: when you use your gift you hear your Symphony to call upon your Starlight Blade This weapon doesn't take an Inventory slot."
                         }
                     ],
                     passive: {
@@ -2113,7 +2105,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Brother's Gift",
                             icon: "brothersgift.png",
                             type: "subclass-skill",
-                            description: "when you use your gift you hear your Requiem to call upon your Oblivion Blade This weapon doesn't take an Inventory slot."
+                            description: "Mach 4: when you use your gift you hear your Requiem to call upon your Oblivion Blade This weapon doesn't take an Inventory slot."
                         }
                     ],
                     passive: {
@@ -2139,7 +2131,7 @@ window.D20_CAMPAIGN_DATA = {
                     name: "Quick Recon",
                     icon: "recon.png",
                     type: "class-skill",
-                    description: "Perform a fast reconnaissance sweep to reveal traps or enemies."
+                    description: "Mach 2: Perform a fast reconnaissance sweep to reveal traps or enemies."
                 }
             ],
             subclasses: [
@@ -2150,7 +2142,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Mother's Gift",
                             icon: "mothersgift.png",
                             type: "subclass-skill",
-                            description: "when you use your gift you hear your Symphony to call upon your Starlight Blade This weapon doesn't take an Inventory slot."
+                            description: "Mach 4: when you use your gift you hear your Symphony to call upon your Starlight Blade This weapon doesn't take an Inventory slot."
                         }
                     ],
                     passive: {
@@ -2167,7 +2159,7 @@ window.D20_CAMPAIGN_DATA = {
                             name: "Brother's Gift",
                             icon: "brothersgift.png",
                             type: "subclass-skill",
-                            description: "when you use your gift you hear your Requiem to call upon your Oblivion Blade This weapon doesn't take an Inventory slot."
+                            description: "Mach 4: when you use your gift you hear your Requiem to call upon your Oblivion Blade This weapon doesn't take an Inventory slot."
                         }
                     ],
                     passive: {
