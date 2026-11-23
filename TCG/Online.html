@@ -488,7 +488,12 @@ h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02e
 .opp-board{--card-w:92px; --card-h:130px; margin-bottom:0;}
 .opp-board .slot-label{font-size:0.6rem;}
 .opp-board .field-card{cursor:pointer;}
-.opp-life{color:#fff; font-size:0.72rem; font-weight:700; padding:0 8px;}
+.opp-life{color:#fff; font-size:0.72rem; font-weight:700; padding:0 3px; cursor:pointer;}
+.opp-life-btn{
+  background:transparent; border:none; color:var(--gold); font-weight:800; font-size:0.85rem;
+  cursor:pointer; padding:0 3px; line-height:1;
+}
+.opp-life-btn:hover{color:#fff;}
 .opp-unknown{
   width:100%; height:100%; display:flex; align-items:center; justify-content:center; text-align:center;
   padding:6px; font-size:0.65rem; color:var(--ink-dim); background:var(--bg-700);
@@ -1955,6 +1960,14 @@ const POPOUT_DOCUMENT_HTML = `<!DOCTYPE html>
   }
   .stage{width:100%; max-width:1100px;}
   h2{font-family:Georgia,serif; color:var(--parchment); text-align:center; margin-top:0;}
+  .grid.opp{--card-w:96px; --card-h:135px; margin-bottom:10px;}
+  body.versus{--card-w:118px; --card-h:166px; padding:12px;}
+  body.versus .grid{margin-bottom:16px;}
+  .opp-wrap{max-width:1100px; margin:0 auto;}
+  .opp-head{display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:6px; font-size:0.78rem; color:#9797a6;}
+  .opp-head b{color:var(--gold);}
+  .opp-title{font-family:Georgia,serif; color:var(--parchment); font-size:0.95rem;}
+  .unknown{width:100%; height:100%; display:flex; align-items:center; justify-content:center; text-align:center; padding:6px; font-size:0.65rem; color:#9797a6; background:var(--bg-700);}
   .grid{display:grid; grid-template-columns:1fr 1fr 1.25fr 1fr 1fr; gap:14px; align-items:end; max-width:1100px; margin:0 auto 26px;}
   .slot{display:flex; flex-direction:column; align-items:center; gap:8px;}
   .slot .label{font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:#9797a6; font-weight:700;}
@@ -1996,6 +2009,10 @@ const POPOUT_DOCUMENT_HTML = `<!DOCTYPE html>
 </head>
 <body>
   <div class="stage">
+    <div class="opp-wrap" id="oppWrap" style="display:none;">
+      <div class="opp-head"><span class="opp-title">Opponent</span><span id="oppInfo"></span></div>
+      <div class="grid opp" id="oppGrid"></div>
+    </div>
     <div class="grid" id="grid"></div>
     <div class="piles">
       <div class="pile deck"><div class="pile-label">Main Deck</div><div class="stack" id="deckStack"></div></div>
@@ -2041,7 +2058,42 @@ const POPOUT_DOCUMENT_HTML = `<!DOCTYPE html>
     });
   }
 
+  function esc(s){
+    return String(s).replace(/[&<>"]/g, function(ch){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]; });
+  }
+
+  // Read-only board of the online opponent, shown above your own board.
+  function renderOpponent(opp){
+    var wrap = document.getElementById('oppWrap');
+    if(!opp){
+      wrap.style.display = 'none';
+      document.body.classList.remove('versus');
+      return;
+    }
+    wrap.style.display = 'block';
+    document.body.classList.add('versus');
+    document.getElementById('oppGrid').innerHTML = SLOTS.map(function(slot){
+      var c = opp.field ? opp.field[slot.key] : null;
+      var inner = '<span class="empty">&#10022;</span>';
+      if(c){
+        var art = c.image_path
+          ? '<img src="' + esc(c.image_path) + '" alt="' + esc(c.name) + '" style="box-shadow:inset 0 0 0 2px ' + accentColorFor(c) + '">'
+          : '<div class="unknown">' + esc(c.name) + '</div>';
+        var lifeTag = (typeof c.life === 'number') ? '<div class="life">' + c.life + '</div>' : '';
+        var atkTag = (typeof c.attack === 'number') ? '<div class="atk">ATK ' + c.attack + '</div>' : '';
+        var itemsBadge = c.itemCount ? '<div class="item-badge">+' + c.itemCount + ' item' + (c.itemCount > 1 ? 's' : '') + '</div>' : '';
+        inner = '<div class="card ' + (c.rotated ? 'rotated' : '') + '">' + art + lifeTag + atkTag + itemsBadge + '</div>';
+      }
+      return '<div class="slot ' + (slot.hero ? 'hero' : '') + '">' +
+             '<div class="label">' + slot.label + '</div>' +
+             '<div class="box">' + inner + '</div></div>';
+    }).join('');
+    document.getElementById('oppInfo').innerHTML =
+      'Hand <b>' + opp.handCount + '</b> &middot; Deck <b>' + opp.deckCount + '</b> &middot; Veil <b>' + opp.veilCount + '</b>';
+  }
+
   function render(data){
+    renderOpponent(data.opponent);
     applyTheme(data.theme);
     var grid = document.getElementById('grid');
     grid.innerHTML = SLOTS.map(function(slot){
@@ -2117,7 +2169,13 @@ function openPopout(){
 }
 
 function syncPopout(){
-  syncPeer(); // also mirror the board to the online opponent (no-op when offline)
+  syncPeer();   // also mirror the board to the online opponent (no-op when offline)
+  pushPopout();
+}
+
+/* Pop-out only (never touches the network). Used directly when the OPPONENT's
+   board changes, so we don't echo our own state back and forth. */
+function pushPopout(){
   if(!popoutWin || popoutWin.closed) { popoutWin = null; return; }
   const payload = {
     type: 'tcg-sync',
@@ -2126,7 +2184,8 @@ function syncPopout(){
     cardBack: CARD_BACK_IMAGE,
     mainDeckCount: battle.mainDeck.length,
     veilTop: battle.veil.length ? battle.veil[battle.veil.length - 1] : null,
-    veilCount: battle.veil.length
+    veilCount: battle.veil.length,
+    opponent: opponentForPopout() // null when offline; already sanitized
     // battle.hand is intentionally NEVER included here.
   };
   popoutWin.postMessage(payload, '*');
@@ -2428,6 +2487,18 @@ function mpOnData(msg){
       veilTop: typeof msg.veilTop === 'string' ? mpName(msg.veilTop) : null
     };
     renderOpponent();
+  } else if(msg.type === 'life'){
+    const slotOk = FIELD_SLOTS.some(s => s.key === msg.slot);
+    const card = slotOk ? battle.field[msg.slot] : null;
+    const delta = Math.trunc(Number(msg.delta));
+    if(card && typeof card.life === 'number' && Number.isFinite(delta) && delta !== 0 && card.name === mpName(msg.name)){
+      const d = Math.max(-999, Math.min(999, delta));
+      card.life = Math.max(0, card.life + d);
+      document.getElementById('battleStatus').textContent =
+        'Opponent changed "' + card.name + '" life by ' + (d > 0 ? '+' : '') + d + ' (now ' + card.life + ').';
+      renderBattle();
+      syncPopout(); // also pushes the new total back to the opponent
+    }
   } else if(msg.type === 'anim'){
     const key = (typeof msg.key === 'string' && Object.prototype.hasOwnProperty.call(MP_SOUNDS, msg.key)) ? msg.key : null;
     const card = key ? findCardByName(mpName(msg.name)) : null;
@@ -2439,9 +2510,33 @@ function mpOnData(msg){
 }
 
 /* ---- Opponent board (read-only) ------------------------------------------ */
+/* Compact, already-sanitized copy of the opponent's board for the pop-out window.
+   Image paths come from OUR card database, never from the other player. */
+function opponentForPopout(){
+  if(!mp.connected || !opponent) return null;
+  const field = {};
+  FIELD_SLOTS.forEach(slot => {
+    const c = opponent.field[slot.key];
+    if(!c){ field[slot.key] = null; return; }
+    const local = findCardByName(c.name);
+    field[slot.key] = {
+      name: c.name,
+      image_path: local && local.image_path ? local.image_path : '',
+      card_type: c.card_type,
+      affinity: c.affinity,
+      life: c.life,
+      attack: c.attack,
+      rotated: c.rotated,
+      itemCount: c.items.length
+    };
+  });
+  return { field, handCount: opponent.handCount, deckCount: opponent.deckCount, veilCount: opponent.veilCount };
+}
+
 function renderOpponent(){
   const sec = document.getElementById('opponentSection');
   if(!sec) return;
+  pushPopout(); // keep the stream pop-out in step (pop-out only, no network send)
   if(!mp.connected || !opponent){ sec.style.display = 'none'; return; }
   sec.style.display = 'block';
 
@@ -2456,7 +2551,13 @@ function renderOpponent(){
       const art = (local && local.image_path)
         ? '<img src="' + escapeHTML(local.image_path) + '" alt="' + escapeHTML(c.name) + '">'
         : '<div class="opp-unknown">' + escapeHTML(c.name) + '</div>';
-      const life = c.life !== null ? '<div class="life-tracker"><span class="opp-life">' + c.life + '</span></div>' : '';
+      const life = c.life !== null
+        ? '<div class="life-tracker">' +
+            '<button class="opp-life-btn" title="Deal 1 damage" onclick="event.stopPropagation(); adjustOpponentLife(\'' + slot.key + '\', -1)">&minus;</button>' +
+            '<span class="opp-life" title="Click to deal a custom amount of damage" onclick="event.stopPropagation(); promptOpponentDamage(\'' + slot.key + '\')">' + c.life + '</span>' +
+            '<button class="opp-life-btn" title="Heal 1" onclick="event.stopPropagation(); adjustOpponentLife(\'' + slot.key + '\', 1)">+</button>' +
+          '</div>'
+        : '';
       const atk = c.attack !== null ? '<div class="attack-badge">ATK ' + c.attack + '</div>' : '';
       const items = c.items.length
         ? '<div class="item-badge" title="' + escapeHTML(c.items.join(', ')) + '">+' + c.items.length + ' item' + (c.items.length > 1 ? 's' : '') + '</div>'
@@ -2479,6 +2580,27 @@ function renderOpponent(){
     '<span>Hand <b>' + opponent.handCount + '</b></span>' +
     '<span>Deck <b>' + opponent.deckCount + '</b></span>' +
     '<span>Veil <b>' + opponent.veilCount + '</b></span>' + veilThumb;
+}
+
+/* Changing the opponent's life: we send a small +/- amount and THEIR page applies
+   it to their own card, then syncs the new total back to us. Only life can be
+   changed this way, and only on a card whose name still matches. */
+function adjustOpponentLife(slotKey, delta){
+  const c = opponent && opponent.field[slotKey];
+  if(!c || c.life === null) return;
+  mpSend({ type: 'life', slot: slotKey, name: c.name, delta });
+  c.life = Math.max(0, c.life + delta); // optimistic; their next state sync confirms it
+  renderOpponent();
+}
+
+function promptOpponentDamage(slotKey){
+  const c = opponent && opponent.field[slotKey];
+  if(!c || c.life === null) return;
+  const raw = prompt('Damage to deal to "' + c.name + '" (use a negative number to heal):', '1');
+  if(raw === null) return;
+  const n = Math.trunc(Number(raw));
+  if(!Number.isFinite(n) || n === 0) return;
+  adjustOpponentLife(slotKey, -Math.max(-999, Math.min(999, n)));
 }
 
 function openOpponentCard(slotKey){
