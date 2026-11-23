@@ -1,0 +1,2510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/ScareTheVoices/D20/main/pics/d20.png">
+<title>D20TCG — Deck Editor &amp; Battle Simulator</title>
+<!-- PeerJS: free WebRTC helper used for peer-to-peer online matches (no game server needed) -->
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+
+:root{
+  --bg-900:#0b1020;
+  --bg-800:#111827;
+  --bg-700:#1b263b;
+  --panel:#101725;
+  --panel-raised:#172033;
+  --line:#566072;
+  --gold:#c9a227;
+  --gold-dim:#8f6f1e;
+  --parchment:#ede6d3;
+  --ink:#e5e7eb;
+  --ink-dim:#a9b1c3;
+  --blue-deck:#4a78c2;
+  --blue-deck-dim:#2b4d88;
+  --purple-veil:#7d5aa6;
+  --purple-veil-dim:#553978;
+  --danger:#b85757;
+  --good:#5f9f78;
+
+  /* Affinity accent colors — used on card borders, dots, and badges */
+  --aff-fire:#e2572b;
+  --aff-water:#3aa6d9;
+  --aff-earth:#7a9a4a;
+  --aff-air:#8fd0c9;
+  --aff-aether:#e8c766;
+  --aff-void:#8a5cd6;
+
+  /* Card-type accent colors — used when a card has no affinity (Skill/Item) */
+  --type-hero:#c9a227;
+  --type-support:#4a78c2;
+  --type-skill:#2f8f83;
+  --type-item:#b57b3e;
+
+  --card-w:135px;
+  --card-h:190px;      /* 135 x 190 == 1 : 1.4074, matches 960x1350 art */
+  --card-w-sm:64px;
+  --card-h-sm:90px;
+  --radius:10px;
+  --shadow:0 8px 24px rgba(0,0,0,0.5);
+  font-size:16px;
+}
+
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 20% -10%, rgba(212,175,90,0.06), transparent 40%),
+    radial-gradient(circle at 100% 0%, rgba(77,143,214,0.05), transparent 45%),
+    linear-gradient(180deg, var(--bg-900), var(--bg-800));
+  color:var(--ink);
+  font-family:'Trebuchet MS', 'Segoe UI', Verdana, sans-serif;
+  min-height:100vh;
+}
+h1,h2,h3{font-family:'Palatino Linotype', 'Georgia', serif; letter-spacing:0.02em;}
+
+/* ==========================================================================
+   TOP NAVIGATION
+   ========================================================================== */
+#topbar{
+  position:relative; z-index:2;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 24px; background:linear-gradient(180deg, var(--bg-700), var(--bg-800));
+  border-bottom:1px solid var(--line); box-shadow:var(--shadow);
+}
+#topbar .brand{display:flex; align-items:center; gap:10px;}
+#topbar .brand .crest{
+  width:34px; height:34px; object-fit:contain; flex-shrink:0;
+  filter:drop-shadow(0 0 6px rgba(58,134,255,0.3));
+}
+#topbar h1{margin:0; font-size:1.25rem; color:var(--parchment);}
+.topbar-tools{display:flex; align-items:center; gap:10px;}
+.nav-tabs{display:flex; gap:8px;}
+.nav-tabs button{
+  background:var(--panel); color:var(--ink-dim); border:1px solid var(--line);
+  padding:9px 18px; border-radius:999px; cursor:pointer; font-size:0.9rem;
+  font-weight:600; transition:all .15s ease;
+}
+.nav-tabs button.active{background:var(--gold); color:#241b06; border-color:var(--gold);}
+.nav-tabs button:not(.active):hover{border-color:var(--gold-dim); color:var(--parchment);}
+
+.screen{display:none; position:relative; z-index:1; padding:20px 24px 40px;}
+.screen.active{display:block;}
+
+/* Data-load status banner (fetch progress / CORS error guidance) */
+#loadBanner{
+  max-width:1400px; margin:0 auto 16px; padding:12px 16px; border-radius:8px;
+  font-size:0.85rem; display:none; border:1px solid var(--line);
+}
+#loadBanner.info{display:block; background:rgba(212,175,90,0.08); color:var(--gold); border-color:var(--gold-dim);}
+#loadBanner.error{display:block; background:rgba(209,106,95,0.1); color:#f0a89f; border-color:var(--danger);}
+#loadBanner code{background:rgba(0,0,0,0.3); padding:1px 6px; border-radius:4px;}
+
+/* ==========================================================================
+   SCREEN 1 — DECK EDITOR
+   ========================================================================== */
+#deckEditorScreen .editor-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:22px;
+  max-width:1400px; margin:0 auto;
+}
+@media (max-width:900px){ #deckEditorScreen .editor-grid{grid-template-columns:1fr;} }
+
+.panel{
+  background:linear-gradient(180deg, var(--panel-raised), var(--panel));
+  border:1px solid var(--line); border-radius:14px; padding:18px;
+  box-shadow:var(--shadow); display:flex; flex-direction:column; min-height:520px;
+}
+.panel h2{margin:0 0 12px; font-size:1.05rem; color:var(--parchment); display:flex; align-items:center; justify-content:space-between;}
+.panel h2 .count-pill{
+  font-family:'Trebuchet MS',sans-serif; font-size:0.75rem; background:var(--bg-900);
+  border:1px solid var(--line); color:var(--gold); padding:3px 10px; border-radius:999px;
+}
+
+#searchInput{
+  width:100%; padding:10px 14px; margin-bottom:10px; border-radius:8px;
+  border:1px solid var(--line); background:var(--bg-900); color:var(--ink);
+  font-size:0.95rem; outline:none;
+}
+#searchInput:focus{border-color:var(--gold-dim);}
+
+/* Card-type filter chips (All / Hero / Support / Skill / Item) */
+.type-filters{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
+.type-filters button{
+  background:var(--bg-900); color:var(--ink-dim); border:1px solid var(--line);
+  padding:5px 12px; border-radius:999px; cursor:pointer; font-size:0.75rem; font-weight:700;
+}
+.type-filters button.active{background:var(--gold); color:#241b06; border-color:var(--gold);}
+
+.scroll-list{overflow-y:auto; max-height:600px; display:flex; flex-direction:column; gap:8px; padding-right:4px;}
+.scroll-list::-webkit-scrollbar{width:8px;}
+.scroll-list::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
+
+.db-row{
+  display:flex; align-items:center; gap:12px; background:var(--bg-900);
+  border:1px solid var(--line); border-radius:8px; padding:8px; transition:border-color .15s;
+}
+.db-row:hover{border-color:var(--gold-dim);}
+.thumb-sm{
+  width:var(--card-w-sm); height:var(--card-h-sm); object-fit:cover; border-radius:6px;
+  border:2px solid var(--line); background:var(--bg-700); flex-shrink:0; cursor:pointer;
+}
+.db-row .meta{flex:1; min-width:0;}
+.db-row .meta .name-row{display:flex; align-items:center; gap:6px;}
+.db-row .meta .name{font-weight:600; color:var(--parchment); font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.db-row .meta .sub-line{font-size:0.7rem; color:var(--ink-dim); margin-top:2px;}
+.db-row .meta .stat-line{font-size:0.7rem; color:var(--gold); margin-top:2px; font-weight:600;}
+
+.type-badge{
+  font-size:0.6rem; font-weight:800; text-transform:uppercase; letter-spacing:0.04em;
+  padding:2px 7px; border-radius:5px; flex-shrink:0; color:#0c0c10;
+}
+.type-badge.hero{background:var(--type-hero);}
+.type-badge.support{background:var(--type-support);}
+.type-badge.skill{background:var(--type-skill); color:#f4eefe;}
+.type-badge.item{background:var(--type-item);}
+
+.affinity-dot{width:9px; height:9px; border-radius:50%; flex-shrink:0; box-shadow:0 0 4px currentColor;}
+.affinity-dot.fire{background:var(--aff-fire); color:var(--aff-fire);}
+.affinity-dot.water{background:var(--aff-water); color:var(--aff-water);}
+.affinity-dot.earth{background:var(--aff-earth); color:var(--aff-earth);}
+.affinity-dot.air{background:var(--aff-air); color:var(--aff-air);}
+.affinity-dot.aether{background:var(--aff-aether); color:var(--aff-aether);}
+.affinity-dot.void{background:var(--aff-void); color:var(--aff-void);}
+.affinity-icon{
+  width:15px; height:15px; object-fit:contain; flex-shrink:0;
+  display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 3px rgba(0,0,0,0.35));
+}
+.name-row .affinity-icon{margin-right:4px;}
+
+.qty-badge{
+  font-size:0.72rem; color:var(--gold); border:1px solid var(--gold-dim); border-radius:999px;
+  padding:2px 8px; min-width:34px; text-align:center;
+}
+.add-btn{
+  background:var(--gold); color:#241b06; border:none; border-radius:6px; width:30px; height:30px;
+  font-size:1.1rem; font-weight:700; cursor:pointer; flex-shrink:0;
+}
+.add-btn:disabled{background:var(--line); color:var(--ink-dim); cursor:not-allowed;}
+
+.deck-row{
+  display:flex; align-items:center; gap:12px; background:var(--bg-900);
+  border:1px solid var(--line); border-radius:8px; padding:8px;
+}
+.stepper{display:flex; align-items:center; gap:8px;}
+.stepper button{
+  width:26px; height:26px; border-radius:6px; border:1px solid var(--line);
+  background:var(--bg-700); color:var(--parchment); cursor:pointer; font-weight:700;
+}
+.stepper button:hover{border-color:var(--gold-dim);}
+.stepper .qty-num{width:20px; text-align:center; font-weight:700; color:var(--gold);}
+
+.panel-footer{margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:12px; border-top:1px solid var(--line); padding-top:14px;}
+.deck-total{font-size:0.85rem; color:var(--ink-dim);}
+.deck-total b{color:var(--parchment);}
+
+.btn{
+  border:none; border-radius:8px; padding:10px 18px; font-weight:700; cursor:pointer;
+  font-size:0.9rem; transition:filter .15s, transform .05s;
+}
+.btn:active{transform:translateY(1px);}
+.btn-gold{background:linear-gradient(180deg, var(--gold), var(--gold-dim)); color:#241b06;}
+.btn-gold:hover{filter:brightness(1.08);}
+.btn-blue{background:linear-gradient(180deg, var(--blue-deck), var(--blue-deck-dim)); color:#eaf2ff;}
+.btn-purple{background:linear-gradient(180deg, var(--purple-veil), var(--purple-veil-dim)); color:#f3ecff;}
+.btn-outline{background:transparent; border:1px solid var(--line); color:var(--ink);}
+.btn-outline:hover{border-color:var(--gold-dim); color:var(--parchment);}
+.btn:disabled{opacity:.5; cursor:not-allowed;}
+
+.empty-hint{color:var(--ink-dim); font-size:0.85rem; padding:20px; text-align:center; border:1px dashed var(--line); border-radius:8px;}
+
+/* ==========================================================================
+   SCREEN 2 — BATTLE SCREEN
+   ========================================================================== */
+#battleScreen .battle-toolbar{
+  display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
+  max-width:1400px; margin:0 auto 18px;
+}
+.battle-toolbar .left-tools, .battle-toolbar .right-tools{display:flex; gap:10px; flex-wrap:wrap;}
+
+.battle-table{
+  max-width:1400px; margin:0 auto; background:radial-gradient(ellipse at 50% 0%, var(--bg-700), var(--bg-900));
+  border:1px solid var(--line); border-radius:18px; padding:26px; box-shadow:var(--shadow);
+}
+
+.battle-main-grid{
+  display:grid; grid-template-columns:1fr; gap:0; align-items:start;
+}
+
+.battle-bottom-row{
+  display:grid; grid-template-columns:minmax(580px,1fr) 320px; gap:18px; align-items:start;
+}
+
+@media (max-width:1180px){
+  .battle-bottom-row{grid-template-columns:1fr;}
+}
+
+.battlefield-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr 1.25fr 1fr 1fr;
+  gap:14px; align-items:end; margin-bottom:22px;
+}
+.field-slot{position:relative; display:flex; flex-direction:column; align-items:center; gap:8px;}
+.field-slot .slot-label{font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-dim); font-weight:700;}
+.field-slot.hero .slot-label{color:var(--gold); font-size:0.78rem;}
+
+.dropzone{
+  width:var(--card-w); height:var(--card-h);
+  border:2px dashed var(--line); border-radius:var(--radius);
+  background:rgba(0,0,0,0.2);
+  display:flex; align-items:center; justify-content:center;
+  position:relative; transition:border-color .15s, background .15s;
+}
+.field-slot.hero .dropzone{
+  width:calc(var(--card-w) * 1.18); height:calc(var(--card-h) * 1.18);
+  border-color:var(--gold-dim); box-shadow:0 0 0 3px rgba(212,175,90,0.08);
+}
+.dropzone.drag-over{border-color:var(--gold); background:rgba(212,175,90,0.08);}
+.dropzone.occupied{border-style:solid;}
+
+.field-card{
+  width:100%; height:100%; border-radius:8px; overflow:hidden; position:relative;
+  cursor:grab; box-shadow:0 4px 14px rgba(0,0,0,0.55);
+  transform-origin:center center;
+}
+.field-card img{width:100%; height:100%; object-fit:cover; display:block; background:var(--bg-700);}
+.field-card.rotated{transform:rotate(-90deg);}
+.field-card.slam-play{animation:slamIn .44s cubic-bezier(.2,.82,.22,1.18);}
+
+/* Life tracker overlay (bottom-right) */
+.life-tracker{
+  position:absolute; right:5px; bottom:6px; display:flex; align-items:center;
+  background:rgba(10,10,10,0.75); border-radius:8px; padding:2px 4px; z-index:3;
+}
+.life-tracker .life-input{
+  width:58px; border:none; background:transparent; color:#fff; font-size:0.72rem;
+  font-weight:700; text-align:center; outline:none; padding:0;
+}
+.life-tracker .life-input::-webkit-outer-spin-button,
+.life-tracker .life-input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+.life-tracker .life-input[type=number]{ appearance:textfield; -moz-appearance:textfield; }
+
+/* Static attack readout (above LFE) */
+.attack-badge{
+  position:absolute; right:8px; bottom:30px; background:rgba(10,10,10,0.75); color:var(--gold);
+  font-size:0.65rem; font-weight:700; padding:2px 7px; border-radius:999px; z-index:3;
+}
+
+/* Affinity/type accent ring on the card art */
+.field-card.accent{box-shadow:0 0 0 2px var(--accent-color), 0 4px 14px rgba(0,0,0,0.55);}
+
+.item-badge{
+  position:absolute; left:4px; bottom:4px; background:rgba(212,175,90,0.92); color:#241b06;
+  font-size:0.65rem; font-weight:700; padding:2px 6px; border-radius:6px; z-index:3;
+}
+
+.slot-empty-icon{color:var(--line); font-size:1.6rem;}
+
+.piles-row{display:flex; gap:14px; justify-content:flex-end; flex-wrap:wrap;}
+.pile{display:flex; flex-direction:column; align-items:center; gap:8px;}
+.pile-label{font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;}
+.pile.deck .pile-label{color:var(--blue-deck);}
+.pile.veil .pile-label{color:var(--purple-veil);}
+
+.pile-stack{
+  width:var(--card-w); height:var(--card-h); border-radius:var(--radius);
+  display:flex; align-items:center; justify-content:center; position:relative;
+  cursor:pointer; box-shadow:var(--shadow); user-select:none;
+}
+.pile-stack.drag-over{box-shadow:0 0 0 2px var(--gold), var(--shadow);}
+.pile.deck .pile-stack{
+  background:repeating-linear-gradient(135deg, var(--blue-deck-dim), var(--blue-deck-dim) 10px, #1c3a55 10px, #1c3a55 20px);
+  border:2px solid var(--blue-deck); font-weight:700; color:#fff; font-size:1.5rem;
+}
+.pile.veil .pile-stack{background:var(--bg-900); border:2px dashed var(--purple-veil-dim);}
+.pile.veil .pile-stack.has-cards{border-style:solid; border-color:var(--purple-veil);}
+.pile.veil .pile-stack img{width:100%; height:100%; object-fit:cover; border-radius:7px;}
+.pile-count{position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,0.7); color:#fff; font-size:0.72rem; font-weight:700; padding:2px 7px; border-radius:999px;}
+.pile-hint{font-size:0.68rem; color:var(--ink-dim); max-width:150px; text-align:center;}
+
+.hand-tray{padding:2px 0 0;}
+.hand-tray-header{display:flex; align-items:center; justify-content:space-between; margin:0 0 8px;}
+.hand-tray-header h3{margin:0; font-size:0.9rem; color:var(--parchment);}
+.hand-strip{
+  display:flex; gap:8px; flex-wrap:wrap; overflow:visible; padding:0; min-height:calc(var(--card-h) + 6px);
+  border:none; border-radius:0; background:transparent;
+}
+.hand-strip.drag-over{outline:2px dashed var(--gold); outline-offset:3px; border-radius:8px;}
+.hand-empty{margin:auto; color:var(--ink-dim); font-size:0.85rem;}
+
+.hand-card{width:var(--card-w); height:var(--card-h); flex-shrink:0;}
+
+.overlay{
+  position:fixed; inset:0; background:rgba(8,8,12,0.82); z-index:30;
+  display:none; align-items:center; justify-content:center; padding:24px;
+}
+.overlay.open{display:flex;}
+
+.preview-shell{
+  width:min(430px, 92vw); border:1px solid var(--line); border-radius:12px; padding:12px;
+  background:linear-gradient(180deg, var(--panel-raised), var(--panel)); box-shadow:var(--shadow);
+}
+.preview-shell img{
+  width:100%; height:auto; aspect-ratio:135/190; object-fit:cover; border-radius:8px; display:block;
+}
+
+.spread-shell{
+  width:min(1000px, 95vw); max-height:85vh; overflow:auto;
+  border:1px solid var(--line); border-radius:12px; padding:16px;
+  background:linear-gradient(180deg, var(--panel-raised), var(--panel)); box-shadow:var(--shadow);
+}
+.spread-title{font-size:0.95rem; color:var(--parchment); font-weight:700; margin-bottom:12px;}
+.spread-row{display:flex; gap:10px; flex-wrap:wrap;}
+.spread-card{
+  width:112px; height:158px; border-radius:8px; overflow:hidden; border:2px solid var(--line); cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,0.45);
+}
+.spread-card img{width:100%; height:100%; object-fit:cover; display:block;}
+
+.spread-actions{display:flex; gap:6px; margin-top:6px;}
+.spread-actions button{
+  border:1px solid var(--line); background:var(--bg-900); color:var(--ink-dim);
+  border-radius:5px; padding:2px 7px; font-size:0.65rem; cursor:pointer;
+}
+.spread-actions button:hover{border-color:var(--gold-dim); color:var(--parchment);}
+
+.deck-search-shell{
+  width:min(980px, 95vw); max-height:85vh; overflow:auto;
+  border:1px solid var(--line); border-radius:12px; padding:16px;
+  background:linear-gradient(180deg, var(--panel-raised), var(--panel)); box-shadow:var(--shadow);
+}
+.deck-search-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;}
+.deck-search-title{font-size:0.95rem; color:var(--parchment); font-weight:700;}
+.deck-search-input{
+  width:100%; padding:8px 12px; margin-bottom:12px; border-radius:8px;
+  border:1px solid var(--line); background:var(--bg-900); color:var(--ink); outline:none;
+}
+.deck-search-grid{display:flex; gap:10px; flex-wrap:wrap;}
+.deck-search-card{width:98px;}
+.deck-search-thumb{
+  width:98px; height:138px; border-radius:8px; overflow:hidden; border:2px solid var(--line);
+  box-shadow:0 4px 12px rgba(0,0,0,0.45);
+}
+.deck-search-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+.deck-search-name{font-size:0.66rem; color:var(--ink-dim); margin-top:4px; line-height:1.2; text-align:center;}
+.deck-search-actions{display:flex; gap:4px; margin-top:5px;}
+.deck-search-actions button{
+  flex:1; border:1px solid var(--line); background:var(--bg-900); color:var(--ink-dim);
+  border-radius:5px; padding:2px 5px; font-size:0.62rem; cursor:pointer;
+}
+.deck-search-actions button:hover{border-color:var(--gold-dim); color:var(--parchment);}
+
+.theme-shell{
+  width:min(1120px, 96vw); max-height:88vh; overflow:auto;
+  border:1px solid var(--line); border-radius:12px; padding:16px;
+  background:linear-gradient(180deg, var(--panel-raised), var(--panel)); box-shadow:var(--shadow);
+}
+.theme-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;}
+.theme-title{font-size:1rem; color:var(--parchment); font-weight:700;}
+.theme-presets{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+.theme-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px;}
+.theme-swatch{
+  border:1px solid var(--line); border-radius:10px; padding:10px; background:rgba(255,255,255,0.03);
+  display:flex; flex-direction:column; gap:6px;
+}
+.theme-swatch label{font-size:0.68rem; color:var(--ink-dim);}
+.theme-swatch input[type="color"]{
+  width:100%; height:40px; padding:4px; border-radius:8px; border:1px solid var(--line); background:var(--bg-900);
+}
+.theme-footer{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;}
+
+.skill-cast-overlay{
+  position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:34;
+  background:rgba(3,3,6,0.45); pointer-events:none;
+}
+.skill-cast-overlay.open{display:flex;}
+.skill-card{
+  width:196px; height:276px; border-radius:12px; overflow:hidden; position:relative;
+  box-shadow:0 12px 40px rgba(0,0,0,0.65);
+  opacity:0;
+  transform:translateY(140px) scale(0.9);
+}
+.skill-card.run{animation:actionSlideUp .96s cubic-bezier(.17,.84,.24,1) forwards;}
+.skill-card img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+.skill-card .front{z-index:2;}
+.skill-card .back{display:none;}
+
+@keyframes slamIn{
+  0%{transform:translateY(-46px) scale(0.84);} 58%{transform:translateY(11px) scale(1.08);} 78%{transform:translateY(-6px) scale(0.98);} 100%{transform:translateY(0) scale(1);}
+}
+@keyframes actionSlideUp{
+  0%{opacity:0; transform:translateY(140px) scale(0.9);} 25%{opacity:1; transform:translateY(68px) scale(0.98);} 70%{opacity:1; transform:translateY(-8px) scale(1.02);} 100%{opacity:0; transform:translateY(-62px) scale(1);}
+}
+
+.status-line{max-width:1400px; margin:14px auto 0; font-size:0.78rem; color:var(--ink-dim); text-align:center;}
+
+/* ==========================================================================
+   ONLINE MATCH (peer-to-peer)
+   ========================================================================== */
+.mp-pill{
+  font-size:0.72rem; font-weight:700; padding:6px 12px; border-radius:999px;
+  border:1px solid var(--line); color:var(--ink-dim); background:var(--bg-900); align-self:center;
+}
+.mp-pill.wait{color:var(--gold); border-color:var(--gold-dim);}
+.mp-pill.on{color:#0c1a10; background:var(--good); border-color:var(--good);}
+.mp-shell{width:min(520px, 94vw);}
+.mp-note{font-size:0.82rem; color:var(--ink-dim); line-height:1.5; margin:0 0 16px;}
+.mp-block{display:flex; gap:8px; align-items:center;}
+.mp-or{font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-dim); margin:14px 0;}
+#mpJoinInput{
+  flex:1; min-width:0; padding:10px 14px; border-radius:8px; border:1px solid var(--line);
+  background:var(--bg-900); color:var(--ink); font-size:1.05rem; letter-spacing:0.3em;
+  text-transform:uppercase; text-align:center; outline:none;
+}
+#mpJoinInput:focus{border-color:var(--gold-dim);}
+.mp-code-row{display:flex; align-items:center; gap:12px; margin-bottom:14px;}
+.mp-code{
+  font-family:'Courier New', monospace; font-size:2rem; font-weight:700; letter-spacing:0.25em;
+  color:var(--gold); background:var(--bg-900); border:1px dashed var(--gold-dim);
+  border-radius:10px; padding:6px 16px;
+}
+.mp-status{margin-top:14px; font-size:0.82rem; color:var(--ink-dim); min-height:1.2em;}
+.mp-status.ok{color:var(--good);}
+.mp-status.wait{color:var(--gold);}
+.mp-status.err{color:#f0a89f;}
+
+.opp-section{
+  margin:0 0 18px; padding-bottom:14px; border-bottom:1px dashed var(--line);
+}
+.opp-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;}
+.opp-head h3{margin:0; font-size:0.9rem; color:var(--parchment);}
+.opp-info{display:flex; align-items:center; gap:14px; font-size:0.75rem; color:var(--ink-dim);}
+.opp-info b{color:var(--gold);}
+.opp-veil-thumb{
+  width:34px; height:48px; object-fit:cover; border-radius:5px; cursor:pointer;
+  border:1px solid var(--purple-veil);
+}
+.opp-board{--card-w:92px; --card-h:130px; margin-bottom:0;}
+.opp-board .slot-label{font-size:0.6rem;}
+.opp-board .field-card{cursor:pointer;}
+.opp-life{color:#fff; font-size:0.72rem; font-weight:700; padding:0 8px;}
+.opp-unknown{
+  width:100%; height:100%; display:flex; align-items:center; justify-content:center; text-align:center;
+  padding:6px; font-size:0.65rem; color:var(--ink-dim); background:var(--bg-700);
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     TOP NAVIGATION
+     ============================================================ -->
+<div id="topbar">
+  <div class="brand">
+    <img class="crest" src="https://raw.githubusercontent.com/ScareTheVoices/D20/cff6235515082b1fcaf68dab934b85a4fd8d9bfc/pics/d20.png" alt="D20 logo">
+    <h1>D20 - Trading Card Game.</h1>
+  </div>
+  <div class="topbar-tools">
+    <button class="btn btn-outline" onclick="openThemeEditor()">Theme</button>
+    <div class="nav-tabs">
+      <button id="tabEditor" class="active" onclick="showScreen('editor')">Deck Editor</button>
+      <button id="tabBattle" onclick="showScreen('battle')">Battle Screen</button>
+    </div>
+  </div>
+</div>
+
+<div style="padding:16px 24px 0;">
+  <div id="loadBanner"></div>
+</div>
+
+<!-- ============================================================
+     SCREEN 1 — DECK EDITOR
+     ============================================================ -->
+<div id="deckEditorScreen" class="screen active">
+  <div class="editor-grid">
+
+    <!-- LEFT PANEL: full alphabetical card database, loaded from cards.json -->
+    <div class="panel">
+      <h2>Card Database <span class="count-pill" id="dbCountPill">0 cards</span></h2>
+      <input type="text" id="searchInput" placeholder="Search cards by name…" oninput="renderDatabaseList()">
+      <div class="type-filters" id="typeFilters"></div>
+      <div class="scroll-list" id="databaseList"></div>
+    </div>
+
+    <!-- RIGHT PANEL: the deck currently being assembled -->
+    <div class="panel">
+      <h2>Active Deck <span class="count-pill" id="deckCountPill">0 / — cards</span></h2>
+      <div class="scroll-list" id="deckList"></div>
+      <div class="panel-footer">
+        <div class="deck-total">Total cards: <b id="deckTotalNum">0</b></div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-outline" onclick="clearDeck()">Clear Deck</button>
+          <button class="btn btn-outline" onclick="triggerDeckImport()">Import Deck (JSON)</button>
+          <button class="btn btn-gold" onclick="exportDeckJSON()">⬇ Export Deck (JSON)</button>
+        </div>
+      </div>
+      <input type="file" id="deckImportInput" accept="application/json,.json" style="display:none;" onchange="importDeckJSON(event)">
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 2 — BATTLE SCREEN
+     ============================================================ -->
+<div id="battleScreen" class="screen">
+
+  <div class="battle-toolbar">
+    <div class="left-tools">
+      <button class="btn btn-gold" onclick="loadDeckIntoBattle()">↺ Load Deck From Editor</button>
+      <button class="btn btn-gold" onclick="startBattle()">Start</button>
+      <button class="btn btn-outline" onclick="drawCard()">Draw Card</button>
+    </div>
+    <div class="right-tools">
+      <span class="mp-pill" id="mpPill">Offline</span>
+      <button class="btn btn-blue" id="mpBtn" onclick="openMultiplayer()">🌐 Online Match</button>
+      <button class="btn btn-purple" id="popoutBtn" onclick="openPopout()">🎥 Open Streaming Pop-out Window</button>
+    </div>
+  </div>
+
+  <div class="battle-table">
+    <!-- Read-only mirror of the opponent's board (only visible during an online match) -->
+    <div id="opponentSection" class="opp-section" style="display:none;">
+      <div class="opp-head">
+        <h3>Opponent</h3>
+        <div class="opp-info" id="oppInfo"></div>
+      </div>
+      <div class="battlefield-grid opp-board" id="oppGrid"></div>
+    </div>
+
+    <div class="battle-main-grid">
+      <div class="battlefield-grid" id="battlefieldGrid"></div>
+
+      <div class="battle-bottom-row">
+        <div class="hand-tray">
+          <div class="hand-tray-header">
+            <h3>Your Hand (Private)</h3>
+          </div>
+          <div class="hand-strip" id="handStrip"></div>
+        </div>
+
+        <div class="piles-row">
+          <div class="pile deck">
+            <div class="pile-label">Main Deck</div>
+            <div class="pile-stack" id="mainDeckPile" onclick="onDeckPileClick(event)" title="Click to draw, hold 1s to search, right-click to shuffle."></div>
+            <div class="pile-hint">Click: draw. Right-click: shuffle.</div>
+          </div>
+          <div class="pile veil" id="veilDropzone">
+            <div class="pile-label">The Veil</div>
+            <div class="pile-stack" id="veilPile"></div>
+            <div class="pile-hint">Discard pile — drag cards here</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-line" id="battleStatus">Load a deck from the editor to begin.</div>
+</div>
+
+<div class="overlay" id="cardPreviewOverlay" onclick="closeCardPreview()">
+  <div class="preview-shell" onclick="event.stopPropagation()">
+    <img id="cardPreviewImg" src="" alt="Card preview">
+  </div>
+</div>
+
+<div class="overlay" id="pileSpreadOverlay" onclick="closePileSpread()">
+  <div class="spread-shell" onclick="event.stopPropagation()">
+    <div class="spread-title" id="pileSpreadTitle">Pile</div>
+    <div class="spread-row" id="pileSpreadRow"></div>
+  </div>
+</div>
+
+<div class="overlay" id="deckSearchOverlay" onclick="closeDeckSearch()">
+  <div class="deck-search-shell" onclick="event.stopPropagation()">
+    <div class="deck-search-head">
+      <div class="deck-search-title" id="deckSearchTitle">Main Deck Search</div>
+      <button class="btn btn-outline" onclick="closeDeckSearch()">Close</button>
+    </div>
+    <input class="deck-search-input" id="deckSearchInput" type="text" placeholder="Search cards in Main Deck..." oninput="renderDeckSearchList()">
+    <div class="deck-search-grid" id="deckSearchGrid"></div>
+  </div>
+</div>
+
+<div class="overlay" id="themeOverlay" onclick="closeThemeEditor()">
+  <div class="theme-shell" onclick="event.stopPropagation()">
+    <div class="theme-head">
+      <div class="theme-title">Theme Studio</div>
+      <button class="btn btn-outline" onclick="closeThemeEditor()">Close</button>
+    </div>
+    <div class="theme-presets">
+      <button class="btn btn-outline" onclick="applyThemePreset('midnight')">Default (Midnight)</button>
+      <button class="btn btn-outline" onclick="applyThemePreset('fire')">FIRE</button>
+      <button class="btn btn-outline" onclick="applyThemePreset('water')">WATER</button>
+      <button class="btn btn-outline" onclick="applyThemePreset('earth')">EARTH</button>
+      <button class="btn btn-outline" onclick="applyThemePreset('air')">AIR</button>
+      <button class="btn btn-outline" onclick="applyThemePreset('aether')">AETHER</button>
+      <button class="btn btn-outline" onclick="applyThemePreset('void')">VOID</button>
+    </div>
+    <div class="theme-grid" id="themeGrid"></div>
+    <div class="theme-footer">
+      <button class="btn btn-gold" onclick="saveThemeToStorage()">Save Theme</button>
+      <button class="btn btn-outline" onclick="resetThemeToDefault()">Reset Default</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="mpOverlay" onclick="closeMultiplayer()">
+  <div class="theme-shell mp-shell" onclick="event.stopPropagation()">
+    <div class="theme-head">
+      <div class="theme-title">Online Match</div>
+      <button class="btn btn-outline" onclick="closeMultiplayer()">Close</button>
+    </div>
+    <p class="mp-note">Play a live 1-vs-1 match over the internet with no game server. One player hosts and shares the 5-character room code; the other joins with it. Cards travel directly between your two browsers. Your hand always stays private: only your field, card counts, and the top of your Veil are shared.</p>
+
+    <div id="mpIdle">
+      <div class="mp-block"><button class="btn btn-gold" onclick="mpHost()">Host a Game</button></div>
+      <div class="mp-or">or join a friend's game</div>
+      <div class="mp-block">
+        <input id="mpJoinInput" type="text" maxlength="5" placeholder="ROOM CODE" autocomplete="off" spellcheck="false"
+               onkeydown="if(event.key==='Enter') mpJoin()">
+        <button class="btn btn-blue" onclick="mpJoin()">Join</button>
+      </div>
+    </div>
+
+    <div id="mpActive" style="display:none;">
+      <div class="mp-code-row" id="mpCodeRow">
+        <span class="mp-code" id="mpCode">…</span>
+        <button class="btn btn-outline" onclick="mpCopyCode()">Copy</button>
+      </div>
+      <button class="btn btn-outline" onclick="mpLeave()">Leave Match</button>
+    </div>
+
+    <div class="mp-status" id="mpStatus"></div>
+  </div>
+</div>
+
+<div class="skill-cast-overlay" id="skillCastOverlay">
+  <div class="skill-card" id="skillCastCard">
+    <img id="skillCastBack" class="back" src="" alt="Skill card back">
+    <img id="skillCastFront" class="front" src="" alt="Skill card front">
+  </div>
+</div>
+
+<script>
+/* ============================================================================
+   1. CARD DATABASE — LOADED FROM cards/cards.json
+   ----------------------------------------------------------------------------
+   Expected local folder layout (matches your Desktop\D20TCG project):
+
+     D20TCG/
+       index.html          <-- this file
+       cards/
+         cards.json         <-- card data (name, type, stats, image_path)
+         Street_Kid,_Grant_frame.png
+         Oni-Maru_frame.png
+         ...
+
+   Every card entry's "image_path" is already written relative to index.html
+   (e.g. "cards/Oni-Maru_frame.png"), so we use it as-is for <img src="">.
+
+   ⚠ IMPORTANT — LOCAL FILE (file://) CORS NOTE:
+   Chrome and Edge block fetch()/XHR requests to local files when you just
+   double-click index.html and open it as a file:// URL — this is a browser
+   security restriction, not a bug in this app. If the banner below reports
+   a load failure, do ONE of the following:
+     1. Run a tiny local server from the D20TCG folder and open it via
+        http://localhost instead, e.g. in a terminal:
+           cd C:\Users\tgdos\Desktop\D20TCG
+           python -m http.server 8000
+        then visit http://localhost:8000/index.html
+     2. Or open index.html in Firefox, which allows local fetch() by default.
+   ============================================================================ */
+const CARDS_JSON_PATH = 'cards/cards.json';
+const CARD_BACK_IMAGE = 'https://raw.githubusercontent.com/ScareTheVoices/D20/main/TCG/cards/D20TCGCardBack.png';
+const SFX_ITEM = 'https://raw.githubusercontent.com/ScareTheVoices/D20/4d50f2f41bd78334ec25b9c85281f9ae257a82cc/sounds/Equip.mp3';
+const SFX_SKILL = 'https://raw.githubusercontent.com/ScareTheVoices/D20/4d50f2f41bd78334ec25b9c85281f9ae257a82cc/sounds/skill.mp3';
+const SFX_LEVEL_UP = 'https://raw.githubusercontent.com/ScareTheVoices/D20/main/sounds/Level%20up.mp3';
+
+const CARD_TYPES = ['Hero', 'Support', 'Skill', 'Item'];
+const AFFINITY_KEYS = ['FIRE', 'WATER', 'EARTH', 'AIR', 'AETHER', 'VOID'];
+const THEME_STORAGE_KEY = 'd20tcg-theme';
+const THEME_VARS = [
+  'bg-900','bg-800','bg-700','panel','panel-raised','line','gold','gold-dim','parchment','ink','ink-dim',
+  'blue-deck','blue-deck-dim','purple-veil','purple-veil-dim','danger','good',
+  'aff-fire','aff-water','aff-earth','aff-air','aff-aether','aff-void',
+  'type-hero','type-support','type-skill','type-item'
+];
+const THEME_PRESETS = {
+  midnight: {
+    'bg-900':'#081018','bg-800':'#0d1622','bg-700':'#142235','panel':'#0f1826','panel-raised':'#182338','line':'#2e648d',
+    'gold':'#d4af5a','gold-dim':'#8a713a','parchment':'#e6eaef','ink':'#d8e1ea','ink-dim':'#8ea0b4',
+    'blue-deck':'#3b82f6','blue-deck-dim':'#1e3a8a','purple-veil':'#7c3aed','purple-veil-dim':'#4c1d95','danger':'#dc6b5f','good':'#5dbb88',
+    'aff-fire':'#db5b32','aff-water':'#379fd8','aff-earth':'#7c9850','aff-air':'#9ecad1','aff-aether':'#d8bf6a','aff-void':'#7c61c9',
+    'type-hero':'#d4af5a','type-support':'#5a9bd4','type-skill':'#33b0a6','type-item':'#c98a4a'
+  },
+  fire: {
+    'bg-900':'#120d0d','bg-800':'#1a1212','bg-700':'#2a1717','panel':'#1f1212','panel-raised':'#2d1818','line':'#b5482d',
+    'gold':'#e2572b','gold-dim':'#9d3920','parchment':'#f4e3d1','ink':'#f1e4d9','ink-dim':'#d1a28b',
+    'blue-deck':'#df6e3a','blue-deck-dim':'#b84a1f','purple-veil':'#c25644','purple-veil-dim':'#7d2f26','danger':'#d96a4c','good':'#d18d54',
+    'aff-fire':'#e2572b','aff-water':'#3aa6d9','aff-earth':'#7a9a4a','aff-air':'#8fd0c9','aff-aether':'#e8c766','aff-void':'#8a5cd6',
+    'type-hero':'#e2572b','type-support':'#cc5a2d','type-skill':'#ef8d4a','type-item':'#b85757'
+  },
+  water: {
+    'bg-900':'#0b1118','bg-800':'#111c28','bg-700':'#172b3a','panel':'#101d28','panel-raised':'#13263a','line':'#3aa6d9',
+    'gold':'#57b7df','gold-dim':'#2778a2','parchment':'#dfeef8','ink':'#edf8ff','ink-dim':'#9cc9e6',
+    'blue-deck':'#3aa6d9','blue-deck-dim':'#1b7bb4','purple-veil':'#4d7bd8','purple-veil-dim':'#2f519d','danger':'#76b7d9','good':'#7bc0b0',
+    'aff-fire':'#e2572b','aff-water':'#3aa6d9','aff-earth':'#7a9a4a','aff-air':'#8fd0c9','aff-aether':'#e8c766','aff-void':'#8a5cd6',
+    'type-hero':'#3aa6d9','type-support':'#5aa9d9','type-skill':'#63d2eb','type-item':'#5b8bc7'
+  },
+  earth: {
+    'bg-900':'#0d120f','bg-800':'#121b16','bg-700':'#1b2b1d','panel':'#142118','panel-raised':'#1d3124','line':'#7a9a4a',
+    'gold':'#a9bf60','gold-dim':'#6f8740','parchment':'#edf0df','ink':'#ebf3dd','ink-dim':'#b4c29a',
+    'blue-deck':'#839f5f','blue-deck-dim':'#5b7d41','purple-veil':'#7a9a4a','purple-veil-dim':'#4d6f35','danger':'#c59b59','good':'#7abf79',
+    'aff-fire':'#e2572b','aff-water':'#3aa6d9','aff-earth':'#7a9a4a','aff-air':'#8fd0c9','aff-aether':'#e8c766','aff-void':'#8a5cd6',
+    'type-hero':'#7a9a4a','type-support':'#8eaf5f','type-skill':'#a3c66d','type-item':'#b58a5b'
+  },
+  air: {
+    'bg-900':'#0d1215','bg-800':'#101b1f','bg-700':'#162c34','panel':'#132228','panel-raised':'#1a2f38','line':'#8fd0c9',
+    'gold':'#d2f0ee','gold-dim':'#76b7b0','parchment':'#edf9f8','ink':'#ebfdfc','ink-dim':'#bdd7d3',
+    'blue-deck':'#79c9d2','blue-deck-dim':'#4a9ca5','purple-veil':'#6db0c7','purple-veil-dim':'#3d7387','danger':'#d3a76d','good':'#8ec5a4',
+    'aff-fire':'#e2572b','aff-water':'#3aa6d9','aff-earth':'#7a9a4a','aff-air':'#8fd0c9','aff-aether':'#e8c766','aff-void':'#8a5cd6',
+    'type-hero':'#8fd0c9','type-support':'#7fc4d9','type-skill':'#a7e4df','type-item':'#74b8d1'
+  },
+  aether: {
+    'bg-900':'#14120d','bg-800':'#1a1710','bg-700':'#2a220f','panel':'#1b1a12','panel-raised':'#292515','line':'#e8c766',
+    'gold':'#e8c766','gold-dim':'#b89734','parchment':'#f5efdd','ink':'#f7f2df','ink-dim':'#d1c38d',
+    'blue-deck':'#d7b65e','blue-deck-dim':'#a9842a','purple-veil':'#d5a76c','purple-veil-dim':'#926433','danger':'#d97b61','good':'#adbf7d',
+    'aff-fire':'#e2572b','aff-water':'#3aa6d9','aff-earth':'#7a9a4a','aff-air':'#8fd0c9','aff-aether':'#e8c766','aff-void':'#8a5cd6',
+    'type-hero':'#e8c766','type-support':'#d7b65e','type-skill':'#f0d889','type-item':'#c9a227'
+  },
+  void: {
+    'bg-900':'#0f0d15','bg-800':'#171320','bg-700':'#1d162b','panel':'#171521','panel-raised':'#221a2f','line':'#8a5cd6',
+    'gold':'#b490eb','gold-dim':'#7859bb','parchment':'#f0eafc','ink':'#f3eefb','ink-dim':'#c6b4e6',
+    'blue-deck':'#8d67d8','blue-deck-dim':'#6041b0','purple-veil':'#8a5cd6','purple-veil-dim':'#553978','danger':'#c96997','good':'#7cb3a1',
+    'aff-fire':'#e2572b','aff-water':'#3aa6d9','aff-earth':'#7a9a4a','aff-air':'#8fd0c9','aff-aether':'#e8c766','aff-void':'#8a5cd6',
+    'type-hero':'#8a5cd6','type-support':'#9f79db','type-skill':'#b58fe4','type-item':'#805bc5'
+  }
+};
+
+let CARD_DATABASE = [];       // populated by loadCardDatabase()
+let activeTypeFilter = 'All'; // deck-editor left panel filter
+
+function affinityClass(affinity){
+  return affinity ? String(affinity).trim().toLowerCase() : '';
+}
+
+function affinityIconName(affinity){
+  const canonical = String(affinity || '').trim().toUpperCase();
+  const map = {
+    FIRE: 'fire',
+    WATER: 'water',
+    EARTH: 'earth',
+    AIR: 'air',
+    AETHER: 'aether',
+    VOID: 'void'
+  };
+  return map[canonical] || 'none';
+}
+
+function affinityIconHTML(affinity){
+  const iconKey = affinityIconName(affinity);
+  if(!iconKey || iconKey === 'none') return '';
+  return `<img class="affinity-icon" src="https://raw.githubusercontent.com/ScareTheVoices/D20/main/pics/charicons/elemticon/${iconKey}.png" alt="${String(affinity || '').trim()}" title="${String(affinity || '').trim()}">`;
+}
+
+function accentColorFor(card){
+  if(card.affinity) return 'var(--aff-' + affinityClass(card.affinity) + ')';
+  const t = (card.card_type || '').toLowerCase();
+  return 'var(--type-' + t + ')';
+}
+
+function captureThemeValues(){
+  const style = getComputedStyle(document.documentElement);
+  const theme = {};
+  THEME_VARS.forEach(name => { theme[name] = style.getPropertyValue('--' + name).trim(); });
+  return theme;
+}
+
+function applyTheme(theme){
+  if(!theme) return;
+  Object.entries(theme).forEach(([name, value]) => {
+    document.documentElement.style.setProperty('--' + name, value);
+  });
+  syncThemeInputs();
+  syncPopout();
+}
+
+function renderThemeEditor(){
+  const grid = document.getElementById('themeGrid');
+  if(!grid) return;
+  const current = captureThemeValues();
+  grid.innerHTML = THEME_VARS.map(name => `
+    <div class="theme-swatch">
+      <label for="theme-${name}">--${name}</label>
+      <input id="theme-${name}" type="color" value="${current[name] || '#000000'}" oninput="updateThemeVar('${name}', this.value)">
+    </div>`).join('');
+}
+
+function syncThemeInputs(){
+  const current = captureThemeValues();
+  THEME_VARS.forEach(name => {
+    const input = document.getElementById('theme-' + name);
+    if(input) input.value = current[name] || '#000000';
+  });
+}
+
+function updateThemeVar(name, value){
+  document.documentElement.style.setProperty('--' + name, value);
+  syncPopout();
+}
+
+function applyThemePreset(presetName){
+  const preset = THEME_PRESETS[presetName];
+  if(!preset) return;
+  applyTheme(preset);
+}
+
+function saveThemeToStorage(){
+  localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(captureThemeValues()));
+}
+
+function resetThemeToDefault(){
+  localStorage.removeItem(THEME_STORAGE_KEY);
+  applyTheme(THEME_PRESETS.midnight);
+}
+
+function openThemeEditor(){
+  document.getElementById('themeOverlay').classList.add('open');
+  renderThemeEditor();
+}
+
+function closeThemeEditor(){
+  document.getElementById('themeOverlay').classList.remove('open');
+}
+
+function loadSavedTheme(){
+  const saved = localStorage.getItem(THEME_STORAGE_KEY);
+  if(saved){
+    try{
+      applyTheme(JSON.parse(saved));
+      return;
+    }catch(err){}
+  }
+  applyTheme(THEME_PRESETS.midnight);
+}
+
+function showLoadBanner(kind, html){
+  const el = document.getElementById('loadBanner');
+  el.className = kind; // 'info' or 'error'
+  el.innerHTML = html;
+}
+function clearLoadBanner(){
+  const el = document.getElementById('loadBanner');
+  el.className = '';
+  el.innerHTML = '';
+}
+
+/* Fetches cards/cards.json and populates CARD_DATABASE, alphabetically sorted. */
+async function loadCardDatabase(){
+  showLoadBanner('info', 'Loading card database from <code>' + CARDS_JSON_PATH + '</code>…');
+  try{
+    const res = await fetch(CARDS_JSON_PATH, { cache: 'no-store' });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if(!Array.isArray(data)) throw new Error('cards.json must contain a JSON array');
+
+    CARD_DATABASE = data
+      .map((c, i) => ({
+        dbId: 'db-' + i,
+        name: c.name || ('Unnamed Card ' + i),
+        card_type: c.card_type || 'Item',
+        mach: c.mach,
+        affinity: c.affinity,
+        species: c.species,
+        class: c.class,
+        attack: c.attack,
+        life: c.life,
+        image_path: c.image_path
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    clearLoadBanner();
+    renderTypeFilters();
+    renderDeckEditor();
+  }catch(err){
+    console.error(err);
+    showLoadBanner('error',
+      '<b>Could not load ' + CARDS_JSON_PATH + '.</b> (' + err.message + ')<br>' +
+      'If you opened this file directly (file:// in Chrome/Edge), local fetch is blocked by the browser. ' +
+      'Serve the folder with <code>python -m http.server</code> and open it via <code>http://localhost</code>, ' +
+      'or open this page in Firefox instead. Also double-check that <code>cards/cards.json</code> ' +
+      'sits next to this index.html and is valid JSON.');
+  }
+}
+
+
+/* ============================================================================
+   2. APPLICATION STATE
+   ============================================================================ */
+// Deck being assembled in the editor: { cardName: quantity }
+let deckState = {};
+
+let battle = {
+  mainDeck: [],
+  hand: [],
+  veil: [],
+  field: { ls2: null, ls1: null, hero: null, rs1: null, rs2: null }
+};
+
+let instanceCounter = 0;
+function newInstanceId(){ instanceCounter += 1; return 'inst-' + instanceCounter + '-' + Date.now(); }
+
+let popoutWin = null;
+let spreadContext = null;
+const holdTimers = {};
+const holdPreviewSuppressUntil = {};
+let deckHoldTimer = null;
+let suppressDeckClickUntil = 0;
+
+
+/* ============================================================================
+   3. SCREEN NAVIGATION
+   ============================================================================ */
+function showScreen(which){
+  document.getElementById('deckEditorScreen').classList.toggle('active', which === 'editor');
+  document.getElementById('battleScreen').classList.toggle('active', which === 'battle');
+  document.getElementById('tabEditor').classList.toggle('active', which === 'editor');
+  document.getElementById('tabBattle').classList.toggle('active', which === 'battle');
+}
+
+
+/* ============================================================================
+   4. DECK EDITOR — LEFT PANEL (searchable, type-filterable database)
+   ============================================================================ */
+function renderTypeFilters(){
+  const wrap = document.getElementById('typeFilters');
+  const options = ['All', ...CARD_TYPES];
+  wrap.innerHTML = options.map(t =>
+    `<button class="${t === activeTypeFilter ? 'active' : ''}" onclick="setTypeFilter('${t}')">${t}</button>`
+  ).join('');
+}
+function setTypeFilter(t){
+  activeTypeFilter = t;
+  renderTypeFilters();
+  renderDatabaseList();
+}
+
+/* Builds the small meta line under a card's name: species/class + affinity dot,
+   or ATK/LFE stats, depending on what the card actually has. Skill/Item cards
+   simply omit whatever fields they don't carry. */
+function cardMetaHTML(card){
+  const bits = [];
+  if(card.species || card.class){
+    bits.push(`<div class="sub-line">${[card.species, card.class].filter(Boolean).join(' / ')}</div>`);
+  }
+  if(typeof card.attack === 'number' || typeof card.life === 'number'){
+    const parts = [];
+    if(typeof card.attack === 'number') parts.push('ATK ' + card.attack);
+    if(typeof card.life === 'number') parts.push('LFE ' + card.life);
+    if(typeof card.mach === 'number') parts.push('Mach ' + card.mach);
+    bits.push(`<div class="stat-line">${parts.join(' · ')}</div>`);
+  }
+  return bits.join('');
+}
+
+function renderDatabaseList(){
+  const term = document.getElementById('searchInput').value.trim().toLowerCase();
+  const list = document.getElementById('databaseList');
+
+  document.getElementById('dbCountPill').textContent = CARD_DATABASE.length + ' cards';
+
+  const filtered = CARD_DATABASE.filter(c =>
+    c.name.toLowerCase().includes(term) &&
+    (activeTypeFilter === 'All' || c.card_type === activeTypeFilter)
+  );
+
+  if(CARD_DATABASE.length === 0){
+    list.innerHTML = '<div class="empty-hint">No cards loaded yet.</div>';
+    return;
+  }
+  if(filtered.length === 0){
+    list.innerHTML = '<div class="empty-hint">No cards match your search/filter.</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(card => {
+    const qty = deckState[card.name] || 0;
+    const maxed = qty >= 3;
+    const affinityIcon = affinityIconHTML(card.affinity);
+    return `
+      <div class="db-row">
+        <img class="thumb-sm" src="${card.image_path}" alt="${card.name}"
+             style="border-color:${accentColorFor(card)}" onerror="this.style.opacity=0.15;"
+             onclick="openDatabaseCardPreview('${card.name.replace(/'/g, "\\'")}')" title="Preview card">
+        <div class="meta">
+          <div class="name-row">
+            <span class="type-badge ${card.card_type.toLowerCase()}">${card.card_type}</span>
+            ${affinityIcon}
+            <span class="name">${card.name}</span>
+          </div>
+          ${cardMetaHTML(card)}
+        </div>
+        <span class="qty-badge">${qty}/3</span>
+        <button class="add-btn" ${maxed ? 'disabled' : ''} onclick="addToDeck('${card.name.replace(/'/g, "\\'")}')" title="Add to deck">+</button>
+      </div>`;
+  }).join('');
+}
+
+/* ----------------------------------------------------------------------------
+   4b. DECK EDITOR — RIGHT PANEL (active deck + quantity steppers)
+   ---------------------------------------------------------------------------- */
+function findCardByName(name){
+  return CARD_DATABASE.find(c => c.name === name);
+}
+
+function openDatabaseCardPreview(name){
+  const card = findCardByName(name);
+  if(card) openCardPreview(card);
+}
+
+function addToDeck(name){
+  const current = deckState[name] || 0;
+  if(current >= 3) return;
+  deckState[name] = current + 1;
+  renderDeckEditor();
+}
+
+function setQty(name, qty){
+  qty = Math.max(0, Math.min(3, qty));
+  if(qty === 0){ delete deckState[name]; }
+  else { deckState[name] = qty; }
+  renderDeckEditor();
+}
+
+function clearDeck(){
+  if(Object.keys(deckState).length === 0) return;
+  if(!confirm('Clear the entire active deck?')) return;
+  deckState = {};
+  renderDeckEditor();
+}
+
+function renderDeckEditor(){
+  renderDatabaseList();
+
+  const deckList = document.getElementById('deckList');
+  const entries = Object.keys(deckState)
+    .filter(name => deckState[name] > 0)
+    .map(name => ({ card: findCardByName(name), qty: deckState[name] }))
+    .filter(e => e.card)
+    .sort((a, b) => a.card.name.localeCompare(b.card.name));
+
+  const total = entries.reduce((sum, e) => sum + e.qty, 0);
+  document.getElementById('deckCountPill').textContent = entries.length + ' unique / ' + total + ' cards';
+  document.getElementById('deckTotalNum').textContent = total;
+
+  if(entries.length === 0){
+    deckList.innerHTML = '<div class="empty-hint">Your deck is empty. Add cards from the database on the left.</div>';
+    return;
+  }
+
+  deckList.innerHTML = entries.map(({card, qty}) => {
+    const affinityIcon = affinityIconHTML(card.affinity);
+    return `
+    <div class="deck-row">
+      <img class="thumb-sm" src="${card.image_path}" alt="${card.name}"
+           style="border-color:${accentColorFor(card)}" onerror="this.style.opacity=0.15;"
+           onclick="openDatabaseCardPreview('${card.name.replace(/'/g, "\\'")}')" title="Preview card">
+      <div class="meta" style="flex:1;">
+        <div class="name-row">
+          <span class="type-badge ${card.card_type.toLowerCase()}">${card.card_type}</span>
+          ${affinityIcon}
+          <span class="name">${card.name}</span>
+        </div>
+        ${cardMetaHTML(card)}
+      </div>
+      <div class="stepper">
+        <button onclick="setQty('${card.name.replace(/'/g, "\\'")}', ${qty - 1})">−</button>
+        <span class="qty-num">${qty}</span>
+        <button ${qty >= 3 ? 'disabled' : ''} onclick="setQty('${card.name.replace(/'/g, "\\'")}', ${qty + 1})">+</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ----------------------------------------------------------------------------
+   4c. EXPORT DECK AS A DOWNLOADED JSON FILE
+   ---------------------------------------------------------------------------- */
+function exportDeckJSON(){
+  const entries = Object.keys(deckState)
+    .filter(name => deckState[name] > 0)
+    .map(name => {
+      const card = findCardByName(name);
+      return {
+        name,
+        card_type: card ? card.card_type : null,
+        image_path: card ? card.image_path : null,
+        quantity: deckState[name]
+      };
+    });
+
+  if(entries.length === 0){
+    alert('Add at least one card to the deck before exporting.');
+    return;
+  }
+
+  const payload = { deckName: 'My D20TCG Deck', exportedAt: new Date().toISOString(), cards: entries };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'deck-export.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function triggerDeckImport(){
+  const input = document.getElementById('deckImportInput');
+  input.value = '';
+  input.click();
+}
+
+function importDeckJSON(event){
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const raw = JSON.parse(String(reader.result || '{}'));
+      const list = Array.isArray(raw) ? raw : (Array.isArray(raw.cards) ? raw.cards : null);
+      if(!list){
+        throw new Error('JSON must be an array of cards or an object with a cards array.');
+      }
+
+      const nextDeck = {};
+      const missing = [];
+
+      list.forEach(entry => {
+        const name = entry && typeof entry.name === 'string' ? entry.name.trim() : '';
+        const qty = Number(entry && entry.quantity);
+        if(!name || !Number.isFinite(qty) || qty <= 0) return;
+        const card = findCardByName(name);
+        if(!card){
+          missing.push(name);
+          return;
+        }
+        nextDeck[name] = Math.min(3, (nextDeck[name] || 0) + Math.floor(qty));
+      });
+
+      const importedCount = Object.values(nextDeck).reduce((sum, n) => sum + n, 0);
+      if(importedCount === 0){
+        alert('No valid cards were imported from that deck file.');
+        return;
+      }
+
+      deckState = nextDeck;
+      renderDeckEditor();
+
+      if(missing.length){
+        alert('Deck imported with missing cards skipped: ' + missing.slice(0, 8).join(', ') + (missing.length > 8 ? '...' : ''));
+      } else {
+        alert('Deck imported successfully.');
+      }
+    }catch(err){
+      alert('Could not import deck JSON: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+
+/* ============================================================================
+   5. BATTLE SCREEN SETUP
+   ============================================================================ */
+function makeBattleDeckFromEditor(){
+  const names = [];
+  Object.keys(deckState).forEach(name => {
+    for(let i = 0; i < deckState[name]; i++) names.push(name);
+  });
+  return names.map(name => makeCardInstance(findCardByName(name))).filter(Boolean);
+}
+
+function loadDeckIntoBattle(){
+  const nextDeck = makeBattleDeckFromEditor();
+  if(nextDeck.length === 0){
+    alert('Your active deck is empty — add cards in the Deck Editor first.');
+    return;
+  }
+
+  battle.mainDeck = nextDeck;
+  battle.hand = [];
+  battle.veil = [];
+  battle.field = { ls2: null, ls1: null, hero: null, rs1: null, rs2: null };
+
+  shuffleArray(battle.mainDeck);
+  document.getElementById('battleStatus').textContent = 'Deck loaded: ' + battle.mainDeck.length + ' cards shuffled into the Main Deck.';
+  renderBattle();
+  syncPopout();
+}
+
+function startBattle(){
+  const nextDeck = makeBattleDeckFromEditor();
+  if(nextDeck.length === 0){
+    alert('Your active deck is empty — add cards in the Deck Editor first.');
+    return;
+  }
+
+  const heroIndex = nextDeck.findIndex(card =>
+    card.card_type === 'Hero' && Number(card.mach) === 1
+  );
+
+  if(heroIndex === -1){
+    alert('Start requires at least one Mach 1 Hero in your active deck.');
+    return;
+  }
+
+  const starterHero = nextDeck.splice(heroIndex, 1)[0];
+
+  battle.mainDeck = nextDeck;
+  battle.hand = [];
+  battle.veil = [];
+  battle.field = { ls2: null, ls1: null, hero: starterHero, rs1: null, rs2: null };
+
+  shuffleArray(battle.mainDeck);
+  for(let i = 0; i < 5 && battle.mainDeck.length > 0; i++){
+    battle.hand.push(battle.mainDeck.pop());
+  }
+
+  document.getElementById('battleStatus').textContent =
+    'Start complete: "' + starterHero.name + '" entered Hero Zone, deck shuffled, and ' + battle.hand.length + ' cards drawn.';
+  renderBattle();
+  syncPopout();
+}
+
+/* A "live" battle-ready copy of a database card: carries all its static
+   data, plus per-instance mutable state (current life, attached items). */
+function makeCardInstance(dbCard){
+  if(!dbCard) return null;
+  return {
+    instanceId: newInstanceId(),
+    name: dbCard.name,
+    card_type: dbCard.card_type,
+    affinity: dbCard.affinity,
+    species: dbCard.species,
+    class: dbCard.class,
+    attack: dbCard.attack,
+    baseLife: dbCard.life,
+    maxLife: dbCard.life,
+    life: dbCard.life,     // current life — ticks down via the life tracker
+    mach: dbCard.mach,
+    image_path: dbCard.image_path,
+    items: [],
+    rotated: false,
+    animTag: ''
+  };
+}
+
+function shuffleArray(arr){
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function shuffleDeck(){
+  if(battle.mainDeck.length === 0) return;
+  shuffleArray(battle.mainDeck);
+  document.getElementById('battleStatus').textContent = 'Main Deck shuffled (' + battle.mainDeck.length + ' cards).';
+  renderBattle();
+  syncPopout();
+}
+
+function drawCard(){
+  if(battle.mainDeck.length === 0){
+    document.getElementById('battleStatus').textContent = 'The Main Deck is empty — nothing left to draw.';
+    return;
+  }
+  const card = battle.mainDeck.pop();
+  battle.hand.push(card);
+  document.getElementById('battleStatus').textContent = 'Drew "' + card.name + '" into your hand.';
+  renderBattle();
+  syncPopout();
+}
+
+
+/* ============================================================================
+   6. DRAG-AND-DROP ENGINE
+   ============================================================================ */
+function onCardDragStart(e, source, slotKey){
+  const payload = { source, slotKey: slotKey || null };
+  if(source === 'field' && slotKey && battle.field[slotKey]) payload.instanceId = battle.field[slotKey].instanceId;
+  e.dataTransfer.setData('text/plain', JSON.stringify(payload));
+  e.dataTransfer.effectAllowed = 'move';
+  if(payload.instanceId) cancelHoldRotate(payload.instanceId);
+}
+function readDragPayload(e){
+  try{ return JSON.parse(e.dataTransfer.getData('text/plain')); }
+  catch(err){ return null; }
+}
+
+function clearAnimTagLater(card){
+  if(!card) return;
+  setTimeout(() => {
+    card.animTag = '';
+    renderBattle();
+    syncPopout();
+  }, 720);
+}
+
+function popTopCardForDeck(card){
+  if(!card) return;
+  battle.mainDeck.push(card);
+}
+
+function moveCardToVeilWithItems(card){
+  if(!card) return;
+  const attached = Array.isArray(card.items) ? card.items.splice(0) : [];
+  battle.veil.push(card);
+  attached.forEach(item => battle.veil.push(item));
+}
+
+function removeCardByInstanceId(instanceId){
+  let idx = battle.hand.findIndex(c => c.instanceId === instanceId);
+  if(idx !== -1) return battle.hand.splice(idx, 1)[0];
+
+  idx = battle.veil.findIndex(c => c.instanceId === instanceId);
+  if(idx !== -1) return battle.veil.splice(idx, 1)[0];
+
+  for(const slotKey of Object.keys(battle.field)){
+    const base = battle.field[slotKey];
+    if(!base) continue;
+    if(base.instanceId === instanceId){
+      battle.field[slotKey] = null;
+      return base;
+    }
+    const itemIdx = base.items.findIndex(i => i.instanceId === instanceId);
+    if(itemIdx !== -1) return base.items.splice(itemIdx, 1)[0];
+  }
+  return null;
+}
+
+function pluckCardFromSource(payload){
+  if(!payload) return null;
+  if(payload.instanceId) return removeCardByInstanceId(payload.instanceId);
+  if(payload.source === 'hand'){
+    const idx = battle.hand.findIndex(c => c.instanceId === payload.instanceId);
+    if(idx === -1) return null;
+    return battle.hand.splice(idx, 1)[0];
+  }
+  if(payload.source === 'field'){
+    const card = battle.field[payload.slotKey];
+    battle.field[payload.slotKey] = null;
+    return card;
+  }
+  if(payload.source === 'veil'){
+    const idx = battle.veil.findIndex(c => c.instanceId === payload.instanceId);
+    if(idx === -1) return null;
+    return battle.veil.splice(idx, 1)[0];
+  }
+  return null;
+}
+
+function onFieldSlotDrop(e, slotKey){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  const payloadRaw = e.dataTransfer.getData('text/plain');
+  if(!payloadRaw) return;
+  const payload = JSON.parse(payloadRaw);
+  if(payload.source === 'field' && payload.slotKey === slotKey) return;
+
+  const card = pluckCardFromSource(payload);
+  if(!card) { renderBattle(); return; }
+
+  const existing = battle.field[slotKey];
+  if(card.card_type === 'Skill'){
+    playActionShowcase(card, SFX_SKILL, 'skill');
+    moveCardToVeilWithItems(card);
+    document.getElementById('battleStatus').textContent = '"' + card.name + '" was activated and sent to The Veil.';
+    renderBattle();
+    syncPopout();
+    return;
+  }
+
+  if(slotKey === 'hero' && card.card_type === 'Hero' && existing && existing.card_type === 'Hero' && Number(card.mach) > Number(existing.mach)){
+    const priorRemainingLife = Number(existing.life) || 0;
+    const incomingBaseLife = Number(card.baseLife) || Number(card.maxLife) || Number(card.life) || 0;
+    const upgradedLife = incomingBaseLife + priorRemainingLife;
+    const preservedItems = Array.isArray(existing.items) ? existing.items.splice(0) : [];
+    card.items = [...preservedItems, ...(Array.isArray(card.items) ? card.items : [])];
+    card.maxLife = upgradedLife;
+    card.life = upgradedLife;
+
+    // Send the replaced Hero to The Veil (its items now live on the new Hero)
+    existing.rotated = false;
+    battle.veil.push(existing);
+
+    battle.field.hero = card;
+    playActionShowcase(card, SFX_LEVEL_UP, 'level-up');
+    document.getElementById('battleStatus').textContent = 'Hero upgrade! "' + card.name + '" inherited +' + priorRemainingLife + ' LFE and kept all attached items.';
+  } else if(existing && existing.instanceId !== card.instanceId && card.card_type === 'Item'){
+    existing.items.push(card);
+    playActionShowcase(card, SFX_ITEM, 'item');
+    document.getElementById('battleStatus').textContent = '"' + card.name + '" attached to "' + existing.name + '" as an item.';
+  } else {
+    if(existing && existing.instanceId !== card.instanceId){
+      moveCardToVeilWithItems(existing);
+    }
+    if(slotKey === 'hero' && card.card_type === 'Hero'){
+      const resetLife = Number(card.baseLife) || Number(card.maxLife) || Number(card.life) || 0;
+      card.maxLife = resetLife;
+      card.life = resetLife;
+    }
+    battle.field[slotKey] = card;
+    if(card.card_type === 'Item'){
+      playActionShowcase(card, SFX_ITEM, 'item');
+    } else {
+      card.animTag = 'slam-play';
+      clearAnimTagLater(card);
+    }
+    document.getElementById('battleStatus').textContent = '"' + card.name + '" moved to the field.';
+  }
+  renderBattle();
+  syncPopout();
+}
+
+function onHandDrop(e){
+  e.preventDefault();
+  document.getElementById('handStrip').classList.remove('drag-over');
+  const payload = readDragPayload(e);
+  const card = pluckCardFromSource(payload);
+  if(!card) { renderBattle(); return; }
+  battle.hand.push(card);
+  renderBattle();
+  syncPopout();
+}
+
+function onVeilDrop(e){
+  e.preventDefault();
+  document.getElementById('veilDropzone').classList.remove('drag-over');
+  const payload = readDragPayload(e);
+  const card = pluckCardFromSource(payload);
+  if(!card) { renderBattle(); return; }
+  moveCardToVeilWithItems(card);
+  document.getElementById('battleStatus').textContent = '"' + card.name + '" sent to The Veil.';
+  renderBattle();
+  syncPopout();
+}
+
+function onDeckDrop(e){
+  e.preventDefault();
+  document.getElementById('mainDeckPile').classList.remove('drag-over');
+  const payload = readDragPayload(e);
+  const card = pluckCardFromSource(payload);
+  if(!card) { renderBattle(); return; }
+  popTopCardForDeck(card);
+  document.getElementById('battleStatus').textContent = '"' + card.name + '" placed on top of the Main Deck.';
+  renderBattle();
+  syncPopout();
+}
+
+function onVeilDragStart(e){
+  if(battle.veil.length === 0){ e.preventDefault(); return; }
+  const top = battle.veil[battle.veil.length - 1];
+  e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'veil', instanceId: top.instanceId }));
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function openCardPreview(card){
+  if(!card) return;
+  const img = document.getElementById('cardPreviewImg');
+  img.src = card.image_path;
+  img.alt = card.name;
+  document.getElementById('cardPreviewOverlay').classList.add('open');
+}
+
+function closeCardPreview(){
+  document.getElementById('cardPreviewOverlay').classList.remove('open');
+}
+
+function openPileSpread(cards, title){
+  if(!cards || cards.length <= 1) return;
+  spreadContext = { title, ids: cards.map(c => c.instanceId) };
+  document.getElementById('pileSpreadTitle').textContent = title + ' (' + cards.length + ')';
+  const row = document.getElementById('pileSpreadRow');
+  row.innerHTML = cards.map(card =>
+    `<div>` +
+      `<div class="spread-card" onclick="openCardById('${card.instanceId.replace(/'/g, "\\'")}')" title="${card.name}">` +
+      `<img src="${card.image_path}" alt="${card.name}" onerror="this.style.opacity=0.15;">` +
+      `</div>` +
+      `<div class="spread-actions">` +
+        `<button onclick="spreadMoveCard(event, '${card.instanceId.replace(/'/g, "\\'")}', 'veil')">Veil</button>` +
+        `<button onclick="spreadMoveCard(event, '${card.instanceId.replace(/'/g, "\\'")}', 'hand')">Hand</button>` +
+        `<button onclick="spreadMoveCard(event, '${card.instanceId.replace(/'/g, "\\'")}', 'deck')">Deck</button>` +
+      `</div>` +
+    `</div>`
+  ).join('');
+  document.getElementById('pileSpreadOverlay').classList.add('open');
+}
+
+function closePileSpread(){
+  spreadContext = null;
+  document.getElementById('pileSpreadOverlay').classList.remove('open');
+}
+
+function openDeckSearch(){
+  document.getElementById('deckSearchTitle').textContent = 'Main Deck Search (' + battle.mainDeck.length + ' cards)';
+  const input = document.getElementById('deckSearchInput');
+  input.value = '';
+  document.getElementById('deckSearchOverlay').classList.add('open');
+  renderDeckSearchList();
+  setTimeout(() => input.focus(), 0);
+}
+
+function closeDeckSearch(){
+  document.getElementById('deckSearchOverlay').classList.remove('open');
+}
+
+function renderDeckSearchList(){
+  const grid = document.getElementById('deckSearchGrid');
+  const term = document.getElementById('deckSearchInput').value.trim().toLowerCase();
+  const cards = [...battle.mainDeck].reverse().filter(card => card.name.toLowerCase().includes(term));
+
+  if(cards.length === 0){
+    grid.innerHTML = '<div class="empty-hint" style="width:100%;">No cards match your search.</div>';
+    return;
+  }
+
+  grid.innerHTML = cards.map((card, idx) => `
+    <div class="deck-search-card" title="${idx === 0 ? 'Top of deck' : ''}">
+      <div class="deck-search-thumb" style="border-color:${accentColorFor(card)}" onclick="openCardById('${card.instanceId}')">
+        <img src="${card.image_path}" alt="${card.name}" onerror="this.style.opacity=0.15;">
+      </div>
+      <div class="deck-search-name">${card.name}</div>
+      <div class="deck-search-actions">
+        <button onclick="deckSearchMove(event, '${card.instanceId.replace(/'/g, "\\'")}', 'hand')">Hand</button>
+        <button onclick="deckSearchMove(event, '${card.instanceId.replace(/'/g, "\\'")}', 'top')">Top</button>
+      </div>
+    </div>`).join('');
+}
+
+function deckSearchMove(e, instanceId, target){
+  e.stopPropagation();
+  const idx = battle.mainDeck.findIndex(c => c.instanceId === instanceId);
+  if(idx === -1) return;
+  const card = battle.mainDeck.splice(idx, 1)[0];
+
+  if(target === 'hand'){
+    battle.hand.push(card);
+    document.getElementById('battleStatus').textContent = 'Moved "' + card.name + '" from Main Deck to hand.';
+  }else{
+    battle.mainDeck.push(card);
+    document.getElementById('battleStatus').textContent = 'Moved "' + card.name + '" to top of Main Deck.';
+  }
+
+  document.getElementById('deckSearchTitle').textContent = 'Main Deck Search (' + battle.mainDeck.length + ' cards)';
+  renderDeckSearchList();
+  renderBattle();
+  syncPopout();
+}
+
+function beginDeckHoldSearch(e){
+  if(e.button !== 0) return;
+  clearDeckHoldSearch();
+  deckHoldTimer = setTimeout(() => {
+    suppressDeckClickUntil = Date.now() + 600;
+    openDeckSearch();
+  }, 1000);
+}
+
+function clearDeckHoldSearch(){
+  if(!deckHoldTimer) return;
+  clearTimeout(deckHoldTimer);
+  deckHoldTimer = null;
+}
+
+function onDeckPileClick(e){
+  if(Date.now() < suppressDeckClickUntil){
+    e.preventDefault();
+    return;
+  }
+  drawCard();
+}
+
+function spreadMoveCard(e, instanceId, target){
+  e.stopPropagation();
+  const card = removeCardByInstanceId(instanceId);
+  if(!card) return;
+
+  if(target === 'veil') moveCardToVeilWithItems(card);
+  if(target === 'hand') battle.hand.push(card);
+  if(target === 'deck') popTopCardForDeck(card);
+
+  closePileSpread();
+  renderBattle();
+  syncPopout();
+}
+
+function findCardByInstanceId(instanceId){
+  for(const card of battle.hand){ if(card.instanceId === instanceId) return card; }
+  for(const card of battle.veil){ if(card.instanceId === instanceId) return card; }
+  for(const key of Object.keys(battle.field)){
+    const card = battle.field[key];
+    if(!card) continue;
+    if(card.instanceId === instanceId) return card;
+    for(const item of card.items){ if(item.instanceId === instanceId) return item; }
+  }
+  return null;
+}
+
+function openCardById(instanceId){
+  if(holdPreviewSuppressUntil[instanceId] && Date.now() < holdPreviewSuppressUntil[instanceId]) return;
+  const card = findCardByInstanceId(instanceId);
+  if(card) openCardPreview(card);
+}
+
+function beginHoldRotate(instanceId){
+  cancelHoldRotate(instanceId);
+  holdTimers[instanceId] = setTimeout(() => {
+    const card = findCardByInstanceId(instanceId);
+    if(!card) return;
+    card.rotated = !card.rotated;
+    holdPreviewSuppressUntil[instanceId] = Date.now() + 700;
+    renderBattle();
+    syncPopout();
+  }, 2000);
+}
+
+function cancelHoldRotate(instanceId){
+  if(!holdTimers[instanceId]) return;
+  clearTimeout(holdTimers[instanceId]);
+  delete holdTimers[instanceId];
+}
+
+function playSfx(url){
+  try{
+    const sfx = new Audio(url);
+    sfx.volume = 0.9;
+    sfx.play().catch(() => {});
+  }catch(err){
+    // Ignore browser audio policy issues silently.
+  }
+}
+
+function playActionShowcase(card, soundUrl, actionKey, fromPeer){
+  const overlay = document.getElementById('skillCastOverlay');
+  const castCard = document.getElementById('skillCastCard');
+  const back = document.getElementById('skillCastBack');
+  const front = document.getElementById('skillCastFront');
+
+  back.src = CARD_BACK_IMAGE;
+  front.src = card.image_path;
+  castCard.classList.remove('run');
+  void castCard.offsetWidth;
+  castCard.classList.add('run');
+  overlay.classList.add('open');
+  playSfx(soundUrl);
+
+  setTimeout(() => {
+    castCard.classList.remove('run');
+    overlay.classList.remove('open');
+  }, 1100);
+  syncPopoutAnimation('action-slide', card, soundUrl, actionKey);
+  if(!fromPeer) mpSend({ type: 'anim', key: actionKey, name: card.name });
+}
+
+function syncPopoutAnimation(kind, card, soundUrl, actionKey){
+  if(!popoutWin || popoutWin.closed) return;
+  popoutWin.postMessage({
+    type: 'tcg-anim',
+    kind,
+    back: CARD_BACK_IMAGE,
+    front: card ? card.image_path : '',
+    soundUrl: soundUrl || '',
+    actionKey: actionKey || ''
+  }, '*');
+}
+
+function onFieldSlotContextMenu(e, slotKey){
+  const slotCard = battle.field[slotKey];
+  if(!slotCard) return;
+  const stack = [slotCard, ...slotCard.items];
+  if(stack.length <= 1) return;
+  e.preventDefault();
+  const slot = FIELD_SLOTS.find(s => s.key === slotKey);
+  openPileSpread(stack, slot ? slot.label : 'Zone Stack');
+}
+
+function onVeilContextMenu(e){
+  if(battle.veil.length <= 1) return;
+  e.preventDefault();
+  openPileSpread([...battle.veil].reverse(), 'The Veil');
+}
+
+
+/* ============================================================================
+   7. LIFE TRACKER (Hero / Support cards only — Skill/Item have no life stat)
+   ============================================================================ */
+function adjustLife(slotKey, delta){
+  const card = battle.field[slotKey];
+  if(!card || typeof card.life !== 'number') return;
+  card.life += delta;
+  renderBattle();
+  syncPopout();
+}
+
+function setLife(slotKey, nextValue){
+  const card = battle.field[slotKey];
+  if(!card) return;
+  const parsed = Number(nextValue);
+  if(!Number.isFinite(parsed)) return;
+  card.life = Math.max(0, Math.floor(parsed));
+  syncPopout();
+}
+
+function commitLife(slotKey, inputEl){
+  const card = battle.field[slotKey];
+  if(!card) return;
+  const parsed = Number(inputEl.value);
+  card.life = Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : Math.max(0, Math.floor(Number(card.life) || 0));
+  renderBattle();
+  syncPopout();
+}
+
+
+/* ============================================================================
+   8. BATTLE SCREEN RENDERING
+   ============================================================================ */
+const FIELD_SLOTS = [
+  { key: 'ls2',  label: 'Left Support 2',  hero: false },
+  { key: 'ls1',  label: 'Left Support 1',  hero: false },
+  { key: 'hero', label: 'Hero Zone',       hero: true  },
+  { key: 'rs1',  label: 'Right Support 1', hero: false },
+  { key: 'rs2',  label: 'Right Support 2', hero: false }
+];
+
+function fieldCardHTML(card, slotKey){
+  const hasLife = typeof card.life === 'number';
+  const hasAttack = typeof card.attack === 'number';
+  const lifeTracker = hasLife ? `
+      <div class="life-tracker">
+        <input class="life-input" type="number" min="0" value="${card.life}"
+               onclick="event.stopPropagation()"
+               onmousedown="event.stopPropagation()"
+               oninput="setLife('${slotKey}', this.value)"
+               onchange="commitLife('${slotKey}', this)"
+               onblur="commitLife('${slotKey}', this)">
+      </div>` : '';
+  const attackBadge = hasAttack ? `<div class="attack-badge">ATK ${card.attack}</div>` : '';
+  const itemsBadge = card.items.length
+    ? `<div class="item-badge" title="${card.items.map(i=>i.name).join(', ')}">+${card.items.length} item${card.items.length>1?'s':''}</div>`
+    : '';
+  return `
+      <div class="field-card accent ${card.rotated ? 'rotated' : ''} ${card.animTag || ''}" style="--accent-color:${accentColorFor(card)}"
+         draggable="true"
+        onmousedown="beginHoldRotate('${card.instanceId}')"
+        onmouseup="cancelHoldRotate('${card.instanceId}')"
+        onmouseleave="cancelHoldRotate('${card.instanceId}')"
+         ondragstart="onCardDragStart(event,'field','${slotKey}')"
+         onclick="openCardById('${card.instanceId}')">
+      <img src="${card.image_path}" alt="${card.name}" onerror="this.style.opacity=0.15;">
+      ${lifeTracker}
+      ${attackBadge}
+      ${itemsBadge}
+    </div>`;
+}
+
+function renderBattlefieldGrid(){
+  const grid = document.getElementById('battlefieldGrid');
+  grid.innerHTML = FIELD_SLOTS.map(slot => {
+    const card = battle.field[slot.key];
+    const inner = card ? fieldCardHTML(card, slot.key) : '<span class="slot-empty-icon">✚</span>';
+    return `
+      <div class="field-slot ${slot.hero ? 'hero' : ''}">
+        <div class="slot-label">${slot.label}</div>
+        <div class="dropzone ${card ? 'occupied' : ''}"
+             data-slot="${slot.key}"
+             ondragover="event.preventDefault(); event.currentTarget.classList.add('drag-over');"
+             ondragleave="event.currentTarget.classList.remove('drag-over');"
+             oncontextmenu="onFieldSlotContextMenu(event,'${slot.key}')"
+             ondrop="onFieldSlotDrop(event,'${slot.key}')">
+          ${inner}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderPiles(){
+  const deckPile = document.getElementById('mainDeckPile');
+  deckPile.innerHTML = `
+    <img src="${CARD_BACK_IMAGE}" alt="Deck back" style="width:100%; height:100%; object-fit:cover; border-radius:7px; opacity:${battle.mainDeck.length ? '1' : '0.4'};">
+    <span class="pile-count">${battle.mainDeck.length}</span>`;
+
+  const veilPile = document.getElementById('veilPile');
+  if(battle.veil.length === 0){
+    veilPile.innerHTML = `<span class="slot-empty-icon">✚</span>`;
+    veilPile.classList.remove('has-cards');
+  } else {
+    const top = battle.veil[battle.veil.length - 1];
+    veilPile.classList.add('has-cards');
+    veilPile.innerHTML = `
+      <img src="${top.image_path}" alt="${top.name}"
+           onclick="openCardById('${top.instanceId}')"
+           draggable="true"
+           ondragstart="onVeilDragStart(event)"
+           onerror="this.style.opacity=0.15;">
+      <span class="pile-count">${battle.veil.length}</span>`;
+  }
+}
+
+function renderHand(){
+  const strip = document.getElementById('handStrip');
+  if(battle.hand.length === 0){
+    strip.innerHTML = '<div class="hand-empty">Your hand is empty. Draw from the Main Deck.</div>';
+    return;
+  }
+  strip.innerHTML = battle.hand.map(card => `
+    <div class="field-card hand-card accent ${card.rotated ? 'rotated' : ''} ${card.animTag || ''}" style="--accent-color:${accentColorFor(card)}"
+         draggable="true"
+         onclick="openCardById('${card.instanceId}')"
+         ondragstart="event.dataTransfer.setData('text/plain', JSON.stringify({source:'hand', instanceId:'${card.instanceId}'})); event.dataTransfer.effectAllowed='move';">
+      <img src="${card.image_path}" alt="${card.name}" onerror="this.style.opacity=0.15;">
+    </div>`).join('');
+}
+
+function renderBattle(){
+  renderBattlefieldGrid();
+  renderPiles();
+  renderHand();
+}
+
+function wireStaticDropzones(){
+  const handStrip = document.getElementById('handStrip');
+  handStrip.addEventListener('dragover', e => { e.preventDefault(); handStrip.classList.add('drag-over'); });
+  handStrip.addEventListener('dragleave', () => handStrip.classList.remove('drag-over'));
+  handStrip.addEventListener('drop', onHandDrop);
+
+  const veilZone = document.getElementById('veilDropzone');
+  veilZone.addEventListener('dragover', e => { e.preventDefault(); veilZone.classList.add('drag-over'); });
+  veilZone.addEventListener('dragleave', () => veilZone.classList.remove('drag-over'));
+  veilZone.addEventListener('drop', onVeilDrop);
+
+  const deckPile = document.getElementById('mainDeckPile');
+  deckPile.addEventListener('mousedown', beginDeckHoldSearch);
+  deckPile.addEventListener('mouseup', clearDeckHoldSearch);
+  deckPile.addEventListener('mouseleave', clearDeckHoldSearch);
+  deckPile.addEventListener('dragover', e => { e.preventDefault(); deckPile.classList.add('drag-over'); });
+  deckPile.addEventListener('dragleave', () => deckPile.classList.remove('drag-over'));
+  deckPile.addEventListener('drop', e => { clearDeckHoldSearch(); onDeckDrop(e); });
+  deckPile.addEventListener('contextmenu', e => {
+    clearDeckHoldSearch();
+    e.preventDefault();
+    shuffleDeck();
+  });
+
+  const veilPile = document.getElementById('veilPile');
+  veilPile.addEventListener('contextmenu', onVeilContextMenu);
+  veilZone.addEventListener('contextmenu', onVeilContextMenu);
+
+  document.addEventListener('keydown', e => {
+    if(e.key !== 'Escape') return;
+    closeCardPreview();
+    closePileSpread();
+    closeDeckSearch();
+    closeThemeEditor();
+  });
+}
+
+
+/* ============================================================================
+   9. SERVERLESS POP-OUT STREAMING ENGINE
+   ----------------------------------------------------------------------------
+   Same design as before: window.open('', ...) + a self-written HTML document
+   whose only script listens for postMessage. The payload built in
+   syncPopout() never includes battle.hand — the pop-out document has no
+   hand-rendering code path at all, so the private hand cannot leak.
+   ============================================================================ */
+const POPOUT_DOCUMENT_HTML = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Battle Stream</title>
+<style>
+  :root{
+    --bg-900:#0b1020; --bg-800:#111827; --bg-700:#1b263b; --line:#566072;
+    --gold:#c9a227; --gold-dim:#8f6f1e; --parchment:#ede6d3;
+    --blue-deck:#4a78c2; --blue-deck-dim:#2b4d88;
+    --purple-veil:#7d5aa6; --purple-veil-dim:#553978;
+    --danger:#b85757; --good:#5f9f78;
+    --aff-fire:#e2572b; --aff-water:#3aa6d9; --aff-earth:#7a9a4a;
+    --aff-air:#8fd0c9; --aff-aether:#e8c766; --aff-void:#8a5cd6;
+    --type-hero:#c9a227; --type-support:#4a78c2; --type-skill:#2f8f83; --type-item:#b57b3e;
+    --card-w:150px; --card-h:211px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; font-family:'Trebuchet MS',sans-serif; color:#e2e2e8;
+    background:radial-gradient(ellipse at 50% 0%, var(--bg-700), var(--bg-900));
+    padding:24px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .stage{width:100%; max-width:1100px;}
+  h2{font-family:Georgia,serif; color:var(--parchment); text-align:center; margin-top:0;}
+  .grid{display:grid; grid-template-columns:1fr 1fr 1.25fr 1fr 1fr; gap:14px; align-items:end; max-width:1100px; margin:0 auto 26px;}
+  .slot{display:flex; flex-direction:column; align-items:center; gap:8px;}
+  .slot .label{font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:#9797a6; font-weight:700;}
+  .slot.hero .label{color:var(--gold); font-size:0.78rem;}
+  .box{
+    width:var(--card-w); height:var(--card-h); border:2px solid var(--line); border-radius:10px;
+    background:rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center; position:relative; overflow:visible;
+  }
+  .slot.hero .box{ width:calc(var(--card-w) * 1.18); height:calc(var(--card-h) * 1.18); border-color:var(--gold-dim); }
+  .card{position:relative; width:100%; height:100%; transform-origin:center center;}
+  .card img{width:100%; height:100%; object-fit:cover; display:block;}
+  .card.rotated{transform:rotate(-90deg);}
+  .card.slam-play{animation:slamIn .44s cubic-bezier(.2,.82,.22,1.18);}
+  .life{position:absolute; right:6px; bottom:6px; background:rgba(10,10,10,0.75); border-radius:8px; padding:2px 8px; font-size:0.68rem; font-weight:700; color:#fff;}
+  .atk{position:absolute; right:6px; bottom:30px; background:rgba(10,10,10,0.75); color:var(--gold); font-size:0.65rem; font-weight:700; padding:2px 7px; border-radius:999px;}
+  .item-badge{position:absolute; left:4px; bottom:4px; background:rgba(212,175,90,0.92); color:#241b06; font-size:0.65rem; font-weight:700; padding:2px 6px; border-radius:6px;}
+  .empty{color:var(--line); font-size:1.6rem;}
+  .piles{display:flex; gap:28px; justify-content:center;}
+  .pile{display:flex; flex-direction:column; align-items:center; gap:8px;}
+  .pile-label{font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;}
+  .pile.deck .pile-label{color:var(--blue-deck);}
+  .pile.veil .pile-label{color:var(--purple-veil);}
+  .stack{width:var(--card-w); height:var(--card-h); border-radius:10px; display:flex; align-items:center; justify-content:center; position:relative;}
+  .pile.deck .stack{background:repeating-linear-gradient(135deg, var(--blue-deck-dim), var(--blue-deck-dim) 10px, #1c3a55 10px, #1c3a55 20px); border:2px solid var(--blue-deck); font-weight:700; color:#fff; font-size:1.4rem;}
+  .pile.deck .stack img{width:100%; height:100%; object-fit:cover; border-radius:8px;}
+  .pile.veil .stack{background:var(--bg-900); border:2px dashed var(--purple-veil-dim);}
+  .pile.veil .stack.has img{width:100%; height:100%; object-fit:cover; border-radius:8px;}
+  .count{position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,0.7); color:#fff; font-size:0.72rem; font-weight:700; padding:2px 7px; border-radius:999px;}
+  .skill-cast-overlay{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(3,3,6,0.45);}
+  .skill-cast-overlay.open{display:flex;}
+  .skill-card{width:196px; height:276px; border-radius:12px; overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,0.65); position:relative; opacity:0; transform:translateY(140px) scale(0.9);}
+  .skill-card.run{animation:actionSlideUp .96s cubic-bezier(.17,.84,.24,1) forwards;}
+  .skill-card img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+  .skill-card .front{z-index:2;}
+  .skill-card .back{display:none;}
+  @keyframes slamIn{0%{transform:translateY(-46px) scale(0.84);} 58%{transform:translateY(11px) scale(1.08);} 78%{transform:translateY(-6px) scale(0.98);} 100%{transform:translateY(0) scale(1);}}
+  @keyframes actionSlideUp{0%{opacity:0; transform:translateY(140px) scale(0.9);} 25%{opacity:1; transform:translateY(68px) scale(0.98);} 70%{opacity:1; transform:translateY(-8px) scale(1.02);} 100%{opacity:0; transform:translateY(-62px) scale(1);}}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="grid" id="grid"></div>
+    <div class="piles">
+      <div class="pile deck"><div class="pile-label">Main Deck</div><div class="stack" id="deckStack"></div></div>
+      <div class="pile veil"><div class="pile-label">The Veil</div><div class="stack" id="veilStack"></div></div>
+    </div>
+  </div>
+  <div class="skill-cast-overlay" id="skillOverlay">
+    <div class="skill-card" id="skillCard">
+      <img id="skillBack" class="back" src="" alt="Back">
+      <img id="skillFront" class="front" src="" alt="Front">
+    </div>
+  </div>
+<script>
+  // NOTE: there is deliberately no hand-related markup or state anywhere in
+  // this document — the "sync" payload never contains it, by design.
+  var SLOTS = [
+    {key:'ls2', label:'Left Support 2', hero:false},
+    {key:'ls1', label:'Left Support 1', hero:false},
+    {key:'hero', label:'Hero Zone', hero:true},
+    {key:'rs1', label:'Right Support 1', hero:false},
+    {key:'rs2', label:'Right Support 2', hero:false}
+  ];
+
+  function accentColorFor(card){
+    if(card.affinity) return 'var(--aff-' + card.affinity.toLowerCase() + ')';
+    var t = (card.card_type || '').toLowerCase();
+    return 'var(--type-' + t + ')';
+  }
+
+  function playSfx(url){
+    if(!url) return;
+    try{
+      var sfx = new Audio(url);
+      sfx.volume = 0.9;
+      sfx.play().catch(function(){});
+    }catch(err){}
+  }
+
+  function applyTheme(theme){
+    if(!theme) return;
+    Object.keys(theme).forEach(function(name){
+      document.documentElement.style.setProperty('--' + name, theme[name]);
+    });
+  }
+
+  function render(data){
+    applyTheme(data.theme);
+    var grid = document.getElementById('grid');
+    grid.innerHTML = SLOTS.map(function(slot){
+      var card = data.field ? data.field[slot.key] : null;
+      var inner = '<span class="empty">&#10022;</span>';
+      if(card){
+        var itemsBadge = (card.items && card.items.length)
+          ? '<div class="item-badge">+' + card.items.length + ' item' + (card.items.length>1?'s':'') + '</div>'
+          : '';
+        var lifeTag = (typeof card.life === 'number')
+          ? '<div class="life">' + card.life + '</div>'
+          : '';
+        var atkTag = (typeof card.attack === 'number')
+          ? '<div class="atk">ATK ' + card.attack + '</div>'
+          : '';
+        var cardClass = 'card ' + (card.rotated ? 'rotated ' : '') + (card.animTag || '');
+        inner = '<div class="' + cardClass.trim() + '">' +
+                  '<img src="' + card.image_path + '" alt="' + card.name + '" style="box-shadow:inset 0 0 0 2px ' + accentColorFor(card) + '">' +
+                  lifeTag + atkTag + itemsBadge +
+                '</div>';
+      }
+      return '<div class="slot ' + (slot.hero ? 'hero' : '') + '">' +
+             '<div class="label">' + slot.label + '</div>' +
+             '<div class="box">' + inner + '</div></div>';
+    }).join('');
+
+    var deckStack = document.getElementById('deckStack');
+    deckStack.innerHTML = '<img src="' + data.cardBack + '" alt="Deck back">' +
+                          '<div class="count">' + (data.mainDeckCount != null ? data.mainDeckCount : 0) + '</div>';
+
+    var veilStack = document.getElementById('veilStack');
+    if(data.veilTop){
+      veilStack.className = 'stack has';
+      veilStack.innerHTML = '<img src="' + data.veilTop.image_path + '" alt="' + data.veilTop.name + '">' +
+                             '<div class="count">' + data.veilCount + '</div>';
+    } else {
+      veilStack.className = 'stack';
+      veilStack.innerHTML = '<span class="empty">&#10022;</span>';
+    }
+  }
+
+  window.addEventListener('message', function(e){
+    if(e.data && e.data.type === 'tcg-sync'){ render(e.data); }
+    if(e.data && e.data.type === 'tcg-anim' && e.data.kind === 'action-slide'){
+      var overlay = document.getElementById('skillOverlay');
+      var skillCard = document.getElementById('skillCard');
+      document.getElementById('skillBack').src = e.data.back;
+      document.getElementById('skillFront').src = e.data.front;
+      skillCard.classList.remove('run');
+      void skillCard.offsetWidth;
+      skillCard.classList.add('run');
+      overlay.classList.add('open');
+      playSfx(e.data.soundUrl || '');
+      setTimeout(function(){ skillCard.classList.remove('run'); overlay.classList.remove('open'); }, 1100);
+    }
+  });
+
+  if(window.opener){ window.opener.postMessage({ type: 'tcg-popout-ready' }, '*'); }
+<\/script>
+</body>
+</html>`;
+
+function openPopout(){
+  popoutWin = window.open('', 'tcgBattleStream', 'width=980,height=680');
+  if(!popoutWin){
+    alert('Your browser blocked the pop-out. Please allow pop-ups for this page and try again.');
+    return;
+  }
+  popoutWin.document.open();
+  popoutWin.document.write(POPOUT_DOCUMENT_HTML);
+  popoutWin.document.close();
+  document.getElementById('battleStatus').textContent = 'Streaming pop-out window opened — your hand stays private.';
+}
+
+function syncPopout(){
+  syncPeer(); // also mirror the board to the online opponent (no-op when offline)
+  if(!popoutWin || popoutWin.closed) { popoutWin = null; return; }
+  const payload = {
+    type: 'tcg-sync',
+    field: battle.field,
+    theme: captureThemeValues(),
+    cardBack: CARD_BACK_IMAGE,
+    mainDeckCount: battle.mainDeck.length,
+    veilTop: battle.veil.length ? battle.veil[battle.veil.length - 1] : null,
+    veilCount: battle.veil.length
+    // battle.hand is intentionally NEVER included here.
+  };
+  popoutWin.postMessage(payload, '*');
+}
+
+window.addEventListener('message', e => {
+  if(e.data && e.data.type === 'tcg-popout-ready'){ syncPopout(); }
+});
+
+
+/* ============================================================================
+   9b. ONLINE MATCH — PEER-TO-PEER (WebRTC through PeerJS, no game server)
+   ----------------------------------------------------------------------------
+   How it works:
+     • Host clicks "Host a Game" → gets a 5-character room code.
+     • Guest enters the code → the two browsers open a direct data channel.
+       (PeerJS's free public broker is only used for the first handshake;
+        after that, game data flows straight between the two players.)
+     • Each player controls ONLY their own cards. The opponent's board is a
+       read-only mirror shown above yours.
+     • Privacy: the hand is never transmitted — only the field, card counts,
+       and the name of the top Veil card.
+     • Everything received from the other player is sanitized, and images are
+       looked up in YOUR OWN card database by name, so the other side can't
+       inject markup or make your browser load arbitrary URLs.
+   ============================================================================ */
+const MP_PREFIX = 'd20tcg-';
+const MP_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const MP_SOUNDS = { 'skill': SFX_SKILL, 'item': SFX_ITEM, 'level-up': SFX_LEVEL_UP };
+
+let mp = { peer: null, conn: null, role: null, code: '', connected: false, hostTries: 0, joinTimer: null };
+let opponent = null; // sanitized snapshot of the other player's board
+
+function escapeHTML(s){
+  return String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+
+function makeRoomCode(){
+  const bytes = new Uint8Array(5);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, b => MP_ALPHABET[b % MP_ALPHABET.length]).join('');
+}
+
+/* ---- UI ------------------------------------------------------------------ */
+function mpRefreshUI(){
+  const pill = document.getElementById('mpPill');
+  pill.textContent = mp.connected ? 'Online · connected' : (mp.role ? 'Online · waiting' : 'Offline');
+  pill.className = 'mp-pill ' + (mp.connected ? 'on' : (mp.role ? 'wait' : ''));
+
+  const active = !!mp.role;
+  document.getElementById('mpIdle').style.display = active ? 'none' : 'block';
+  document.getElementById('mpActive').style.display = active ? 'block' : 'none';
+  document.getElementById('mpCodeRow').style.display = mp.role === 'host' ? 'flex' : 'none';
+  document.getElementById('mpCode').textContent = mp.code || '…';
+}
+
+function mpSetStatus(text, kind){
+  const el = document.getElementById('mpStatus');
+  el.textContent = text || '';
+  el.className = 'mp-status ' + (kind || '');
+  mpRefreshUI();
+}
+
+function openMultiplayer(){
+  document.getElementById('mpOverlay').classList.add('open');
+  mpRefreshUI();
+}
+function closeMultiplayer(){
+  document.getElementById('mpOverlay').classList.remove('open');
+}
+function mpCopyCode(){
+  if(!mp.code) return;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(mp.code).then(
+      () => mpSetStatus('Room code copied. Send it to your opponent.', 'ok'),
+      () => {}
+    );
+  }
+}
+
+/* ---- Connection lifecycle ------------------------------------------------ */
+function mpLibOk(){
+  if(typeof Peer === 'undefined'){
+    mpSetStatus('The online-play library (PeerJS) failed to load. Check your internet connection and reload the page.', 'err');
+    return false;
+  }
+  return true;
+}
+
+function mpTeardown(){
+  clearTimeout(mp.joinTimer);
+  const oldConn = mp.conn, oldPeer = mp.peer;
+  mp = { peer: null, conn: null, role: null, code: '', connected: false, hostTries: 0, joinTimer: null };
+  opponent = null;
+  try{ if(oldConn) oldConn.close(); }catch(err){}
+  try{ if(oldPeer) oldPeer.destroy(); }catch(err){}
+  renderOpponent();
+  mpRefreshUI();
+}
+
+function mpLeave(){
+  mpTeardown();
+  mpSetStatus('You left the online match.');
+  document.getElementById('battleStatus').textContent = 'Online match ended.';
+}
+
+function mpHost(){
+  if(!mpLibOk()) return;
+  mpTeardown();
+  mpStartHost(0);
+}
+
+function mpStartHost(tries){
+  const code = makeRoomCode();
+  mp.role = 'host';
+  mp.code = '';
+  mp.hostTries = tries;
+  mpSetStatus('Starting host…');
+
+  const peer = new Peer(MP_PREFIX + code);
+  mp.peer = peer;
+
+  peer.on('open', () => {
+    if(mp.peer !== peer) return;
+    mp.code = code;
+    mpSetStatus('Waiting for your opponent. Share the room code above.', 'ok');
+  });
+  peer.on('connection', conn => {
+    if(mp.peer !== peer) return;
+    if(mp.conn){ conn.on('open', () => conn.close()); return; } // one opponent at a time
+    mpAttach(conn);
+  });
+  peer.on('disconnected', () => {
+    // Lost the matchmaking broker; an existing direct connection is unaffected.
+    if(mp.peer === peer && !peer.destroyed){ try{ peer.reconnect(); }catch(err){} }
+  });
+  peer.on('error', err => mpOnError(err, peer));
+}
+
+function mpJoin(){
+  if(!mpLibOk()) return;
+  const code = document.getElementById('mpJoinInput').value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if(code.length !== 5){
+    mpSetStatus('Enter the 5-character room code from the host.', 'err');
+    return;
+  }
+  mpTeardown();
+  mp.role = 'guest';
+  mpSetStatus('Connecting…', 'wait');
+
+  const peer = new Peer();
+  mp.peer = peer;
+
+  peer.on('open', () => {
+    if(mp.peer !== peer) return;
+    mpAttach(peer.connect(MP_PREFIX + code, { reliable: true }));
+    mp.joinTimer = setTimeout(() => {
+      if(mp.peer === peer && !mp.connected){
+        mpTeardown();
+        mpSetStatus('Could not reach the host. Check the code and make sure they are still hosting.', 'err');
+      }
+    }, 20000);
+  });
+  peer.on('disconnected', () => {
+    if(mp.peer === peer && !peer.destroyed){ try{ peer.reconnect(); }catch(err){} }
+  });
+  peer.on('error', err => mpOnError(err, peer));
+}
+
+function mpOnError(err, peer){
+  if(mp.peer !== peer) return;
+  const type = err && err.type;
+
+  // Room code collision (very rare): quietly pick another code.
+  if(type === 'unavailable-id' && mp.role === 'host' && mp.hostTries < 3){
+    const tries = mp.hostTries + 1;
+    try{ peer.destroy(); }catch(e){}
+    mp.peer = null;
+    mpStartHost(tries);
+    return;
+  }
+
+  let msg;
+  if(type === 'peer-unavailable') msg = 'No game found with that code. Check it and try again.';
+  else if(type === 'network' || type === 'server-error' || type === 'socket-error' || type === 'socket-closed')
+    msg = 'Could not reach the matchmaking service. Check your internet connection and try again.';
+  else if(type === 'webrtc')
+    msg = 'The direct connection failed. One of the networks may be blocking peer-to-peer traffic.';
+  else msg = 'Connection error' + (type ? ' (' + type + ')' : '') + '. Try again.';
+
+  if(mp.connected){ mpSetStatus(msg, 'err'); return; } // keep the live match if the channel is fine
+  mpTeardown();
+  mpSetStatus(msg, 'err');
+}
+
+function mpAttach(conn){
+  mp.conn = conn;
+
+  conn.on('open', () => {
+    if(mp.conn !== conn) return;
+    clearTimeout(mp.joinTimer);
+    mp.connected = true;
+    mpSetStatus('Connected! Both boards are now live.', 'ok');
+    document.getElementById('battleStatus').textContent = 'Online match connected.';
+    mpSend({ type: 'hello', v: 1 });
+    syncPeer();
+    closeMultiplayer();
+  });
+
+  conn.on('data', data => { if(mp.conn === conn) mpOnData(data); });
+
+  conn.on('close', () => {
+    if(mp.conn !== conn) return;
+    mp.conn = null;
+    mp.connected = false;
+    opponent = null;
+    renderOpponent();
+    document.getElementById('battleStatus').textContent = 'Online match ended.';
+    if(mp.role === 'host'){
+      mpSetStatus('Your opponent left. Waiting for someone to join with the same code.', 'wait');
+    }else{
+      mpTeardown();
+      mpSetStatus('The host ended the match.', 'err');
+    }
+  });
+
+  conn.on('error', () => {
+    if(mp.conn !== conn) return;
+    mpSetStatus('Connection problem with your opponent.', 'err');
+  });
+}
+
+/* ---- Sending ------------------------------------------------------------- */
+function mpSend(obj){
+  if(!mp.connected || !mp.conn || !mp.conn.open) return;
+  try{ mp.conn.send(obj); }catch(err){}
+}
+
+function syncPeer(){
+  if(!mp.connected) return;
+  const field = {};
+  FIELD_SLOTS.forEach(slot => {
+    const c = battle.field[slot.key];
+    field[slot.key] = c ? {
+      name: c.name,
+      card_type: c.card_type,
+      affinity: c.affinity || '',
+      life: typeof c.life === 'number' ? c.life : null,
+      attack: typeof c.attack === 'number' ? c.attack : null,
+      rotated: !!c.rotated,
+      items: c.items.map(i => i.name)
+    } : null;
+  });
+  mpSend({
+    type: 'state',
+    field,
+    handCount: battle.hand.length,      // only a COUNT — the hand itself is never sent
+    deckCount: battle.mainDeck.length,
+    veilCount: battle.veil.length,
+    veilTop: battle.veil.length ? battle.veil[battle.veil.length - 1].name : null
+  });
+}
+
+/* ---- Receiving (everything is sanitized) --------------------------------- */
+function mpName(v){ return typeof v === 'string' ? v.slice(0, 120) : ''; }
+function mpCount(v){ const n = Math.trunc(Number(v)); return Number.isFinite(n) ? Math.max(0, Math.min(999, n)) : 0; }
+function mpStat(v){
+  if(typeof v !== 'number' || !Number.isFinite(v)) return null;
+  return Math.max(-9999, Math.min(9999, Math.trunc(v)));
+}
+
+function mpCleanCard(c){
+  if(!c || typeof c !== 'object') return null;
+  const name = mpName(c.name);
+  if(!name) return null;
+  const affinity = String(c.affinity || '').toUpperCase();
+  return {
+    name,
+    card_type: CARD_TYPES.includes(c.card_type) ? c.card_type : 'Item',
+    affinity: AFFINITY_KEYS.includes(affinity) ? affinity : '',
+    life: mpStat(c.life),
+    attack: mpStat(c.attack),
+    rotated: !!c.rotated,
+    items: Array.isArray(c.items) ? c.items.slice(0, 20).map(mpName).filter(Boolean) : []
+  };
+}
+
+function mpOnData(msg){
+  if(!msg || typeof msg !== 'object' || typeof msg.type !== 'string') return;
+
+  if(msg.type === 'state'){
+    const field = {};
+    FIELD_SLOTS.forEach(slot => { field[slot.key] = mpCleanCard(msg.field && msg.field[slot.key]); });
+    opponent = {
+      field,
+      handCount: mpCount(msg.handCount),
+      deckCount: mpCount(msg.deckCount),
+      veilCount: mpCount(msg.veilCount),
+      veilTop: typeof msg.veilTop === 'string' ? mpName(msg.veilTop) : null
+    };
+    renderOpponent();
+  } else if(msg.type === 'anim'){
+    const key = (typeof msg.key === 'string' && Object.prototype.hasOwnProperty.call(MP_SOUNDS, msg.key)) ? msg.key : null;
+    const card = key ? findCardByName(mpName(msg.name)) : null;
+    if(card){
+      playActionShowcase(card, MP_SOUNDS[key], key, true);
+      document.getElementById('battleStatus').textContent = 'Opponent played "' + card.name + '".';
+    }
+  }
+}
+
+/* ---- Opponent board (read-only) ------------------------------------------ */
+function renderOpponent(){
+  const sec = document.getElementById('opponentSection');
+  if(!sec) return;
+  if(!mp.connected || !opponent){ sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+
+  document.getElementById('oppGrid').innerHTML = FIELD_SLOTS.map(slot => {
+    const c = opponent.field[slot.key];
+    let inner = '<span class="slot-empty-icon">✚</span>';
+    if(c){
+      const local = findCardByName(c.name);
+      const accent = c.affinity
+        ? 'var(--aff-' + c.affinity.toLowerCase() + ')'
+        : 'var(--type-' + c.card_type.toLowerCase() + ')';
+      const art = (local && local.image_path)
+        ? '<img src="' + escapeHTML(local.image_path) + '" alt="' + escapeHTML(c.name) + '">'
+        : '<div class="opp-unknown">' + escapeHTML(c.name) + '</div>';
+      const life = c.life !== null ? '<div class="life-tracker"><span class="opp-life">' + c.life + '</span></div>' : '';
+      const atk = c.attack !== null ? '<div class="attack-badge">ATK ' + c.attack + '</div>' : '';
+      const items = c.items.length
+        ? '<div class="item-badge" title="' + escapeHTML(c.items.join(', ')) + '">+' + c.items.length + ' item' + (c.items.length > 1 ? 's' : '') + '</div>'
+        : '';
+      inner = '<div class="field-card accent ' + (c.rotated ? 'rotated' : '') + '" style="--accent-color:' + accent + '"' +
+              ' onclick="openOpponentCard(\'' + slot.key + '\')" title="' + escapeHTML(c.name) + '">' +
+              art + life + atk + items + '</div>';
+    }
+    return '<div class="field-slot ' + (slot.hero ? 'hero' : '') + '">' +
+             '<div class="slot-label">' + slot.label + '</div>' +
+             '<div class="dropzone ' + (c ? 'occupied' : '') + '">' + inner + '</div>' +
+           '</div>';
+  }).join('');
+
+  const vTop = opponent.veilTop ? findCardByName(opponent.veilTop) : null;
+  const veilThumb = (vTop && vTop.image_path)
+    ? '<img class="opp-veil-thumb" src="' + escapeHTML(vTop.image_path) + '" alt="Opponent Veil top" title="Top of opponent Veil" onclick="openOpponentVeil()">'
+    : '';
+  document.getElementById('oppInfo').innerHTML =
+    '<span>Hand <b>' + opponent.handCount + '</b></span>' +
+    '<span>Deck <b>' + opponent.deckCount + '</b></span>' +
+    '<span>Veil <b>' + opponent.veilCount + '</b></span>' + veilThumb;
+}
+
+function openOpponentCard(slotKey){
+  const c = opponent && opponent.field[slotKey];
+  const local = c && findCardByName(c.name);
+  if(local) openCardPreview(local);
+}
+function openOpponentVeil(){
+  const local = opponent && opponent.veilTop && findCardByName(opponent.veilTop);
+  if(local) openCardPreview(local);
+}
+
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeMultiplayer(); });
+mpRefreshUI();
+
+
+/* ============================================================================
+   10. INITIALIZATION
+   ============================================================================ */
+async function init(){
+  loadSavedTheme();
+  renderBattle();
+  wireStaticDropzones();
+  await loadCardDatabase(); // async: renders the deck editor once cards.json resolves
+}
+init();
+</script>
+</body>
+</html>
