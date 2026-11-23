@@ -397,6 +397,7 @@
             line-height: 1.35;
             color: #edf2ff;
             overflow-y: auto;
+            white-space: pre-line;
         }
 
         .card-footer {
@@ -578,7 +579,7 @@
 
             <div class="form-section">
                 <label>Effect / Description</label>
-                <textarea id="effect" onchange="updatePreview()" placeholder="Enter card effect or description...">When this hero enters the field, gain +1 to all attack rolls this turn.</textarea>
+                <textarea id="effect" oninput="updatePreview()" placeholder="Enter card effect or description...">When this hero enters the field, gain +1 to all attack rolls this turn.</textarea>
             </div>
 
             <div class="form-section">
