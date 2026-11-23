@@ -82,5 +82,10 @@
       "attack": 200,
       "life" : 1100,
       "image_path": "cards/Lucian_Kaine.png"
+    },
+    {
+      "name": "Inherited Pyre",
+      "card_type": "Skill",
+      "image_path": "cards/Inherited_Pyre.png"
     }
 ]
