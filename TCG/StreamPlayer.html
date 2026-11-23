@@ -1345,10 +1345,15 @@ function onFieldSlotDrop(e, slotKey){
     const priorRemainingLife = Number(existing.life) || 0;
     const incomingBaseLife = Number(card.baseLife) || Number(card.maxLife) || Number(card.life) || 0;
     const upgradedLife = incomingBaseLife + priorRemainingLife;
-    const preservedItems = Array.isArray(existing.items) ? existing.items.slice() : [];
+    const preservedItems = Array.isArray(existing.items) ? existing.items.splice(0) : [];
     card.items = [...preservedItems, ...(Array.isArray(card.items) ? card.items : [])];
     card.maxLife = upgradedLife;
     card.life = upgradedLife;
+
+    // Send the replaced Hero to The Veil (its items now live on the new Hero)
+    existing.rotated = false;
+    battle.veil.push(existing);
+
     battle.field.hero = card;
     playActionShowcase(card, SFX_LEVEL_UP, 'level-up');
     document.getElementById('battleStatus').textContent = 'Hero upgrade! "' + card.name + '" inherited +' + priorRemainingLife + ' LFE and kept all attached items.';
